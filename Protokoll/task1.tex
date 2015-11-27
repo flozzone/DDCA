@@ -1,0 +1,34 @@
+
+\begin{figure}[ht!]
+  \centering
+  \framebox[\linewidth]{
+    \rotatebox{30}{Insert your figure here.} 
+  }
+  %\includegraphics[width=1.0\linewidth]{your filename here}
+  \caption{Simulation screenshot for Listing~\ref{lst:asmnofwd}.}
+  \label{fig:sim}
+\end{figure}
+
+Make sure the following signals are visible in Figure~\ref{fig:sim}:
+the program counter in the fetch stage, the instruction being fetched,
+and the fields \texttt{address}, \texttt{rd}, \texttt{wr},
+\texttt{byteena}, and \texttt{wrdata} in the \texttt{mem\_out} signal
+coming out of the pipeline.
+
+\begin{lstlisting}[language=,mathescape=false,float=ht,caption={Assembler example without forwarding},label=lst:asmnofwd]
+        addi $1, $0, 0
+        nop
+        nop
+loop:
+        addi $1, $1, 1
+        nop
+        nop
+        sw $1, 16($0)
+        j loop
+        nop
+        nop
+        nop
+\end{lstlisting}
+
+
+
