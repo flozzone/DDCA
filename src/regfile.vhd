@@ -36,7 +36,7 @@ begin  -- rtl
             
         elsif rising_edge(clk) then
             if regwrite = '1' then
-                if wraddr = (wraddr'range => '0') then
+                if not (wraddr = (wraddr'range => '0')) then
                     -- no writes on addr 0
                     register_A(To_integer(signed(wraddr))) <= wrdata;
                 end if;
