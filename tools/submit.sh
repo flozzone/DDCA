@@ -60,22 +60,22 @@ pushd $tmp_dir/src >/dev/null
 
 echo ""
 
-ret=`do_ssh $user "ls -A1 $remote_dir 2>/dev/null| wc -l"`
-if [ $ret -ne 0 ]; then
-  echo "Remote directory $remote_dir exists and is not empty."
-  echo "Remote dir will be synced to current repo contents, other files will be deleted"
-
-  read -p "Are you sure you want continue? [y|n]" -n 1 -r
-  echo    # (optional) move to a new line
-  if [[ $REPLY =~ ^[Yy]$  ]]
-  then
-    echo ""
-  else
-    echo "Aborting."
-    exit 0
-  fi
-
-fi
+#ret=`do_ssh $user "ls -A1 $remote_dir 2>/dev/null| wc -l"`
+#if [ $ret -ne 0 ]; then
+#  echo "Remote directory $remote_dir exists and is not empty."
+#  echo "Remote dir will be synced to current repo contents, other files will be deleted"
+#
+#  read -p "Are you sure you want continue? [y|n]" -n 1 -r
+#  echo    # (optional) move to a new line
+#  if [[ $REPLY =~ ^[Yy]$  ]]
+#  then
+#    echo ""
+#  else
+#    echo "Aborting."
+#    exit 0
+#  fi
+#
+#fi
 
 echo "Updating ..."
 pushd $tmp_dir/src >/dev/null
