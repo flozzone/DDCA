@@ -5,10 +5,13 @@
 # and otherwise corrects them
 #
 
+source settings.sh
+source utils.sh
 
-modelsim_project_file=DDCA-mimi.mpf
+project_file=$_GIT_WORK_TREE/$modelsim_project_file
+
 this=`pwd`
-project_files=`sed -ne "s/^Project_File_[[:digit:]]*[[:space:]]=[[:space:]]\(.*\)$/\1/p" $modelsim_project_file`
+project_files=`sed -ne "s/^Project_File_[[:digit:]]*[[:space:]]=[[:space:]]\(.*\)$/\1/p" $project_file`
 
 #
 # http://stackoverflow.com/questions/2564634/convert-absolute-path-into-relative-path-given-a-current-directory-using-bash
@@ -54,15 +57,22 @@ abs_to_rel() {
   echo $result
 }
 
+has_abs=0
 for file in $project_files; do
   if [ "${file:0:1}" = "/" ]; then
-    echo >&2 "$modelsim_project_file contains an absolute path to file $file."
+    has_abs=1
+    echo >&2 "$project_file contains an absolute path to file $file."
     rel=`abs_to_rel $this $file`
     echo >&2 "Correcting it to $rel"
-    sed -i "s|$file|$rel|g" $modelsim_project_file
-
-    # readd project file to commit
-    git add $modelsim_project_file
-    git commit --amend -C HEAD --no-verify
+    sed -i "s|$file|$rel|g" $project_file
   fi
 done
+
+if [ -n $GIT_DIR ]; then
+  if [ $has_abs -eq 1 ]; then
+    echo >&2 -e "\n\nYour modelsim project file contains absolute paths."
+    echo >&2 -e "They have been replaced by relative paths now, but you"
+    echo >&2 -e "need to amend and stage the changes in order to continue"
+    exit 1
+  fi
+fi
