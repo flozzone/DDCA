@@ -13,7 +13,7 @@ USAGE:
 
 COMMANDS::
   submit level0|level1|level2|level3 TILAB_USER
-    Submits the current git revision to the given level with the given TILAB_USER
+    Submits the current branch to the given level with the given TILAB_USER
     account. Your public key must be inside your remote authorized_keys file.
 
     Only files matching src/*vhd will be submitted.
@@ -23,6 +23,9 @@ COMMANDS::
 
   cleanup
     Runs cleanup scripts.
+
+  help
+    This help text
 EOF
 }
 
@@ -150,6 +153,10 @@ case $command in
     pushd $_GIT_WORK_TREE/sim >/dev/null
     ./check_modelsim_project.sh
     popd >/dev/null
+  ;;
+  help)
+    usage
+    exit 0
   ;;
   *)
     usage
