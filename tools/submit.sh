@@ -20,15 +20,15 @@ if [ -z `echo $level | egrep "^level[0123]$"` ]; then
   exit 1
 fi
 
-if ! do_ssh $user "ls &>/dev/null"; then
-  echo >&2 -e "User $user is not authorized.\n"
-  echo >&2 -e "Add your public key to the users authorized_keys file:\n"
-  echo >&2 -e "\t'ssh-copy-id -i ~/.ssh/id_rsa.pub $user@$tilab_host'\n"
-  echo >&2 -e "or if not available:\n"
-  echo >&2 -e "\t'cat ~/.ssh/id_rsa.pub| ssh $user@$tilab_host \"cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys\"'\n"
-  echo >&2 -e "If you don't have a public key, generate it \n\n\t'ssh-keygen -t rsa'."
-  exit 1
-fi
+#if ! do_ssh $user "ls &>/dev/null"; then
+#  echo >&2 -e "User $user is not authorized.\n"
+#  echo >&2 -e "Add your public key to the users authorized_keys file:\n"
+#  echo >&2 -e "\t'ssh-copy-id -i ~/.ssh/id_rsa.pub $user@$tilab_host'\n"
+#  echo >&2 -e "or if not available:\n"
+#  echo >&2 -e "\t'cat ~/.ssh/id_rsa.pub| ssh $user@$tilab_host \"cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys\"'\n"
+#  echo >&2 -e "If you don't have a public key, generate it \n\n\t'ssh-keygen -t rsa'."
+#  exit 1
+#fi
 
 
 
