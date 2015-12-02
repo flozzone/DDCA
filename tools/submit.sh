@@ -87,6 +87,8 @@ rsync -lvrgODzc --delete \
   --exclude "*" \
   . $user@$tilab_host:$remote_dir
 
+do_ssh $user "chown -R :ddcagrp${group_nr} `dirname $remote_dir`"
+
 popd >/dev/null
 
 rm -rf $tmp_dir
