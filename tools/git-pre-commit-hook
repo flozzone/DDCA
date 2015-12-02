@@ -6,10 +6,16 @@ exec 1>&2
 #
 # Executes check_modelsim_project script to ensure paths are relative
 #
-
 this=`pwd`
+
+cd $GIT_DIR/../
 _GIT_WORK_TREE=`git rev-parse --show-toplevel`
-cd $_GIT_WORK_TREE/tools
+
+if [ ! -d $_GIT_WORK_TREE/tools ]; then
+  echo >&2 "Could not find tools directory."
+  exit 1
+fi
+cd $_GIT_WORK_TREE=/tools
 ./check_modelsim_project.sh
 ret=$?
 if [ $ret -ne 0 ]; then
