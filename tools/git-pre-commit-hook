@@ -8,7 +8,8 @@ exec 1>&2
 #
 
 this=`pwd`
-cd $GIT_WORK_TREE/tools
+_GIT_WORK_TREE=`git rev-parse --show-toplevel`
+cd $_GIT_WORK_TREE/tools
 ./check_modelsim_project.sh
 ret=$?
 if [ $ret -ne 0 ]; then
