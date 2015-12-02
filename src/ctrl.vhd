@@ -9,6 +9,7 @@ entity ctrl is
 	
 	port (
 		-- define input and output ports as needed
+		dummy : in std_logic
 );
 
 end ctrl;

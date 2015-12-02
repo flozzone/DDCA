@@ -8,6 +8,7 @@ use work.op_pack.all;
 entity fwd is
 	port (
 		-- define input and output ports as needed
+		dummy : in std_logic
 );
 	
 end fwd;
