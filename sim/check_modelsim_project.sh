@@ -10,6 +10,9 @@ modelsim_project_file=DDCA-mimi.mpf
 this=`pwd`
 project_files=`sed -ne "s/^Project_File_[[:digit:]]*[[:space:]]=[[:space:]]\(.*\)$/\1/p" $modelsim_project_file`
 
+#
+# http://stackoverflow.com/questions/2564634/convert-absolute-path-into-relative-path-given-a-current-directory-using-bash
+#
 abs_to_rel() {
   # both $1 and $2 are absolute paths beginning with /
   # returns relative path to $2/$target from $1/$source
@@ -58,5 +61,6 @@ for file in $project_files; do
     echo >&2 "Correcting it to $rel"
     sed -i "s|$file|$rel|g" $modelsim_project_file
     git add $modelsim_project_file
+    git commit --amend -C HEAD --no-verify
   fi
 done
