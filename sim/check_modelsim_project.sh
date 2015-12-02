@@ -57,5 +57,6 @@ for file in $project_files; do
     rel=`abs_to_rel $this $file`
     echo >&2 "Correcting it to $rel"
     sed -i "s|$file|$rel|g" $modelsim_project_file
+    git add $modelsim_project_file
   fi
 done

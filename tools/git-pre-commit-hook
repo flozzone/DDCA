@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Redirect all output to stderr
+exec 1>&2
+
+#
+# Executes check_modelsim_project script to ensure paths are relative
+#
+
+this=`pwd`
+cd $GIT_WORK_TREE/sim
+./check_modelsim_project.sh
+cd $this
+
+
