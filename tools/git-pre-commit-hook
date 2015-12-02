@@ -8,6 +8,10 @@ exec 1>&2
 #
 
 this=`pwd`
+if [ ! -d $GIT_WORK_TREE/tools ]; then
+  echo >&2 "Could not find tools directory."
+  exit 1
+fi
 cd $GIT_WORK_TREE/tools
 ./check_modelsim_project.sh
 ret=$?
