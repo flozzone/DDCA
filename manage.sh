@@ -127,7 +127,12 @@ submit() {
   pushd $tmp_dir/src >/dev/null
   echo "$branch $rev" > version.txt
   do_ssh $user "mkdir -p $remote_dir"
-  rsync -avzc --delete *.vhd version.txt $user@$tilab_host:$remote_dir
+
+  rsync -lvrgODzc --delete \
+    --include "*.vhd" \
+    --exclude "*" \
+    . $user@$tilab_host:$remote_dir
+
   popd >/dev/null
 
   rm -rf $tmp_dir
