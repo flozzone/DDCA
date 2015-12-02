@@ -8,8 +8,12 @@ exec 1>&2
 #
 
 this=`pwd`
-cd $GIT_WORK_TREE/sim
+cd $GIT_WORK_TREE/tools
 ./check_modelsim_project.sh
+ret=$?
+if [ $ret -ne 0 ]; then
+  exit 1
+fi
 cd $this
 
 

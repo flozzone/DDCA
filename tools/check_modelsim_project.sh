@@ -61,18 +61,18 @@ has_abs=0
 for file in $project_files; do
   if [ "${file:0:1}" = "/" ]; then
     has_abs=1
-    echo >&2 "$project_file contains an absolute path to file $file."
+    #echo >&2 "$project_file contains an absolute path to file $file."
     rel=`abs_to_rel $this $file`
-    echo >&2 "Correcting it to $rel"
+    #echo >&2 "Correcting it to $rel"
     sed -i "s|$file|$rel|g" $project_file
   fi
 done
 
-if [ -n $GIT_DIR ]; then
-  if [ $has_abs -eq 1 ]; then
-    echo >&2 -e "\n\nYour modelsim project file contains absolute paths."
+if [ $has_abs -eq 1 ]; then
+  if [ -n "$GIT_DIR" ]; then
+    echo >&2 -e "\n\nYour modelsim project file contained absolute paths."
     echo >&2 -e "They have been replaced by relative paths now, but you"
-    echo >&2 -e "need to amend and stage the changes in order to continue"
+    echo >&2 -e "need to refresh, amend and stage the changes in order to continue."
     exit 1
   fi
 fi
