@@ -38,14 +38,14 @@ begin  -- rtl
             if regwrite = '1' then
                 if not (wraddr = (wraddr'range => '0')) then
                     -- no writes on addr 0
-                    register_A(To_integer(signed(wraddr))) <= wrdata;
+                    register_A(To_integer(unsigned(wraddr))) <= wrdata;
                 end if;
             end if; -- wrdata
             
             if stall = '0' then
                 -- latch requested values
-                rddata1 <= register_A(To_integer(signed(rdaddr1)));
-                rddata2 <= register_A(To_integer(signed(rdaddr2)));
+                rddata1 <= register_A(To_integer(unsigned(rdaddr1)));
+                rddata2 <= register_A(To_integer(unsigned(rdaddr2)));
             end if; -- stall
         end if; -- clk edge
     end process sync;
