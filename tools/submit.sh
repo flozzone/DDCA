@@ -1,7 +1,9 @@
 #!/bin/bash
 
-source settings.sh
-source utils.sh
+THIS=$(pushd $(dirname $0) >/dev/null && pwd && popd >/dev/null)
+
+source $THIS/settings.sh
+source $THIS/utils.sh
 
 #
 # Submits current source code to the tilab testing system
@@ -29,8 +31,6 @@ fi
 #  echo >&2 -e "If you don't have a public key, generate it \n\n\t'ssh-keygen -t rsa'."
 #  exit 1
 #fi
-
-
 
 status=`git status --porcelain`
 if [ -n "$status" ]; then

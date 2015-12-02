@@ -5,12 +5,21 @@
 # and otherwise corrects them
 #
 
-source settings.sh
-source utils.sh
+THIS=$(pushd $(dirname $0) >/dev/null && pwd && popd >/dev/null)
 
-project_file=$_GIT_WORK_TREE/$modelsim_project_file
+source $THIS/settings.sh
+source $THIS/utils.sh
 
-this=`pwd`
+if [ -z $_GIT_WORK_TREE ]; then
+  project_file=../$modelsim_project_file
+else
+  project_file=$_GIT_WORK_TREE/$modelsim_project_file
+fi
+if [ ! -f $project_file ]; then
+  echo >&2 "Project file at $project_file not found"
+  exit 1
+fi
+
 project_files=`sed -ne "s/^Project_File_[[:digit:]]*[[:space:]]=[[:space:]]\(.*\)$/\1/p" $project_file`
 
 #
@@ -62,7 +71,7 @@ for file in $project_files; do
   if [ "${file:0:1}" = "/" ]; then
     has_abs=1
     #echo >&2 "$project_file contains an absolute path to file $file."
-    rel=`abs_to_rel $this $file`
+    rel=`abs_to_rel $THIS $file`
     #echo >&2 "Correcting it to $rel"
     sed -i "s|$file|$rel|g" $project_file
   fi

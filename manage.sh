@@ -42,19 +42,13 @@ case $command in
     check $user
     group=ddcagrp${group_nr}
 
-    pushd $_GIT_WORK_TREE/tools >/dev/null
-    exec ./submit.sh $user $group $level
-    popd >/dev/null
+    exec ./tools/submit.sh $user $group $level
   ;;
   install)
-    pushd $_GIT_WORK_TREE/tools >/dev/null
-    exec ./install.sh
-    popd >/dev/null
+    exec ./tools/install.sh
   ;;
   cleanup)
-    pushd $_GIT_WORK_TREE/tools >/dev/null
-    exec ./check_modelsim_project.sh
-    popd >/dev/null
+    exec ./tools/check_modelsim_project.sh
   ;;
   help)
     usage
