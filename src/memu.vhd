@@ -36,8 +36,7 @@ function word_game(
 			return std_logic_vector is
 	variable ret : std_logic_vector(DATA_WIDTH-1 downto 0) := (others=>'0');
   variable tmp_word : std_logic_vector(BYTE_WIDTH-1 downto 0);
-	variable i , ia: integer;
-  variable current : character;
+  variable dbg_current : character;
 begin
 
 	assert tmp_word'LENGTH = 8 report "Wrong tmp_word length";
@@ -45,7 +44,7 @@ begin
 	ret := (others => '0');
 
 	for i in 3 downto 0 loop
-		current := x(i);
+		dbg_current := x(i);
 		case x(i) is
 			when 'A'=>
 				tmp_word := data(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH);
@@ -62,17 +61,33 @@ begin
 			when others =>
 				assert false report "Unexpected pattern";
 		end case;
-
-		ia := i;
 		ret := ret or ((3-i)*BYTE_WIDTH-1 downto 0 => '0') & tmp_word & (i*BYTE_WIDTH-1 downto 0 => '0');
-
 	end loop;
 	return ret;
 end word_game;
 
+procedure set_exception(memread : in std_logic;
+														 memwrite : in std_logic;
+														 XL : out std_logic;
+														 XS : out std_logic) is
+use ieee.std_logic_1164.all;
+begin
+	XL := '0';
+	XS := '0';
+	if memread = '1' then
+		XL := '1';
+	end if;
+	if memwrite = '1' then
+		XS := '1';
+	end if;
+end procedure set_exception;
+
 
 begin  -- rtl
 	memu_unit : process (op, A, W, D)
+
+	variable tmp_XL, tmp_XS : std_logic;
+
 	begin
 		M.rd <= '0';
 		M.wr <= '0';
@@ -82,6 +97,9 @@ begin  -- rtl
 		if op.memwrite = '1' then
 			M.wr <= '1';
 		end if;
+
+		tmp_XL := '0';
+		tmp_XS := '0';
 
 		M.address <= A;
 		case op.memtype is
@@ -138,5 +156,32 @@ begin  -- rtl
 						null;
 				end case;
 		end case;
+
+		-- Computation of exceptions
+			case op.memtype is
+				when MEM_H | MEM_HU=>
+					case A(1 downto 0) is
+						when "01" => set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
+						when "11" => set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
+						when others => set_exception('0', '0', tmp_XL, tmp_XS);
+					end case;
+				when MEM_W =>
+					case A(1 downto 0) is
+						when "01" => set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
+						when "10" => set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
+						when "11" => set_exception('0', '0', tmp_XL, tmp_XS);
+						when others => XL <= '0';
+					end case;
+				when others =>
+					if (A(1 downto 0) = "00") and (A(ADDR_WIDTH-1 downto 2) = (ADDR_WIDTH-1 downto 2 => '0')) then
+						tmp_XL := '1';
+						tmp_XS := '1';
+					else
+						tmp_XL := '0';
+						tmp_XS := '0';	
+					end if;
+			end case;
+			XL <= tmp_XL;
+			XS <= tmp_XS;
 	end process memu_unit;
 end rtl;
