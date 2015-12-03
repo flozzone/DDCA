@@ -95,4 +95,8 @@ rm -rf $tmp_dir
 
 echo -e "\nFiles successfully updated to $user@$tilab_host:$remote_dir"
 
+echo ""
+echo "Sending slack notification"
+curl --data "$user has submitted $_GIT_BRANCH ($_GIT_REV) to $level." "https://${slack_host}/services/hooks/slackbot?token=${slack_token}&channel=%23${slack_channel}"
+
 popd >/dev/null
