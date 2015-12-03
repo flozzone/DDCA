@@ -46,13 +46,13 @@ begin  -- rtl
                 -- latch requested values
                 -- writes are only visible in the next cycle, 
                 -- but the newest value should always be read             
-                if wraddr = rdaddr1 then    
+                if (wraddr = rdaddr1) and (regwrite = '1') then    
                     rddata1 <= wrdata;
                 else 
                     rddata1 <= register_A(To_integer(unsigned(rdaddr1)));
                 end if;
 
-                if wraddr = rdaddr2 then    
+                if (wraddr = rdaddr2) and (regwrite = '1') then    
                     rddata2 <= wrdata;
                 else 
                     rddata2 <= register_A(To_integer(unsigned(rdaddr2)));
