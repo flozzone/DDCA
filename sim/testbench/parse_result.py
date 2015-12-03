@@ -7,8 +7,6 @@ import os, sys, re
 
 def clean_value(value):
     ret = value.strip().replace("-", "X")
-    if len(ret) > 1:
-        return "\"" + ret + "\""
     return ret
 
 def parse_patterns(line, names):
