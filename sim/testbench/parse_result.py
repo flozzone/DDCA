@@ -62,7 +62,7 @@ def main(result_file, out_folder, stimuli_pattern, expect_pattern):
         test_id = 0
         for line in lines:
             test_id += 1
-            test_file = out_folder + "/test" + str(test_id) + ".do"
+            test_file = out_folder + "/test_%03d.do" % test_id
             m = re.search('^# Failed test: (?P<stimuli>.+), result (?P<result>.+), expected (?P<expect>.+)', line)
             testcase = m.groupdict()
             stimuli_dict = parse_patterns(testcase["stimuli"], stimuli_pattern)

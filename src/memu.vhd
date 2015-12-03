@@ -35,24 +35,31 @@ function word_game(
 		x : PATTERN)
 			return std_logic_vector is
 	variable ret : std_logic_vector(DATA_WIDTH-1 downto 0) := (others=>'0');
+  variable tmp_word : std_logic_vector(BYTE_WIDTH-1 downto 0);
 begin
-	for i in 3 to 0 loop
+
+	assert tmp_word'LENGTH = 8 report "Wrong tmp_word length";
+
+	for i in 0 to 3 loop
 		case x(i) is
 			when 'A'=>
-				ret := ret or (((3-i)*BYTES_PER_WORD-1 downto 0 => '0') & data(4*BYTES_PER_WORD-1 downto 3*BYTES_PER_WORD) & (i*BYTES_PER_WORD-1 downto 0 => '0'));
+				tmp_word := data(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH);
 			when 'B'=>
-				ret := ret or (((3-i)*BYTES_PER_WORD-1 downto 0 => '0') & data(3*BYTES_PER_WORD-1 downto 2*BYTES_PER_WORD) & (i*BYTES_PER_WORD-1 downto 0 => '0'));
+				tmp_word := data(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH);
 			when 'C'=>
-				ret := ret or (((3-i)*BYTES_PER_WORD-1 downto 0 => '0') & data(2*BYTES_PER_WORD-1 downto 1*BYTES_PER_WORD) & (i*BYTES_PER_WORD-1 downto 0 => '0'));
+				tmp_word := data(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH);
 			when 'D'=>
-				ret := ret or (((3-i)*BYTES_PER_WORD-1 downto 0 => '0') & data(1*BYTES_PER_WORD-1 downto 0*BYTES_PER_WORD) & (i*BYTES_PER_WORD-1 downto 0 => '0'));
+				tmp_word := data(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH);
 			when 'X'=>
 				null;
 			when '0'=>
-				ret := ret or (((3-i)*BYTES_PER_WORD-1 downto 0 => '0') & (1*BYTES_PER_WORD-1 downto 0*BYTES_PER_WORD => '0') & (i*BYTES_PER_WORD-1 downto 0 => '0'));
+				tmp_word := (others => '0');
 			when others =>
 				assert false report "Unexpected pattern";
 		end case;
+
+		ret := ret or (i*BYTE_WIDTH-1 downto 0 => '0') & tmp_word & ((3-i)*BYTE_WIDTH-1 downto 0 => '0');
+
 	end loop;
 	return ret;
 end word_game;
@@ -71,59 +78,59 @@ begin  -- rtl
 		end if;
 
 		M.address <= A;
-		if (op.memtype = MEM_B) or (op.memtype = MEM_BU) then
-			case A(1 downto 0) is
-				when "00" =>
-					M.byteena <= "1000";
-					M.wrdata <= word_game(D, "AXXX");
-				when "01" =>
-					M.byteena <= "0100";
-					M.wrdata <= word_game(D, "XAXX");
-				when "10" =>
-					M.byteena <= "0010";
-					M.wrdata <= word_game(D, "XXAX");
-				when "11" =>
-					M.byteena <= "0001";
-					M.wrdata <= word_game(D, "XXXA");
-				when others =>
-					null;
-			end case;
-		end if;
-		if (op.memtype = MEM_H) or (op.memtype = MEM_HU) then
-			case A(1 downto 0) is
-				when "00" =>
-					M.byteena <= "1100";
-					M.wrdata <= word_game(D, "BAXX");
-				when "01" =>
-					M.byteena <= "1100";
-					M.wrdata <= word_game(D, "BAXX");
-				when "10" =>
-					M.byteena <= "0011";
-					M.wrdata <= word_game(D, "XXBA");
-				when "11" =>
-					M.byteena <= "0011";
-					M.wrdata <= word_game(D, "XXBA");
-				when others =>
-					null;
-			end case;
-		end if;
-		if op.memtype = MEM_W then
-			case A(1 downto 0) is
-				when "00" =>
-					M.byteena <= "1111";
-					M.wrdata <= word_game(D, "DCBA");
-				when "01" =>
-					M.byteena <= "1111";
-					M.wrdata <= word_game(D, "DCBA");
-				when "10" =>
-					M.byteena <= "1111";
-					M.wrdata <= word_game(D, "DCBA");
-				when "11" =>
-					M.byteena <= "1111";
-					M.wrdata <= word_game(D, "DCBA");
-				when others =>
-					null;
-			end case;
-		end if;
+		case op.memtype is
+			when MEM_B | MEM_BU =>
+				case A(1 downto 0) is
+					when "00" =>
+						M.byteena <= "1000";
+						M.wrdata <= word_game(W, "AXXX");
+					when "01" =>
+						M.byteena <= "0100";
+						M.wrdata <= word_game(W, "XAXX");
+					when "10" =>
+						M.byteena <= "0010";
+						M.wrdata <= word_game(W, "XXAX");
+					when "11" =>
+						M.byteena <= "0001";
+						M.wrdata <= word_game(W, "XXXA");
+					when others =>
+						null;
+				end case;
+
+			when MEM_H | MEM_HU =>
+				case A(1 downto 0) is
+					when "00" =>
+						M.byteena <= "1100";
+						M.wrdata <= word_game(W, "BAXX");
+					when "01" =>
+						M.byteena <= "1100";
+						M.wrdata <= word_game(W, "BAXX");
+					when "10" =>
+						M.byteena <= "0011";
+						M.wrdata <= word_game(W, "XXBA");
+					when "11" =>
+						M.byteena <= "0011";
+						M.wrdata <= word_game(W, "XXBA");
+					when others =>
+						null;
+				end case;
+			when MEM_W =>
+				case A(1 downto 0) is
+					when "00" =>
+						M.byteena <= "1111";
+						M.wrdata <= word_game(W, "DCBA");
+					when "01" =>
+						M.byteena <= "1111";
+						M.wrdata <= word_game(W, "DCBA");
+					when "10" =>
+						M.byteena <= "1111";
+						M.wrdata <= word_game(W, "DCBA");
+					when "11" =>
+						M.byteena <= "1111";
+						M.wrdata <= word_game(W, "DCBA");
+					when others =>
+						null;
+				end case;
+		end case;
 	end process memu_unit;
 end rtl;

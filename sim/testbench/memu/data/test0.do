@@ -1,1 +1,0 @@
-force s_A 00000000000000000000000000000000force s_D 00000000000000000000000000000000force s_W 00000000000000000000000000000000force s_op.memwrite 1force s_op.memtype mem_wforce s_op.memread 0force a_XL 1force a_M.wrdata 00000000000000000000000000000000force a_M.wr 0force a_R 1force a_M.byteena 1111force a_XS 1force a_M.address 000000000000000000000force a_M.rd 0

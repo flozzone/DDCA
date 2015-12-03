@@ -28,6 +28,8 @@ architecture arch of memu_tb is
 	signal a_XL   : std_logic;
 	signal a_XS   : std_logic;
 
+  signal testfile : string(31 downto 1);
+
 begin
 	memu_inst : entity memu
 	port map (
@@ -58,10 +60,10 @@ begin
 
 		wait for 1 ps;
 
-		assert r_M = a_M report "M is not equal";
-		assert r_R = a_R report "R is not equal";
-		assert r_XL = a_XL report "XL ist not equal";
-		assert r_XS = a_XS report "XS is not equal";
+		assert r_M = a_M report testfile & ": M is not equal";
+		assert r_R = a_R report testfile & ": R is not equal";
+		assert r_XL = a_XL report testfile & ": XL ist not equal";
+		assert r_XS = a_XS report testfile & ": XS is not equal";
 
 		wait for 1 ps;
 
