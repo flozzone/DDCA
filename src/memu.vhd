@@ -36,29 +36,35 @@ function word_game(
 			return std_logic_vector is
 	variable ret : std_logic_vector(DATA_WIDTH-1 downto 0) := (others=>'0');
   variable tmp_word : std_logic_vector(BYTE_WIDTH-1 downto 0);
+	variable i , ia: integer;
+  variable current : character;
 begin
 
 	assert tmp_word'LENGTH = 8 report "Wrong tmp_word length";
 
-	for i in 0 to 3 loop
+	ret := (others => '0');
+
+	for i in 3 downto 0 loop
+		current := x(i);
 		case x(i) is
 			when 'A'=>
-				tmp_word := data(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH);
-			when 'B'=>
-				tmp_word := data(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH);
-			when 'C'=>
-				tmp_word := data(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH);
-			when 'D'=>
 				tmp_word := data(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH);
+			when 'B'=>
+				tmp_word := data(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH);
+			when 'C'=>
+				tmp_word := data(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH);
+			when 'D'=>
+				tmp_word := data(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH);
 			when 'X'=>
-				null;
+				tmp_word := (others => 'X');
 			when '0'=>
 				tmp_word := (others => '0');
 			when others =>
 				assert false report "Unexpected pattern";
 		end case;
 
-		ret := ret or (i*BYTE_WIDTH-1 downto 0 => '0') & tmp_word & ((3-i)*BYTE_WIDTH-1 downto 0 => '0');
+		ia := i;
+		ret := ret or ((3-i)*BYTE_WIDTH-1 downto 0 => '0') & tmp_word & (i*BYTE_WIDTH-1 downto 0 => '0');
 
 	end loop;
 	return ret;

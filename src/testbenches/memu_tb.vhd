@@ -43,15 +43,6 @@ begin
 		XS => r_XS
 	);
 
-	-- Generates the clock signal
-	--clkgen : process
-	--begin
-	--	clk <= '0';
-	--	wait for CLK_PERIOD/2;
-	--	clk <= '1';
-	--	wait for CLK_PERIOD/2;
-	--end process clkgen;
-
 	test : process
 	begin
 		s_op.memread <= '1';
