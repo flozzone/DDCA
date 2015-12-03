@@ -1,0 +1,14 @@
+force s_A 10101011000000010010001111001101
+force s_D 10101011000000010010001111001101
+force s_W 10101011000000010010001111001101
+force s_op.memwrite 1
+force s_op.memtype mem_hu
+force s_op.memread 0
+force a_XL 1
+force a_M.wrdata 1011101010011000XXXXXXXXXXXXXXXX
+force a_M.wr 0
+force a_R 1
+force a_M.byteena 1100
+force a_XS 1
+force a_M.address 000000010000000000001
+force a_M.rd 0
