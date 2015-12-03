@@ -15,4 +15,18 @@ force a_M.wr 0
 force a_M.byteena 1111
 force a_M.wrdata 00000000000000000000000000000000
 
-run 2 ps
+proc getScriptDirectory {} {
+  set dispScriptFile [file normalize [info script]]
+  set scriptFolder [file dirname $dispScriptFile]
+  return $scriptFolder
+}
+
+set this [getScriptDirectory]
+set files [glob testbench/memu/data/*]
+puts $files
+
+foreach file [glob testbench/memu/data/*] {
+  puts "Running test $file"
+  do $file
+  run 2 ps
+}
