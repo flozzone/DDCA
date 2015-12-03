@@ -45,10 +45,6 @@ begin
 
 	test : process
 	begin
-		s_op.memread <= '1';
-		s_op.memwrite <= '1';
-		s_op.memtype <= MEM_B;
-
 		wait for 1 ps;
 
 		assert r_M = a_M report testfile & ": M is not equal";
