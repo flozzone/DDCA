@@ -37,10 +37,12 @@ def parse_patterns(line, names):
     for key, val in value_dict.iteritems():
         if not isinstance(val, list):
             if not key in name_dict:
+                print "key: " + key + " not found in pattern " + str(name_dict)
                 assert False
             force_dict[key] = value
         else:
             if not key in name_dict:
+                print "record key: " + key + " not found in pattern " + str(name_dict)
                 assert False
 
             for i in range(0, len(val)):
@@ -49,7 +51,7 @@ def parse_patterns(line, names):
     print force_dict
     return force_dict
 
-def main(result_file, out_folder):
+def main(result_file, out_folder, stimuli_pattern, expect_pattern):
 
     if not os.path.isdir(out_folder):
         os.mkdir(out_folder)
@@ -62,8 +64,8 @@ def main(result_file, out_folder):
             test_file = out_folder + "/test" + str(test_id) + ".do"
             m = re.search('^# Failed test: (?P<stimuli>.+), result (?P<result>.+), expected (?P<expect>.+)', line)
             testcase = m.groupdict()
-            stimuli_dict = parse_patterns(testcase["stimuli"], "op.memread op.memwrite op.memtype A W D")
-            expect_dict = parse_patterns(testcase["expect"], "M.address M.rd M.wr M.byteena M.wrdata R XL XS")
+            stimuli_dict = parse_patterns(testcase["stimuli"], stimuli_pattern)
+            expect_dict = parse_patterns(testcase["expect"], expect_pattern)
 
             with open(test_file, "w") as f:
                 for key, value in stimuli_dict.iteritems():
@@ -72,7 +74,8 @@ def main(result_file, out_folder):
                     f.write("force a_" + key + " " + value + "\n")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("usage: %s RESULT_FILE OUTPUT_FOLDER" % sys.argv[0])
+    if len(sys.argv) != 5:
+        print("usage: %s RESULT_FILE OUTPUT_FOLDER STIMULI_PATTERN EXPECT_PATTERN" % sys.argv[0])
+        print("\nexample: ./parse_result.py memu/test_output.txt memu/data \"op.memread op.memwrite op.memtype A W D\" \"M.address M.rd M.wr M.byteena M.wrdata R XL XS\"")
         sys.exit(1)
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
