@@ -44,8 +44,20 @@ begin  -- rtl
             
             if stall = '0' then
                 -- latch requested values
-                rddata1 <= register_A(To_integer(unsigned(rdaddr1)));
-                rddata2 <= register_A(To_integer(unsigned(rdaddr2)));
+                -- writes are only visible in the next cycle, 
+                -- but the newest value should always be read             
+                if wraddr = rdaddr1 then    
+                    rddata1 <= wrdata;
+                else 
+                    rddata1 <= register_A(To_integer(unsigned(rdaddr1)));
+                end if;
+
+                if wraddr = rdaddr2 then    
+                    rddata2 <= wrdata;
+                else 
+                    rddata2 <= register_A(To_integer(unsigned(rdaddr2)));
+                end if;               
+
             end if; -- stall
         end if; -- clk edge
     end process sync;
