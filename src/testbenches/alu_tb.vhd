@@ -38,7 +38,14 @@ begin
 		i_A <= "11111111111111111111111111111111";
 		i_B <= "11111111111111111111111111111111";
 
-		wait for 1 ms;
+		wait for 2 ms;
+		report "sent next ALU_ADD command";
+		i_op <= ALU_NOP;
+		i_A <= "11111111111111111111111111111111";
+		i_B <= "11111111111111111111111111111111";
+		
+		
+		wait for 2 ms;
 		report "sent next ALU_ADD command";
 		i_op <= ALU_ADD;
 		i_A <= "01111111111111111111111111111111";

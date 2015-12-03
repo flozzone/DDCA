@@ -76,9 +76,9 @@ begin --rtl
 		when ALU_ADD =>
 			R <= std_logic_vector(Signed(A)+Signed(B));
 			
-			if (Signed(A) >= 0 and Signed(B) >= 0 and (Signed(A)-Signed(B)) < 0) then
+			if to_integer(Signed(A)) >= 0 and to_integer(Signed(B)) >= 0 and to_integer((Signed(A)+Signed(B))) < 0 then
 				V <= '1';
-			elsif Signed(A) < 0 and Signed(B) < 0 and (Signed(A)-Signed(B)) >= 0 then
+			elsif to_integer(Signed(A)) < 0 and to_integer(Signed(B)) < 0 and to_integer((Signed(A)+Signed(B))) >= 0 then
 				V <= '1';
 			end if;
 			
