@@ -51,7 +51,7 @@ begin
 			when '0'=>
 				ret := ret or (((3-i)*BYTES_PER_WORD-1 downto 0 => '0') & (1*BYTES_PER_WORD-1 downto 0*BYTES_PER_WORD => '0') & (i*BYTES_PER_WORD-1 downto 0 => '0'));
 			when others =>
-				assert false;
+				assert false report "Unexpected pattern";
 		end case;
 	end loop;
 	return ret;
@@ -79,7 +79,7 @@ begin  -- rtl
 					M.byteena <= "0001";
 					M.wrdata <= word_game(D, "XXXA");
 				when others =>
-					assert false;
+					null;
 			end case;
 		end if;
 		if (op.memtype = MEM_H) or (op.memtype = MEM_HU) then
@@ -97,7 +97,7 @@ begin  -- rtl
 					M.byteena <= "0011";
 					M.wrdata <= word_game(D, "XXBA");
 				when others =>
-					assert false;
+					null;
 			end case;
 		end if;
 		if op.memtype = MEM_W then
@@ -115,7 +115,7 @@ begin  -- rtl
 					M.byteena <= "1111";
 					M.wrdata <= word_game(D, "DCBA");
 				when others =>
-					assert false;
+					null;
 			end case;
 		end if;
 	end process memu_unit;

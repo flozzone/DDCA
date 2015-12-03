@@ -50,11 +50,22 @@ begin
 		s_op.memwrite <= '1';
 		s_op.memtype <= MEM_B;
 
+		wait for 1 ps;
+
+		s_op <= ('0', '0', mem_w);
 		s_A <= "000000000000000000000";
+		s_W <= "00000000000000000000000000000000";
+		s_D <= "00000000000000000000000000000000";
 
-		wait for 1 ns;
+		wait for 1 ps;
 
-		assert not (s_op.memtype = MEM_B) report "failed" severity failure;
-		assert 1 = 0 report "failed" severity failure;
+		assert s_M = ("000000000000000000000", '0', '0', "1111", "00000000000000000000000000000000") report "Test 1 Failed";
+
+		wait for 1 ps;
+
+		assert s_M = ("000010000000000000000", '0', '0', "1111", "00000000000000000000000000000000") report "Test 2 Failed";
+
+		--assert not (s_op.memtype = MEM_B) report "failed" severity failure;
+		--assert 1 = 0 report "failed" severity failure;
 	end process test;
 end arch;
