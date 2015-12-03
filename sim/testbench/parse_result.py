@@ -6,7 +6,10 @@ import os, sys, re
 
 
 def clean_value(value):
-    return value.strip().replace("-", "X")
+    ret = value.strip().replace("-", "X")
+    if len(ret) > 1:
+        return "\"" + ret + "\""
+    return ret
 
 def parse_patterns(line, names):
     name_dict = dict()
@@ -39,7 +42,7 @@ def parse_patterns(line, names):
             if not key in name_dict:
                 print "key: " + key + " not found in pattern " + str(name_dict)
                 assert False
-            force_dict[key] = value
+            force_dict[key] = val
         else:
             if not key in name_dict:
                 print "record key: " + key + " not found in pattern " + str(name_dict)
