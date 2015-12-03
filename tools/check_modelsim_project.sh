@@ -67,6 +67,7 @@ abs_to_rel() {
 }
 
 has_abs=0
+has_lp=0
 for file in $project_files; do
   if [ "${file:0:1}" = "/" ]; then
     has_abs=1
@@ -75,13 +76,24 @@ for file in $project_files; do
     #echo >&2 "Correcting it to $rel"
     sed -i "s|$file|$rel|g" $project_file
   fi
+
+  if cat $project_file | grep "last_compile" >/dev/null;then
+    has_lp=1
+    sed -i -r 's|last_compile [0-9]+ ||g' $project_file
+  fi
 done
 
-if [ $has_abs -eq 1 ]; then
-  if [ -n "$GIT_DIR" ]; then
-    echo >&2 -e "\n\nYour modelsim project file contained absolute paths."
+if [ -n "$GIT_DIR" ]; then
+  if [ $has_abs -eq 1 ]; then
+    echo >&2 -e "Your modelsim project file contained absolute paths."
     echo >&2 -e "They have been replaced by relative paths now, but you"
     echo >&2 -e "need to refresh, amend and stage the changes in order to continue."
+    exit 1
+  fi
+
+  if [ $has_lp -eq 1 ]; then
+    echo >&2 "Your project contained compile time entries."
+    echo >&2 "They have been removed now. Amend and stage please"
     exit 1
   fi
 fi
