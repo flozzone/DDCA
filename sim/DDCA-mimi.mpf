@@ -398,7 +398,7 @@ ConcurrentFileLimit = 40
 ;    both  {default}
 ;    tran  {transcript only}
 ;    wlf   {wlf file only}
-; msgmode = both
+msgmode = both
 [Project]
 ; Warning -- Do not edit the project properties directly.
 ;            Property names are dynamic in nature and property
