@@ -101,7 +101,7 @@ begin --rtl
 			R <= std_logic_vector(Signed(A) and Signed(B));
 			
 		when ALU_OR =>
-			R <= std_logic_vector(Signed(B) or Signed(B));
+			R <= std_logic_vector(Signed(A) or Signed(B));
 			
 		when ALU_XOR =>
 			R <= std_logic_vector(Signed(A) xor Signed(B));
