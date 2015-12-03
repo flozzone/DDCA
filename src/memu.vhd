@@ -43,7 +43,7 @@ begin
 
 	ret := (others => '0');
 
-	for i in 3 downto 0 loop
+	for i in 0 to 3 loop
 		dbg_current := x(i);
 		case x(i) is
 			when 'A'=>
@@ -58,6 +58,14 @@ begin
 				tmp_word := (others => 'X');
 			when '0'=>
 				tmp_word := (others => '0');
+			when 'S'=>
+				if i /= 0 then
+					if ret(i*BYTE_WIDTH-1) = '1' then
+						tmp_word := (others => '1');
+					else
+						tmp_word := (others => '0');
+					end if;
+				end if;
 			when others =>
 				assert false report "Unexpected pattern";
 		end case;
@@ -100,8 +108,9 @@ begin  -- rtl
 
 		tmp_XL := '0';
 		tmp_XS := '0';
-
 		M.address <= A;
+
+		-- compute byteena and wrdata
 		case op.memtype is
 			when MEM_B | MEM_BU =>
 				case A(1 downto 0) is
@@ -121,7 +130,7 @@ begin  -- rtl
 						null;
 				end case;
 
-			when MEM_H | MEM_HU =>
+			when MEM_HU | MEM_H =>
 				case A(1 downto 0) is
 					when "00" =>
 						M.byteena <= "1100";
@@ -159,29 +168,83 @@ begin  -- rtl
 
 		-- Computation of exceptions
 			case op.memtype is
-				when MEM_H | MEM_HU=>
+				when MEM_HU | MEM_H=>
 					case A(1 downto 0) is
 						when "01" => set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
 						when "11" => set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
+						when "00" =>
+							if (A(ADDR_WIDTH-1 downto 2) = (ADDR_WIDTH-1 downto 2 => '0')) then
+								set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
+							end if;
 						when others => set_exception('0', '0', tmp_XL, tmp_XS);
 					end case;
 				when MEM_W =>
 					case A(1 downto 0) is
 						when "01" => set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
 						when "10" => set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
-						when "11" => set_exception('0', '0', tmp_XL, tmp_XS);
-						when others => XL <= '0';
+						when "11" => set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
+						when "00" =>
+							if (A(ADDR_WIDTH-1 downto 2) = (ADDR_WIDTH-1 downto 2 => '0')) then
+								set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
+							end if;
+						when others => set_exception('0', '0', tmp_XL, tmp_XS);
 					end case;
 				when others =>
-					if (A(1 downto 0) = "00") and (A(ADDR_WIDTH-1 downto 2) = (ADDR_WIDTH-1 downto 2 => '0')) then
-						tmp_XL := '1';
-						tmp_XS := '1';
-					else
-						tmp_XL := '0';
-						tmp_XS := '0';	
-					end if;
+					null;
 			end case;
 			XL <= tmp_XL;
 			XS <= tmp_XS;
+
+			-- don't process memory access when exception occured
+			if (tmp_XL = '1' or tmp_XS = '1') then
+				M.rd <= '0';
+				M.wr <= '0';
+			end if;
+
+			-- compute R
+			case op.memtype is
+				when MEM_B =>
+					case A(1 downto 0) is
+						when "00" => R <= word_game(D, "SSSD");
+						when "01" => R <= word_game(D, "SSSC");
+						when "10" => R <= word_game(D, "SSSB");
+						when "11" => R <= word_game(D, "SSSA");
+						when others => null;
+					end case;
+				when MEM_BU =>
+					case A(1 downto 0) is
+						when "00" => R <= word_game(D, "000D");
+						when "01" => R <= word_game(D, "000C");
+						when "10" => R <= word_game(D, "000B");
+						when "11" => R <= word_game(D, "000A");
+						when others => null;
+					end case;
+				when MEM_H =>
+					case A(1 downto 0) is
+						when "00" => R <= word_game(D, "SSDC");
+						when "01" => R <= word_game(D, "SSDC");
+						when "10" => R <= word_game(D, "SSBA");
+						when "11" => R <= word_game(D, "SSBA");
+						when others => null;
+					end case;
+				when MEM_HU =>
+					case A(1 downto 0) is
+						when "00" => R <= word_game(D, "00DC");
+						when "01" => R <= word_game(D, "00DC");
+						when "10" => R <= word_game(D, "00BA");
+						when "11" => R <= word_game(D, "00BA");
+						when others => null;
+					end case;
+				when MEM_W =>
+					case A(1 downto 0) is
+						when "00" => R <= word_game(D, "DCBA");
+						when "01" => R <= word_game(D, "DCBA");
+						when "10" => R <= word_game(D, "DCBA");
+						when "11" => R <= word_game(D, "DCBA");
+						when others => null;
+					end case;
+				when others =>
+					assert False report "Case not covered";
+			end case;
 	end process memu_unit;
 end rtl;
