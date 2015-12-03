@@ -61,8 +61,15 @@ end word_game;
 begin  -- rtl
 	memu_unit : process (op, A, W, D)
 	begin
-		M.rd <= op.memread;
-		M.wr <= op.memwrite;
+		M.rd <= '0';
+		M.wr <= '0';
+		if op.memread = '1' then
+			M.rd <= '1';
+		end if;
+		if op.memwrite = '1' then
+			M.wr <= '1';
+		end if;
+
 		M.address <= A;
 		if (op.memtype = MEM_B) or (op.memtype = MEM_BU) then
 			case A(1 downto 0) is

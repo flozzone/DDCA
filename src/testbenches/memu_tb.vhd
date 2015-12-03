@@ -17,10 +17,16 @@ architecture arch of memu_tb is
 	signal s_A    : std_logic_vector(ADDR_WIDTH-1 downto 0);
 	signal s_W    : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal s_D    : std_logic_vector(DATA_WIDTH-1 downto 0);
-	signal s_M    : mem_out_type;
-	signal s_R    : std_logic_vector(DATA_WIDTH-1 downto 0);
-	signal s_XL   : std_logic;
-	signal s_XS   : std_logic;
+
+	signal r_M    : mem_out_type;
+	signal r_R    : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal r_XL   : std_logic;
+	signal r_XS   : std_logic;
+
+	signal a_M    : mem_out_type;
+	signal a_R    : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal a_XL   : std_logic;
+	signal a_XS   : std_logic;
 
 begin
 	memu_inst : entity memu
@@ -29,10 +35,10 @@ begin
 		A => s_A,
 		W => s_W,
 		D => s_D,
-		M => s_M,
-		R => s_R,
-		XL => s_XL,
-		XS => s_XS
+		M => r_M,
+		R => r_R,
+		XL => r_XL,
+		XS => r_XS
 	);
 
 	-- Generates the clock signal
@@ -52,20 +58,12 @@ begin
 
 		wait for 1 ps;
 
-		s_op <= ('0', '0', mem_w);
-		s_A <= "000000000000000000000";
-		s_W <= "00000000000000000000000000000000";
-		s_D <= "00000000000000000000000000000000";
+		assert r_M = a_M report "M is not equal";
+		assert r_R = a_R report "R is not equal";
+		assert r_XL = a_XL report "XL ist not equal";
+		assert r_XS = a_XS report "XS is not equal";
 
 		wait for 1 ps;
 
-		assert s_M = ("000000000000000000000", '0', '0', "1111", "00000000000000000000000000000000") report "Test 1 Failed";
-
-		wait for 1 ps;
-
-		assert s_M = ("000010000000000000000", '0', '0', "1111", "00000000000000000000000000000000") report "Test 2 Failed";
-
-		--assert not (s_op.memtype = MEM_B) report "failed" severity failure;
-		--assert 1 = 0 report "failed" severity failure;
 	end process test;
 end arch;
