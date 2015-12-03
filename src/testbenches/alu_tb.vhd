@@ -34,8 +34,8 @@ begin
 	test : process
 	begin
 		report "sending first ALU_SRL command";
-		i_op <= ALU_SRL;
-		i_A <= "00000000000000000000000000100100";
+		i_op <= ALU_SRA;
+		i_A <= "00000000000000000000000000000000";
 		i_B <= "10000111011001010100001100100001";
 
 		wait for 2 ms;

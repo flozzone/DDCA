@@ -68,10 +68,9 @@ begin --rtl
 			R <= std_logic_vector(shift_right(Unsigned(B),to_integer(signed(A(DATA_WIDTH_BITS-1 downto 0)))));
 			
 		when ALU_SRA =>
-		--TODO TO FIX
-			--R <= std_logic_vector(shift_right(Unsigned(B),to_integer(signed(A(DATA_WIDTH_BITS-1 downto 0)))));
-			--R(DATA_WIDTH_BITS-1) <= not std_logic(shift_right(signed(B),to_integer(signed(A(DATA_WIDTH_BITS-1 downto 0)))))(DATA_WIDTH_BITS-1);
-			-- xxxxx  R(DATA_WIDTH_BITS-1) <= not (std_logic(std_logic_vector(shift_right(signed(B),to_integer(signed(A(DATA_WIDTH_BITS-1 downto 0)))))(DATA_WIDTH_BITS-1)));
+		--TODO TO FIX?
+			R <= std_logic_vector(shift_right(Signed(B),to_integer(signed(A(DATA_WIDTH_BITS-1 downto 0)))));
+			--R(DATA_WIDTH_BITS-1) <= not std_logic(shift_right(Unsigned(B),to_integer(signed(A(DATA_WIDTH_BITS-1 downto 0))))(DATA_WIDTH_BITS-1));
 			
 		when ALU_ADD =>
 			R <= std_logic_vector(Signed(A)+Signed(B));
