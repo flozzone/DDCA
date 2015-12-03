@@ -59,7 +59,7 @@ end word_game;
 
 
 begin  -- rtl
-	memu_unit : process
+	memu_unit : process (op, A, W, D)
 	begin
 		M.rd <= op.memread;
 		M.wr <= op.memwrite;

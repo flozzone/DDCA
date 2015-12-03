@@ -36,18 +36,25 @@ begin
 	);
 
 	-- Generates the clock signal
-	clkgen : process
-	begin
-		clk <= '0';
-		wait for CLK_PERIOD/2;
-		clk <= '1';
-		wait for CLK_PERIOD/2;
-	end process clkgen;
+	--clkgen : process
+	--begin
+	--	clk <= '0';
+	--	wait for CLK_PERIOD/2;
+	--	clk <= '1';
+	--	wait for CLK_PERIOD/2;
+	--end process clkgen;
 
 	test : process
 	begin
 		s_op.memread <= '1';
 		s_op.memwrite <= '1';
 		s_op.memtype <= MEM_B;
+
+		s_A <= "000000000000000000000";
+
+		wait for 1 ns;
+
+		assert not (s_op.memtype = MEM_B) report "failed" severity failure;
+		assert 1 = 0 report "failed" severity failure;
 	end process test;
 end arch;
