@@ -77,10 +77,13 @@ for file in $project_files; do
     sed -i "s|$file|$rel|g" $project_file
   fi
 
-  if cat $project_file | grep "last_compile" >/dev/null;then
-    has_lp=1
+    hash_before=$(md5 $project_file) 
     sed -i -r 's|last_compile [0-9]+|last_compile 1|g' $project_file
-  fi
+    hash_after=$(md5 $project_file)
+
+    if [ "$hash_before" != "$hash_after" ]; then
+      has_lp=1
+    fi
 done
 
 if [ -n "$GIT_DIR" ]; then
