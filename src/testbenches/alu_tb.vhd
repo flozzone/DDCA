@@ -33,13 +33,13 @@ begin
 
 	test : process
 	begin
-		report "sending first ALU_SRL command";
+		report "sending first ALU_SRA command";
 		i_op <= ALU_SRA;
 		i_A <= "00000000000000000000000000000000";
 		i_B <= "10000111011001010100001100100001";
 
 		wait for 2 ms;
-		report "sent next ALU_ADD command";
+		report "sent next ALU_NOP command";
 		i_op <= ALU_NOP;
 		i_A <= "11111111111111111111111111111111";
 		i_B <= "11111111111111111111111111111111";
@@ -50,6 +50,7 @@ begin
 		i_op <= ALU_ADD;
 		i_A <= "01111111111111111111111111111111";
 		i_B <= "01111111111111111111111111111111";
-
+	
+	wait;
 	end process test;
 end arch;
