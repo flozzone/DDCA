@@ -77,9 +77,9 @@ for file in $project_files; do
     sed -i "s|$file|$rel|g" $project_file
   fi
 
-    hash_before=$(md5 $project_file) 
+    hash_before=$(md5sum $project_file) 
     sed -i -r 's|last_compile [0-9]+|last_compile 1|g' $project_file
-    hash_after=$(md5 $project_file)
+    hash_after=$(md5sum $project_file)
 
     if [ "$hash_before" != "$hash_after" ]; then
       has_lp=1
