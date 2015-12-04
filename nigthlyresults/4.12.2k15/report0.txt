@@ -1,0 +1,25 @@
+Test Level 0
+============
+Starting tests on alu
+# Failed 0/62 tests.
+# End time: 01:31:34 on Dec 04,2015, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0
+Finished tests on alu
+Starting tests on jmpu
+# Failed 0/33 tests.
+# End time: 01:31:41 on Dec 04,2015, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0
+Finished tests on jmpu
+Starting tests on memu
+# Failed 0/63 tests.
+# End time: 01:31:48 on Dec 04,2015, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 0
+Finished tests on memu
+Starting tests on regfile
+# Failed test: stall=0 rdaddr1=00000 rdaddr2=00000 wraddr=00000 wrdata=11111111111111111111111111111111 regwrite=1, result rddata1=11111111111111111111111111111111 rddata2=11111111111111111111111111111111, expected rddata1=00000000000000000000000000000000 rddata2=00000000000000000000000000000000
+# Failed test: stall=0 rdaddr1=11100 rdaddr2=00000 wraddr=11100 wrdata=10001001101010111100110111101111 regwrite=1, result rddata1=00000000000000000000000000000000 rddata2=00000000000000000000000000000000, expected rddata1=10001001101010111100110111101111 rddata2=00000000000000000000000000000000 (write values applied in cycle after read addresses)
+# Failed test: stall=0 rdaddr1=00000 rdaddr2=11101 wraddr=11101 wrdata=01110110010101000011001000010000 regwrite=1, result rddata1=00000000000000000000000000000000 rddata2=11111110110111001011101010011000, expected rddata1=00000000000000000000000000000000 rddata2=01110110010101000011001000010000 (write values applied in cycle after read addresses)
+# Failed 3/29 tests.
+# End time: 01:31:55 on Dec 04,2015, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 0
+Finished tests on regfile
