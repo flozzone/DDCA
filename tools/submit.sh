@@ -80,7 +80,8 @@ echo ""
 echo "Updating ..."
 pushd $tmp_dir/src >/dev/null
 echo "$_GIT_BRANCH $_GIT_REV" > version.txt
-do_ssh $user "mkdir -p $remote_dir"
+
+do_ssh $user "mkdir -p $remote_dir && chown :ddcagrp${group_nr} $remote_dir"
 
 rsync -lvrgODzc --delete \
   --include "*.vhd" \
