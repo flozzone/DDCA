@@ -85,7 +85,6 @@ do_ssh $user "mkdir -p $remote_dir && chown :ddcagrp${group_nr} $remote_dir"
 
 rsync -lvrgODzc --delete \
   --include "*.vhd" \
-  --include "*.mif" \
   --exclude "*" \
   . $user@$tilab_host:$remote_dir
 
