@@ -77,13 +77,13 @@ for file in $project_files; do
     sed -i "s|$file|$rel|g" $project_file
   fi
 
-    hash_before=$(md5sum $project_file) 
-    sed -i -r 's|last_compile [0-9]+|last_compile 1|g' $project_file
-    hash_after=$(md5sum $project_file)
+    #hash_before=$(md5sum $project_file) 
+    #sed -i -r 's|last_compile [0-9]+|last_compile 1|g' $project_file
+    #hash_after=$(md5sum $project_file)
 
-    if [ "$hash_before" != "$hash_after" ]; then
-      has_lp=1
-    fi
+    #if [ "$hash_before" != "$hash_after" ]; then
+    #  has_lp=1
+    #fi
 done
 
 if [ -n "$GIT_DIR" ]; then
@@ -94,9 +94,9 @@ if [ -n "$GIT_DIR" ]; then
     exit 1
   fi
 
-  if [ $has_lp -eq 1 ]; then
-    echo >&2 "Your project contained compile time entries."
-    echo >&2 "They have been set to 1 now. Amend and stage please."
-    exit 1
-  fi
+  #if [ $has_lp -eq 1 ]; then
+  #  echo >&2 "Your project contained compile time entries."
+  #  echo >&2 "They have been set to 1 now. Amend and stage please."
+  #  exit 1
+  #fi
 fi
