@@ -79,7 +79,7 @@ for file in $project_files; do
 
   if cat $project_file | grep "last_compile" >/dev/null;then
     has_lp=1
-    sed -i -r 's|last_compile [0-9]+ ||g' $project_file
+    sed -i -r 's|last_compile [0-9]+|last_compile 1|g' $project_file
   fi
 done
 
@@ -93,7 +93,7 @@ if [ -n "$GIT_DIR" ]; then
 
   if [ $has_lp -eq 1 ]; then
     echo >&2 "Your project contained compile time entries."
-    echo >&2 "They have been removed now. Amend and stage please"
+    echo >&2 "They have been set to 1 now. Amend and stage please."
     exit 1
   fi
 fi
