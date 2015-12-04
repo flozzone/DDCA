@@ -48,7 +48,7 @@ begin  -- rtl
                 -- writes are only visible in the next cycle, 
                 -- but the newest value should always be read
                 if (rdaddr1 = (rdaddr1'range => '0')) then
-                    rddata1 <= (rddata1'range => '0'));
+                    rddata1 <= (rddata1'range => '0');
                 elsif (wraddr = rdaddr1) and (regwrite = '1') then    
                     rddata1 <= wrdata;
                 else 
@@ -56,7 +56,7 @@ begin  -- rtl
                 end if;
 
                 if (rdaddr2 = (rdaddr2'range => '0')) then
-                    rddata2 <= (rddata2'range => '0'));
+                    rddata2 <= (rddata2'range => '0');
                 elsif (wraddr = rdaddr2) and (regwrite = '1') then    
                     rddata2 <= wrdata;
                 else 
