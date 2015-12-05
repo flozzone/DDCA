@@ -27,7 +27,7 @@ architecture arch of regfile_tb is
     signal a_rddata1    : std_logic_vector(DATA_WIDTH-1 downto 0);
     signal a_rddata2    : std_logic_vector(DATA_WIDTH-1 downto 0);
 
-    signal testfile : string(31 downto 1);
+    signal testfile : string(8 downto 1);
 
 begin
     regfile_inst : entity regfile
