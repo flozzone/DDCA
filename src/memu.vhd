@@ -173,7 +173,7 @@ begin  -- rtl
 						when "01" => set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
 						when "11" => set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
 						when "00" =>
-							if (A(ADDR_WIDTH-1 downto 2) = (ADDR_WIDTH-1 downto 2 => '0')) then
+							if std_match(A, (ADDR_WIDTH-1 downto 2 => '0') & "--") then
 								set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
 							end if;
 						when others => set_exception('0', '0', tmp_XL, tmp_XS);
@@ -184,7 +184,7 @@ begin  -- rtl
 						when "10" => set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
 						when "11" => set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
 						when "00" =>
-							if (A(ADDR_WIDTH-1 downto 2) = (ADDR_WIDTH-1 downto 2 => '0')) then
+							if std_match(A, (ADDR_WIDTH-1 downto 2 => '0') & "--") then
 								set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
 							end if;
 						when others => set_exception('0', '0', tmp_XL, tmp_XS);
