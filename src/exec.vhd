@@ -44,6 +44,8 @@ signal alu_R : std_logic_vector(DATA_WIDTH-1 downto 0);
 signal alu_Z : std_logic;
 signal alu_V : std_logic;
 
+signal exec_op : in  exec_op_type;
+
 begin  -- rtl
 	alu_inst : entity alu
 	port map (
@@ -55,8 +57,14 @@ begin  -- rtl
 		V => alu_V
 	);
 
-	multiplex : process(clk, reset, stall, flush, op, pc_in, memop_in, jmpop_in, wbop_in, forwardA, forwardB, cop0_rddata, mem_aluresult, wb_result)
+	multiplex : process(clk, reset, stall, flush, op, pc_in, memop_in, jmpop_in, wbop_in, 
+			forwardA, forwardB, cop0_rddata, mem_aluresult, wb_result, alu_R, alu_Z, alu_V)
 	begin
+		-- TODO: just for convenience
+		exec_op <= op;
+		----
+
+
 		if reset = '0' then
 			null;
 		elsif rising_edge(clk) and stall = '0' then
@@ -68,6 +76,28 @@ begin  -- rtl
 			memop_out <= memop_in;
 			jmpop_out <= jmpop_in;
 			wbop_out <= wbop_in;
+
+			-- ALU
+			alu_op <= exec_op.aluop;
+			alu_A <= exec_op.readdata1;
+			if exec_op.useimm = '0' then
+				alu_B <= exec_op.readdata2;
+				aluresult <= alu_R;
+			else
+				alu_B <= exec_op.imm;
+				aluresult <= alu_R;
+			end if;
+			zero <= alu_Z;
+
+			-- aluresult
+			-- * aluresult <= alu_R 
+			-- * aluresult <= cop0_rddata for mfc0 instr
+			-- * aluresult <= pc_in (adjusted!? with ALU, see op.link) for jal, jalr instr
+			-- * aluresult <= pc_in (adjusted!? with own adder, see op.link) for bltzal, bgtzal instr
+
+
+			--TODO: how to compute negative flag?
+			--neg <= ??
 
 			-- TODO: ignore these signals for this assignment
 			-- forwardA
@@ -83,12 +113,6 @@ begin  -- rtl
 				-- others
 				rd <= op.rt;
 			end if;
-
-			-- aluresult
-			-- * aluresult <= mem_aluresult
-			-- * aluresult <= cop0_rddata for mfc0 instr
-			-- * aluresult <= pc_in (adjusted!? with ALU) for jal, jalr instr
-			-- * aluresult <= pc
 			
 		end if;
 	end process multiplex;
