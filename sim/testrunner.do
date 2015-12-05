@@ -45,5 +45,5 @@ foreach file $testfiles {
 	force testfile $filename
   do $file
   
-  run 2 ps
+  run 4 ps
 }
