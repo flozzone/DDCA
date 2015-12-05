@@ -20,7 +20,7 @@ end regfile;
 architecture rtl of regfile is
     
     type register_type is array ((2**REG_BITS)-1 downto 0) of std_logic_vector (DATA_WIDTH-1 downto 0);
-    signal register_A : register_type := (others => (others => '0')); -- init
+    signal register_A : register_type := (others => std_logic_vector(to_unsigned(0, DATA_WIDTH))); -- init
 
 begin  -- rtl
     
@@ -36,7 +36,7 @@ begin  -- rtl
             
         elsif rising_edge(clk) then
             if regwrite = '1' then
-                if not (wraddr = (wraddr'range => '0')) then
+                if not (To_integer(unsigned(wraddr)) = 0) then
                     -- no writes on addr 0
                     register_A(To_integer(unsigned(wraddr))) <= wrdata;
                 end if;
@@ -47,16 +47,16 @@ begin  -- rtl
                 -- read from adress 0 returns 0
                 -- writes are only visible in the next cycle, 
                 -- but the newest value should always be read
-                if (rdaddr1 = (rdaddr1'range => '0')) then
-                    rddata1 <= (rddata1'range => '0');
+                if (To_integer(unsigned(rdaddr1)) = 0) then
+                    rddata1 <= std_logic_vector(to_unsigned(0, rddata2'length));
                 elsif (wraddr = rdaddr1) and (regwrite = '1') then    
                     rddata1 <= wrdata;
                 else 
                     rddata1 <= register_A(To_integer(unsigned(rdaddr1)));
                 end if;
 
-                if (rdaddr2 = (rdaddr2'range => '0')) then
-                    rddata2 <= (rddata2'range => '0');
+                if (To_integer(unsigned(rdaddr2)) = 0) then
+                    rddata2 <= std_logic_vector(to_unsigned(0, rddata2'length));
                 elsif (wraddr = rdaddr2) and (regwrite = '1') then    
                     rddata2 <= wrdata;
                 else 
