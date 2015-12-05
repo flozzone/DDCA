@@ -31,10 +31,15 @@ architecture rtl of decode is
     
     -- state machine states
     type DECODER_STATE_TYPE is (RESET_ST, DECODE_ST, READREGISTER, OUTPUT_ST);
+    type DECODER_CMD IS (DEC_NOP, DEC_EXEC, DEC_COP0, DEC_JMP, DEC_MEM, DEC_WB);
 
     -- signal deklarations
-    signal decode_state     : DECODER_STATE_TYPE := RESET_ST;
-    signal decode_state_next: DECODER_STATE_TYPE := RESET_ST;
+    signal int_exec_op      : exec_op_type;
+    signal int_cop0_op      : cop0_op_type;
+    signal int_jmp_op       : jmp_op_type;
+    signal int_memo_op      : mem_op_type;
+    signal int_wb_op        : wb_op_type;
+    signal int_exc_dec      : std_logic;
     
     -- intern decoder signals
     signal int_pc_in        : std_logic_vector(PC_WIDTH-1 downto 0);
@@ -85,14 +90,13 @@ begin  -- rtl
     begin
         if reset = '0' then
             --TODO: reset
-            decode_state <= RESET_ST;
-            
             int_pc_in   <= (others => '0');
             int_instr   <= (others => '0');
             int_wraddr  <= (others => '0');
             int_wrdata  <= (others => '0');
             
-            int_stall_reg <= '0'; --TODO stall = 1 ?
+            -- reset regfile
+            int_stall_reg <= '0';
             int_rdaddr1 <= (others => '0');
             int_rdaddr2 <= (others => '0');
             int_rddata1 <= (others => '0');
@@ -103,7 +107,6 @@ begin  -- rtl
             
         elsif rising_edge(clk) then
             --TODO: rising edge stuff
-            decode_state <= decode_state_next;
             
             if stall = '0' then
                 --TODO: latch inputs into intern registers
@@ -111,68 +114,16 @@ begin  -- rtl
                 int_instr   <= instr;
                 int_wraddr  <= wraddr;
                 int_wrdata  <= wrdata;
-            end if;
-            
-            if flush = '1' then
-                --TODO: flush registers
-                int_pc_in   <= (others => '0');
-                int_instr   <= (others => '0');
-                int_wraddr  <= (others => '0');
-                int_wrdata  <= (others => '0');
-                int_stall_reg <= '0'; --TODO stall = 1 ?
-                int_rdaddr1 <= (others => '0');
-                int_rdaddr2 <= (others => '0');
-                int_rddata1 <= (others => '0');
-                int_rdaddr2 <= (others => '0');
-                int_wraddr_reg  <= (others => '0');
-                int_wrdata_reg  <= (others => '0');
-                int_regwrite<= '0';
-            end if;
-            
-        end if;
-    end process sync;
-
-    -- ################### --
-    -- process: next_state --
-    -- ################### --
-    next_state : process (decode_state)
-    begin
-        decode_state_next <= decode_state;
-
-        opcode <= (others => '0');
-        case decode_state is
-            ---------------------------------------------------
-            when RESET_ST =>
-                decode_state_next <= DECODE_ST;
-            ---------------------------------------------------
-            when DECODE_ST =>
-                --TODO: condition?
-                decode_state_next <= READREGISTER;
-            ---------------------------------------------------
-            when READREGISTER =>
-                decode_state_next <= OUTPUT_ST;
-            ---------------------------------------------------
-            when OUTPUT_ST =>
-                decode_state_next <= DECODE_ST;
-            ---------------------------------------------------
-            when others =>
-                null;
-        end case;
-    end process next_state;
-    
-    -- ############### --
-    -- process: output --
-    -- ############### --
-    output : process (decode_state, int_instr, opcode, rs, rd, func)
-    begin
-        case decode_state is
-            ---------------------------------------------------
-            when RESET_ST =>
-                --TODO: stuff
-                null;
-            ---------------------------------------------------
-            when DECODE_ST =>
-                --TODO: stuff
+                
+                -- reset output signals
+                int_exec_op <= EXEC_NOP;
+                int_cop0_op <= COP0_NOP;
+                int_jmp_op  <= JMP_NOP;
+                int_memo_op <= MEM_NOP;
+                int_wb_op   <= WB_NOP;
+                int_exc_dec <= '0';
+                
+                -- decode instruction into its components
                 opcode <= int_instr(31 downto 26);
                 rs     <= int_instr(25 downto 21);
                 rt     <= int_instr(20 downto 16);
@@ -186,80 +137,149 @@ begin  -- rtl
                 case opcode is
                     when "000000" =>
                         -- Format: R    Syntax: --  Semantics:  Table 21
+                        -- read value from register
+                        int_rdaddr1 <= rs;
+                        int_rdaddr2 <= rt;
+                        
+                        -- set exec_op_typ output
+                        int_exec_op.rd <= rd;
+                        int_exec_op.rs <= rs;
+                        int_exec_op.rt <= rt;
+                        int_exec_op.readdata1 <= int_rddata1;
+                        int_exec_op.readdata2 <= int_rddata2;
+                        
                         -- ############## start case func ############## --
                         case func is 
                             when "000000" =>
                                 -- Syntax: SLL rd, rt, shamt    Semantics: rd = rt << shamt
-                                --TODO
-                                null;
+                                -- set exec_op_typ output
+                                int_exec_op.aluop <= ALU_SLL;
+                                int_exec_op.imm <= std_logic_vector(resize(unsigned(shamt), DATA_WIDTH));
+                                int_exec_op.useamt <= '1';
+                                --TODO regdst
+                                -- int_exec_op.regdst <= '?'
+                                
                             when "000010" =>
                                 -- Syntax: SRL rd, rt, shamt    Semantics: rd = rt0/ >> shamt
-                                --TODO
-                                null;
+                                -- set exec_op_typ output
+                                int_exec_op.aluop <= ALU_SRL;
+                                int_exec_op.imm <= std_logic_vector(resize(unsigned(shamt), DATA_WIDTH));
+                                int_exec_op.useamt <= '1';
+                                --TODO regdst
+                                -- int_exec_op.regdst <= '?'
+                                
                             when "000011" =>
                                 -- Syntax: SRA rd, rt, shamt    Semantics: rd = rt± >> shamt
-                                --TODO
-                                null;
+                                -- set exec_op_typ output
+                                int_exec_op.aluop <= ALU_SRA;
+                                int_exec_op.imm <= std_logic_vector(resize(unsigned(shamt), DATA_WIDTH));
+                                int_exec_op.useamt <= '1';
+                                --TODO regdst
+                                -- int_exec_op.regdst <= '?'
+                                
                             when "000100" =>
                                 -- Syntax: SLLV rd, rt, rs  Semantics: rd = rt << rs4:0
-                                --TODO
-                                null;
+                                -- set exec_op_typ output
+                                int_exec_op.aluop <= ALU_SLL;
+                                --TODO regdst
+                                -- int_exec_op.regdst <= '?'
+                                
                             when "000110" =>
                                 -- Syntax: SRLV rd, rt, rs  Semantics: rd = rt0/ >> rs4:0
-                                --TODO
-                                null;
+                                -- set exec_op_typ output
+                                int_exec_op.aluop <= ALU_SRL;
+                                --TODO regdst
+                                -- int_exec_op.regdst <= '?'
+                                
                             when "000111" =>
                                 -- Syntax: SRAV rd, rt, rs  Semantics: rd = rt±>> rs4:0
-                                --TODO
-                                null;
+                                -- set exec_op_typ output
+                                int_exec_op.aluop <= ALU_SRA;
+                                --TODO regdst
+                                -- int_exec_op.regdst <= '?'
+                                
                             when "001000" =>
                                 -- Syntax: JR rs            Semantics: pc = rs
-                                --TODO
-                                null;
+                                -- set jmp_op_type output
+                                int_jmp_op <= JMP_JMP;
+                                pc_out <= int_rddata1(PC_WIDTH-1 downto 0);
+                                
                             when "001001" =>
                                 -- Syntax: JALR rd, rs      Semantics: rd = pc+4; pc = rs
                                 --TODO
                                 null;
                             when "100000" =>
                                 -- Syntax: ADD rd, rs, rt   Semantics: rd = rs + rt, overflow trap
-                                --TODO
-                                null;
+                                -- set exec_op_typ output
+                                int_exec_op.aluop <= ALU_ADD;
+                                int_exec_op.ovf <= '1';
+                                --TODO regdst
+                                -- int_exec_op.regdst <= '?'
+                                
                             when "100001" =>
                                 -- Syntax: ADDU rd, rs, rt  Semantics: rd = rs + rt
-                                --TODO
-                                null;
+                                -- set exec_op_typ output
+                                int_exec_op.aluop <= ALU_ADD;
+                                --TODO regdst
+                                -- int_exec_op.regdst <= '?'
+                                
                             when "100010" =>
                                 -- Syntax: SUB rd, rs, rt   Semantics: rd = rs - rt, overflow trap
-                                --TODO
-                                null;
+                                -- set exec_op_typ output
+                                int_exec_op.aluop <= ALU_SUB;
+                                int_exec_op.ovf <= '1';
+                                --TODO regdst
+                                -- int_exec_op.regdst <= '?'
+                                
                             when "100011" =>
                                 -- Syntax: SUBU rd, rs, rt  Semantics: rd = rs - rt
-                                --TODO
-                                null;
+                                -- set exec_op_typ output
+                                int_exec_op.aluop <= ALU_SUB;
+                                --TODO regdst
+                                -- int_exec_op.regdst <= '?'
+                                
                             when "100100" =>
                                 -- Syntax: AND rd, rs, rt   Semantics: rd = rs & rt
-                                --TODO
-                                null;
+                                -- set exec_op_typ output
+                                int_exec_op.aluop <= ALU_AND;
+                                --TODO regdst
+                                -- int_exec_op.regdst <= '?'
+                                
                             when "100101" =>
                                 -- Syntax: OR rd, rs, rt    Semantics: rd = rs | rt
-                                --TODO
-                                null;
+                                -- set exec_op_typ output
+                                int_exec_op.aluop <= ALU_OR;
+                                --TODO regdst
+                                -- int_exec_op.regdst <= '?'
+                                
                             when "100110" =>
                                 -- Syntax: XOR rd, rs, rt   Semantics: rd = rs ^ rt
-                                --TODO
-                                null;
+                                -- set exec_op_typ output
+                                int_exec_op.aluop <= ALU_XOR;
+                                --TODO regdst
+                                -- int_exec_op.regdst <= '?'
+                                
                             when "100111" =>
                                 -- Syntax: NOR rd, rs, rt   Semantics: rd = ~(rs | rt)
-                                --TODO
-                                null;
+                                -- set exec_op_typ output
+                                int_exec_op.aluop <= ALU_NOR;
+                                --TODO regdst
+                                -- int_exec_op.regdst <= '?'
+                                
                             when "101010" =>
                                 -- Syntax: SLT rd, rs, rt   Semantics: rd = (rs± < rt±) ? 1 : 0
-                                --TODO
-                                null;
+                                -- set exec_op_typ output
+                                int_exec_op.aluop <= ALU_SLT;
+                                --TODO regdst
+                                -- int_exec_op.regdst <= '?'
+                                
                             when "101011" =>
                                 -- Syntax: SLTU rd, rs, rt  Semantics: rd = (rs0/ < rt0/ ) ? 1 : 0
-                                --TODO
-                                null;
+                                -- set exec_op_typ output
+                                int_exec_op.aluop <= ALU_SLTU;
+                                --TODO regdst
+                                -- int_exec_op.regdst <= '?'
+                                
                             when others =>
                                 --TODO
                                 null;
@@ -267,24 +287,39 @@ begin  -- rtl
                         -- ############## end case func ############## --
                     when "000001" =>
                         -- Format: I    Syntax: --  Semantics: Table 22
+                        -- read value from register
+                        int_rdaddr1 <= rs;
+                        
+                        -- set exec_op_typ output
+                        int_exec_op.rs <= rs;
+                        int_exec_op.readdata1 <= int_rddata1;
+                        int_exec_op.imm <= std_logic_vector(resize(unsigned(adrim), DATA_WIDTH));
+                        int_exec_op.useimm <= '1';
+                        
                         -- ############## start case rd ############## --
                         case rd is 
                             when "00000" =>
                                 -- Syntax: BLTZ rs, imm18   Semantics: if (rs±< 0) pc += imm±<< 2
-                                --TODO
-                                null;
+                                int_exec_op.aluop <= ALU_NOP;
+                                int_jmp_op <= JMP_BLTZ;
+                                
                             when "00001" =>
                                 -- Syntax: BGEZ rs, imm18   Semantics: if (rs±>= 0) pc += imm±<< 2
-                                --TODO
-                                null;
+                                int_exec_op.aluop <= ALU_NOP;
+                                int_jmp_op <= JMP_BGEZ;
+                                
                             when "10000" =>
                                 -- Syntax: BLTZAL rs, imm18 Semantics: r31 = pc+4; if (rs±< 0) pc += imm±<< 2
-                                --TODO
-                                null;
+                                int_exec_op.aluop <= ALU_ADD;
+                                int_jmp_op <= JMP_BLTZ;
+                                int_exec_op.rd <= std_logic_vector(to_unsigned(31, REG_BITS)); 
+                                
                             when "10001" =>
                                 -- Syntax: BGEZAL rs, imm18 Semantics: r31 = pc+4; if (rs±>= 0) pc += imm±<< 2
-                                --TODO
-                                null;
+                                int_exec_op.aluop <= ALU_ADD;
+                                int_jmp_op <= JMP_BGEZ;
+                                int_exec_op.rd <= std_logic_vector(to_unsigned(31, REG_BITS)); 
+                                
                             when others =>
                                 --TODO
                                 null;
@@ -400,17 +435,26 @@ begin  -- rtl
                         null;
                 end case;
                 -- ############## end case opcode ############## --
-            ---------------------------------------------------
-            when READREGISTER =>
-                --TODO: stuff
-                null;
-            ---------------------------------------------------
-            when OUTPUT_ST =>
-                --TODO: stuff
-                null;
-            ---------------------------------------------------
-            when others =>
-                null;
-        end case;
-    end process output;
+                
+            end if;
+            
+            if flush = '1' then
+                --TODO: flush registers
+                int_pc_in   <= (others => '0');
+                int_instr   <= (others => '0');
+                int_wraddr  <= (others => '0');
+                int_wrdata  <= (others => '0');
+                int_stall_reg <= '0'; --TODO stall = 1 ?
+                int_rdaddr1 <= (others => '0');
+                int_rdaddr2 <= (others => '0');
+                int_rddata1 <= (others => '0');
+                int_rdaddr2 <= (others => '0');
+                int_wraddr_reg  <= (others => '0');
+                int_wrdata_reg  <= (others => '0');
+                int_regwrite<= '0';
+            end if;
+            
+        end if;
+    end process sync;
+
 end rtl;
