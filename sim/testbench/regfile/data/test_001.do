@@ -1,0 +1,8 @@
+force s_rdaddr2 00000
+force s_wraddr 11100
+force s_rdaddr1 11100
+force s_regwrite 1
+force s_wrdata 10001001101010111100110111101111
+force s_stall 0
+force a_rddata1 10001001101010111100110111101111
+force a_rddata2 00000000000000000000000000000000
