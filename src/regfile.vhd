@@ -58,7 +58,7 @@ begin  -- rtl
                 if (To_integer(unsigned(rdaddr2)) = 0) then
                     rddata2 <= std_logic_vector(to_unsigned(0, rddata2'length));
                 elsif (wraddr = rdaddr2) and (regwrite = '1') then    
-                    rddata2 <= wrdata;
+                    rddata2 <= register_A(To_integer(unsigned(wraddr)));
                 else 
                     rddata2 <= register_A(To_integer(unsigned(rdaddr2)));
                 end if;               

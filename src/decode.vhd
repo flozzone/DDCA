@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 use work.core_pack.all;
 use work.op_pack.all;
-use work.regfile_pkg.all;
+use work.regfile;
 
 entity decode is
 	
@@ -64,7 +64,7 @@ architecture rtl of decode is
 begin  -- rtl
     
     -- component deklarations
-    regfile_inst : regfile
+    regfile_inst : entity regfile
     port map (
         clk         => clk,
         reset       => reset,
