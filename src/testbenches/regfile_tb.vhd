@@ -7,6 +7,24 @@ use work.regfile;
 
 
 entity regfile_tb is
+    function to_bstring(sl : std_logic) return string is
+        variable sl_str_v : string(1 to 3);  -- std_logic image with quotes around
+    begin
+       sl_str_v := std_logic'image(sl);
+        return "" & sl_str_v(2);  -- "" & character to get string
+    end function;
+
+    function to_bstring(slv : std_logic_vector) return string is
+        alias    slv_norm : std_logic_vector(1 to slv'length) is slv;
+        variable sl_str_v : string(1 to 1);  -- String of std_logic
+        variable res_v    : string(1 to slv'length);
+    begin
+        for idx in slv_norm'range loop
+            sl_str_v := to_bstring(slv_norm(idx));
+            res_v(idx) := sl_str_v(1);
+        end loop;
+        return res_v;
+    end function;
 end regfile_tb;
 
 architecture arch of regfile_tb is
@@ -53,11 +71,12 @@ begin
 
         wait for 2 ps;
         clk <= '1';
+
+        assert r_rddata1 = a_rddata1 report testfile & ": rddata1 is not equal: a_rddata1=" & to_bstring(a_rddata1) & " r_rddata1=" & to_bstring(r_rddata1);
+        assert r_rddata2 = a_rddata2 report testfile & ": rddata2 is not equal: a_rddata2=" & to_bstring(a_rddata2) & " r_rddata2=" & to_bstring(r_rddata2);
+        
         wait for 2 ps;
         clk <= '0';
-
-        assert r_rddata1 = a_rddata1 report testfile & ": rddata1 is not equal";
-        assert r_rddata2 = a_rddata2 report testfile & ": rddata2 is not equal";
 
     end process test;
 end arch;
