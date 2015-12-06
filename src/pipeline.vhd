@@ -1,6 +1,5 @@
 library ieee;
 use ieee.std_logic_1164.all;
-
 use work.core_pack.all;
 use work.op_pack.all;
 
@@ -15,6 +14,15 @@ entity pipeline is
 end pipeline;
 
 architecture rtl of pipeline is
+
+--fetch signals
+signal f_instr : std_logic_vector(INSTR_WIDTH-1 downto 0));
+
+
+--memory singals
+signal mem_wbop_out : mem_op_type;
+signal mem_aluresult_out, mem_memresult : std_logic_vector(DATA_WIDTH-1 downto 0));
+signal mem_rd_out : out std_logic_vector(REG_BITS-1 downto 0);
 	
 begin  -- rtl
 
@@ -27,125 +35,121 @@ begin  -- rtl
 		pc_out	   : out std_logic_vector(PC_WIDTH-1 downto 0);
 		instr	   : out std_logic_vector(INSTR_WIDTH-1 downto 0));
 
-		fetch_inst : entity fetch
+		fetch_inst : entity work.fetch
+		--NO CLUE HOW TO MAP fetch
 			port map(
-				-- in
-				clk =>
-				reset =>
-				pcsrc =>
-				pc_in =>
-				-- out
-				pc_out
-				instr
+			-- in
+				clk => clk,
+				reset => reset,
+				stall => null, --TODO
+				pcsrc => null, --TODO
+				pc_in => null, --TODO
+			-- out
+				pc_out => null, --TODO
+				instr => f_instr			
 			);
 
-			port (
-		clk, reset : in  std_logic;
-		stall      : in  std_logic;
-		flush      : in  std_logic;
-		pc_in      : in  std_logic_vector(PC_WIDTH-1 downto 0);
-		instr	   : in  std_logic_vector(INSTR_WIDTH-1 downto 0);
-		wraddr     : in  std_logic_vector(REG_BITS-1 downto 0);
-		wrdata     : in  std_logic_vector(DATA_WIDTH-1 downto 0);
-		regwrite   : in  std_logic;
-		pc_out     : out std_logic_vector(PC_WIDTH-1 downto 0);
-		exec_op    : out exec_op_type;
-		cop0_op    : out cop0_op_type;
-		jmp_op     : out jmp_op_type;
-		mem_op     : out mem_op_type;
-		wb_op      : out wb_op_type;
-		exc_dec    : out std_logic);
 
-		decode_inst : entity decode
+		decode_inst : entity work.decode
 			port map(
+			--in
+				clk => clk,
+				reset => reset,
+				stall => null, --TODO
+				flush => '0',
+				pc_in => null, --TODO
+				instr => f_instr,
+				wraddr =>
+				wrdata =>
+				regwrite =>
+				
+			--out
+				pc_out =>
+				exec_op =>
+				cop0_op =>
+				jmp_op =>
+				mem_op =>
+				wb_op =>
+				exc_dec =>		
+			);
+	
+	
+		exec_inst : entity work.exec
+			port map(
+			--in
+				memop_in =>
+				jmpop_in =>
+				wbop_in =>
+				forwardA =>
+				forwardB =>
+				cop0_rddata =>
+				mem_aluresult =>
+				wb_result =>
+				
+			--out
+				pc_out =>
+				rd, rs, rt =>
+				aluresult =>
+				wrdata =>
+				zero =>
+				neg =>
+				new_pc =>		
+				memop_out =>
+				jmpop_out =>	
+				wbop_out =>
+				exc_ovf =>		
 			);
 
-			port (
-		clk, reset       : in  std_logic;
-		stall      		 : in  std_logic;
-		flush            : in  std_logic;
-		pc_in            : in  std_logic_vector(PC_WIDTH-1 downto 0);
-		op	   	         : in  exec_op_type;
-		pc_out           : out std_logic_vector(PC_WIDTH-1 downto 0);
-		rd, rs, rt       : out std_logic_vector(REG_BITS-1 downto 0);
-		aluresult	     : out std_logic_vector(DATA_WIDTH-1 downto 0);
-		wrdata           : out std_logic_vector(DATA_WIDTH-1 downto 0);
-		zero, neg         : out std_logic;
-		new_pc           : out std_logic_vector(PC_WIDTH-1 downto 0);		
-		memop_in         : in  mem_op_type;
-		memop_out        : out mem_op_type;
-		jmpop_in         : in  jmp_op_type;
-		jmpop_out        : out jmp_op_type;
-		wbop_in          : in  wb_op_type;
-		wbop_out         : out wb_op_type;
-		forwardA         : in  fwd_type;
-		forwardB         : in  fwd_type;
-		cop0_rddata      : in  std_logic_vector(DATA_WIDTH-1 downto 0);
-		mem_aluresult    : in  std_logic_vector(DATA_WIDTH-1 downto 0);
-		wb_result        : in  std_logic_vector(DATA_WIDTH-1 downto 0);
-		exc_ovf          : out std_logic);
-
-		exec_inst : entity exec
+		mem_inst : entity work.mem
 			port map(
-			);
+			--in
+				clk => clk,
+				reset => reset,
+				stall => null, --TODO
+				flush => null, --TODO
+				mem_op => null, --TODO
+				jmp_op => null, --TODO
+				pc_in => null, --TODO
+				rd_in => null, --TODO
+				aluresult_in => null, --TODO
+				wrdata => null, --TODO
+				zero  => null, --TODO 
+				neg => null, --TODO
+				new_pc_in => null, --TODO
+				wbop_in => null, --TODO
+				mem_data => null, --TODO
+				
+			--out
+				pc_out => null, --TODO
+				pcsrc => null, --TODO
+				rd_out => mem_rd_out, --TODO
+				aluresult_out => mem_aluresult_out, 
+				memresult => mem_memresult, 
+				new_pc_out => null, --TODO
+				wbop_out => mem_wbop_out,
+				mem_out => null, --TODO
+				exc_load => null, --TODO
+				exc_store  => null, --TODO
+			);				
 
-			port (
-		clk, reset    : in  std_logic;
-		stall         : in  std_logic;
-		flush         : in  std_logic;
-		mem_op        : in  mem_op_type;
-		jmp_op        : in  jmp_op_type;
-		pc_in         : in  std_logic_vector(PC_WIDTH-1 downto 0);
-		rd_in         : in  std_logic_vector(REG_BITS-1 downto 0);
-		aluresult_in  : in  std_logic_vector(DATA_WIDTH-1 downto 0);
-		wrdata        : in  std_logic_vector(DATA_WIDTH-1 downto 0);
-		zero, neg     : in  std_logic;
-		new_pc_in     : in  std_logic_vector(PC_WIDTH-1 downto 0);
-		pc_out        : out std_logic_vector(PC_WIDTH-1 downto 0);
-		pcsrc         : out std_logic;
-		rd_out        : out std_logic_vector(REG_BITS-1 downto 0);
-		aluresult_out : out std_logic_vector(DATA_WIDTH-1 downto 0);
-		memresult     : out std_logic_vector(DATA_WIDTH-1 downto 0);
-		new_pc_out    : out std_logic_vector(PC_WIDTH-1 downto 0);
-		wbop_in       : in  wb_op_type;
-		wbop_out      : out wb_op_type;
-		mem_out       : out mem_out_type;
-		mem_data      : in  std_logic_vector(DATA_WIDTH-1 downto 0);
-		exc_load      : out std_logic;
-		exc_store     : out std_logic);
-
-		mem_inst : entity mem
+		wb_inst : entity work.wb
+		--TODO: Programmcounter implement
 			port map(
+			--in
+				clk => clk,
+				reset => reset,
+				stall => null,
+				flush => '0',
+				op => mem_op_type,
+				rd_in => mem_rd_out,
+				aluresult => mem_aluresult_out,
+				memresult => mem_memresult,
+				
+			--out
+				rd_out =>
+				result =>
+				regwrite =>		
 			);
-
-			port (
-		clk, reset : in  std_logic;
-		stall      : in  std_logic;
-		flush      : in  std_logic;
-		op	   	   : in  wb_op_type;
-		rd_in      : in  std_logic_vector(REG_BITS-1 downto 0);
-		aluresult  : in  std_logic_vector(DATA_WIDTH-1 downto 0);
-		memresult  : in  std_logic_vector(DATA_WIDTH-1 downto 0);
-		rd_out     : out std_logic_vector(REG_BITS-1 downto 0);
-		result     : out std_logic_vector(DATA_WIDTH-1 downto 0);
-		regwrite   : out std_logic);
-
-		wb_inst : entity wb
-			port map(
-			);
-			
-			port (
-			
-		clk, reset : in  std_logic;
-		stall      : in  std_logic;
-		flush      : in  std_logic;
-		op	   	   : in  wb_op_type;
-		rd_in      : in  std_logic_vector(REG_BITS-1 downto 0);
-		aluresult  : in  std_logic_vector(DATA_WIDTH-1 downto 0);
-		memresult  : in  std_logic_vector(DATA_WIDTH-1 downto 0);
-		rd_out     : out std_logic_vector(REG_BITS-1 downto 0);
-		result     : out std_logic_vector(DATA_WIDTH-1 downto 0);
-		regwrite   : out std_logic);	
 			
 	end process pipeline_proc;
 end rtl;
