@@ -15,6 +15,8 @@ end pipeline;
 
 architecture rtl of pipeline is
 
+signal flush : std_logic;
+
 --fetch signals
 signal f_instr : std_logic_vector(INSTR_WIDTH-1 downto 0));
 
@@ -40,7 +42,7 @@ begin  -- rtl
 			-- in
 				clk => clk,
 				reset => reset,
-				stall => null, --TODO
+				stall => stall,
 				pcsrc => null, --TODO
 				pc_in => null, --TODO
 			-- out
@@ -55,7 +57,7 @@ begin  -- rtl
 				clk => clk,
 				reset => reset,
 				stall => stall,
-				flush => '0',
+				flush => flush,
 				pc_in => null, --TODO
 				instr => f_instr,
 				wraddr =>
@@ -108,7 +110,7 @@ begin  -- rtl
 				clk => clk,
 				reset => reset,
 				stall => stall,
-				flush => null, --TODO
+				flush => flush,
 				mem_op => null, --TODO
 				jmp_op => null, --TODO
 				pc_in => null, --TODO
@@ -141,7 +143,7 @@ begin  -- rtl
 				clk => clk,
 				reset => reset,
 				stall => stall,
-				flush => '0',
+				flush => flush,
 				op => mem_op_type,
 				rd_in => mem_rd_out,
 				aluresult => mem_aluresult_out,
