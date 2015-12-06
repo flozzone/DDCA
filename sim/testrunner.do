@@ -46,6 +46,8 @@ if { [string match *${tb}* $venv] } {
 	vsim -assertdebug -msgmode both -displaymsgmode both work.${tb}_tb
 }
 
+do util.do
+
 do $wave_path
 
 foreach file $testfiles {
