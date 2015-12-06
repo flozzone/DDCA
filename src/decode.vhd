@@ -37,7 +37,7 @@ architecture rtl of decode is
     signal int_exec_op      : exec_op_type;
     signal int_cop0_op      : cop0_op_type;
     signal int_jmp_op       : jmp_op_type;
-    signal int_memo_op      : mem_op_type;
+    signal int_mem_op      : mem_op_type;
     signal int_wb_op        : wb_op_type;
     signal int_exc_dec      : std_logic;
     
@@ -48,7 +48,7 @@ architecture rtl of decode is
     signal int_wrdata       : std_logic_vector(DATA_WIDTH-1 downto 0);
     
     -- intern regfile signals
-    signal int_stall_reg    : std_logic;
+    signal int_stall_reg    : std_logic; --TODO: use it
     signal int_rdaddr1      : std_logic_vector(REG_BITS-1 downto 0);
     signal int_rdaddr2      : std_logic_vector(REG_BITS-1 downto 0);
     signal int_rddata1      : std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -138,7 +138,7 @@ begin  -- rtl
                 int_exec_op <= EXEC_NOP;
                 int_cop0_op <= COP0_NOP;
                 int_jmp_op  <= JMP_NOP;
-                int_memo_op <= MEM_NOP;
+                int_mem_op <= MEM_NOP;
                 int_wb_op   <= WB_NOP;
                 int_exc_dec <= '0';
                 
@@ -312,8 +312,7 @@ begin  -- rtl
                         -- set exec_op_typ output
                         int_exec_op.rs <= rs;
                         int_exec_op.readdata1 <= int_rddata1;
-                        --int_exec_op.imm <= std_logic_vector(resize(unsigned(adrim), DATA_WIDTH));
-                        int_exec_op.imm <= std_logic_vector(resize(shift_left(Unsigned(adrim), 2), DATA_WIDTH));
+                        int_exec_op.imm <= std_logic_vector(resize(shift_left(signed(adrim), 2), DATA_WIDTH));
                         int_exec_op.useimm <= '1';
                         pc_out <= int_pc_in;
                         
@@ -350,8 +349,8 @@ begin  -- rtl
                         -- ############## end case rd ############## --
                     when "000010" =>
                         -- Format: J    Syntax: J address   Semantics: pc = address0/ << 2    
-                        --TODO
-                        null;
+                        int_jmp_op <= JMP_JMP;
+                        pc_out <= std_logic_vector(resize(shift_left(Unsigned(taradr), 2), PC_WIDTH));
                     when "000011" =>
                         -- Format: J    Syntax: JAL address   Semantics: r31 = pc+4; pc = address0/ << 2
                         --TODO
@@ -374,12 +373,30 @@ begin  -- rtl
                         null;
                     when "001000" =>
                         -- Format: I    Syntax:  ADDI rd, rs, imm16   Semantics: rd = rs + imm±, overflow trap
-                        --TODO
-                        null;
+                        -- read value from register
+                        int_rdaddr1 <= rs;
+                        
+                        -- set exec_op_typ output
+                        int_exec_op.aluop <= ALU_ADD;
+                        int_exec_op.rd <= rd;
+                        int_exec_op.rs <= rs;
+                        int_exec_op.imm <= std_logic_vector(resize(signed(adrim), DATA_WIDTH));
+                        int_exec_op.readdata1 <= int_rddata1;
+                        int_exec_op.useimm <= '1';
+                        int_exec_op.ovf <= '1';
+                        
                     when "001001" =>
                         -- Format: I    Syntax: ADDIU rd, rs, imm16    Semantics: rd = rs + imm±
-                        --TODO
-                        null;
+                        int_rdaddr1 <= rs;
+                        
+                        -- set exec_op_typ output
+                        int_exec_op.aluop <= ALU_ADD;
+                        int_exec_op.rd <= rd;
+                        int_exec_op.rs <= rs;
+                        int_exec_op.imm <= std_logic_vector(resize(signed(adrim), DATA_WIDTH));
+                        int_exec_op.readdata1 <= int_rddata1;
+                        int_exec_op.useimm <= '1';
+                        
                     when "001010" =>
                         -- Format: I    Syntax: SLTI rd, rs, imm16   Semantics: rd = (rs± < imm±) ? 1 : 0
                         --TODO
@@ -390,20 +407,51 @@ begin  -- rtl
                         null;
                     when "001100" =>
                         -- Format: I    Syntax: ANDI rd, rs, imm16   Semantics: rd = rs & imm0
-                        --TODO
-                        null;
+                        -- read value from register
+                        int_rdaddr1 <= rs;
+                        
+                        -- set exec_op_typ output
+                        int_exec_op.aluop <= ALU_AND;
+                        int_exec_op.rd <= rd;
+                        int_exec_op.rs <= rs;
+                        int_exec_op.imm <= std_logic_vector(resize(signed(adrim), DATA_WIDTH));
+                        int_exec_op.readdata1 <= int_rddata1;
+                        int_exec_op.useimm <= '1';
+                        
                     when "001101" =>
                         -- Format: I    Syntax:  ORI rd, rs, imm16   Semantics: rd = rs | imm0
-                        --TODO
-                        null;
+                        -- read value from register
+                        int_rdaddr1 <= rs;
+                        
+                        -- set exec_op_typ output
+                        int_exec_op.aluop <= ALU_OR;
+                        int_exec_op.rd <= rd;
+                        int_exec_op.rs <= rs;
+                        int_exec_op.imm <= std_logic_vector(resize(signed(adrim), DATA_WIDTH));
+                        int_exec_op.readdata1 <= int_rddata1;
+                        int_exec_op.useimm <= '1';
+                        
                     when "001110" =>
                         -- Format: I    Syntax:  XORI rd, rs, imm16   Semantics: rd = rs ^ imm0
-                        --TODO
-                        null;
+                        -- read value from register
+                        int_rdaddr1 <= rs;
+                        
+                        -- set exec_op_typ output
+                        int_exec_op.aluop <= ALU_XOR;
+                        int_exec_op.rd <= rd;
+                        int_exec_op.rs <= rs;
+                        int_exec_op.imm <= std_logic_vector(resize(signed(adrim), DATA_WIDTH));
+                        int_exec_op.readdata1 <= int_rddata1;
+                        int_exec_op.useimm <= '1';
+                        
                     when "001111" =>
                         -- Format: I    Syntax:  LUI rd, imm16   Semantics: rd = imm0/ << 16
-                        --TODO
-                        null;
+                        -- set exec_op_typ output
+                        int_exec_op.aluop <= ALU_LUI;
+                        int_exec_op.rd <= rd;
+                        int_exec_op.imm <= std_logic_vector(resize(signed(adrim), DATA_WIDTH));
+                        int_exec_op.useimm <= '1';
+                        
                     when "010000" =>
                         -- Format: R    Syntax: --   Semantics: Table 23
                         -- ############## start case rs ############## --
@@ -415,6 +463,8 @@ begin  -- rtl
                             when "00100" =>
                                 -- Syntax: MTC0 rt, rd Semantics: rd = rt, rd register in coprocessor 0
                                 --TODO
+                                
+                                --TODO: set cop0=1
                                 null;
                             when others =>
                                 --TODO
@@ -423,36 +473,120 @@ begin  -- rtl
                         -- ############## end case rs ############## --
                     when "100000" =>
                         -- Format: I    Syntax:  LB rd, imm16(rs)    Semantics: rd = (int8_t)[rs+imm±]
-                        --TODO
-                        null;
+                        -- read value from register
+                        int_rdaddr1 <= rs;
+                        
+                        -- set mem_op_type output
+                        int_mem_op.memtype <= MEM_B;
+                        int_mem_op.memread <= '1';
+                        int_exec_op.aluop <= ALU_NOP;
+                        int_exec_op.rd <= rd;
+                        int_exec_op.rs <= rs;
+                        int_exec_op.readdata1 <= int_rddata1;
+                        
                     when "100001" =>
                         -- Format: I    Syntax: LH rd, imm16(rs)   Semantics: rd = (int16_t)[rs+imm±]
-                        --TODO
-                        null;
+                        -- read value from register
+                        int_rdaddr1 <= rs;
+                        
+                        -- set mem_op_type output
+                        int_mem_op.memtype <= MEM_H;
+                        int_mem_op.memread <= '1';
+                        int_exec_op.aluop <= ALU_NOP;
+                        int_exec_op.rd <= rd;
+                        int_exec_op.rs <= rs;
+                        int_exec_op.readdata1 <= int_rddata1;
+                        
                     when "100011" =>
                         -- Format: I    Syntax: LW rd, imm16(rs)   Semantics: rd = (int32_t)[rs+imm±]
-                        --TODO
-                        null;
+                        -- read value from register
+                        int_rdaddr1 <= rs;
+                        
+                        -- set mem_op_type output
+                        int_mem_op.memtype <= MEM_W;
+                        int_mem_op.memread <= '1';
+                        int_exec_op.aluop <= ALU_NOP;
+                        int_exec_op.rd <= rd;
+                        int_exec_op.rs <= rs;
+                        int_exec_op.readdata1 <= int_rddata1;
+                        
                     when "100100" =>
                         -- Format: I    Syntax: LBU rd, imm16(rs)   Semantics: rd = (uint8_t)[rs+imm±]
-                        --TODO
-                        null;
+                        -- read value from register
+                        int_rdaddr1 <= rs;
+                        
+                        -- set mem_op_type output
+                        int_mem_op.memtype <= MEM_BU;
+                        int_mem_op.memread <= '1';
+                        int_exec_op.aluop <= ALU_NOP;
+                        int_exec_op.rd <= rd;
+                        int_exec_op.rs <= rs;
+                        int_exec_op.readdata1 <= int_rddata1;
+                        
                     when "100101" =>
                         -- Format: I    Syntax:  LHU rd, imm16(rs)   Semantics: rd = (uint16_t)[rs+imm±]
-                        --TODO
-                        null;
+                        -- read value from register
+                        int_rdaddr1 <= rs;
+                        
+                        -- set mem_op_type output
+                        int_mem_op.memtype <= MEM_HU;
+                        int_mem_op.memread <= '1';
+                        int_exec_op.aluop <= ALU_NOP;
+                        int_exec_op.rd <= rd;
+                        int_exec_op.rs <= rs;
+                        int_exec_op.readdata1 <= int_rddata1;
+                        
                     when "101000" =>
                         -- Format: I    Syntax:  SB rd, imm16(rs)   Semantics: (int8_t)[rs+imm±] = rd7:0
-                        --TODO
-                        null;
+                        -- read value from register
+                        int_rdaddr1 <= rs;
+                        int_rdaddr2 <= rd;
+                        
+                        -- set mem_op_type output
+                        int_mem_op.memtype <= MEM_B;
+                        int_mem_op.memwrite <= '1';
+                        int_exec_op.aluop <= ALU_NOP;
+                        int_exec_op.rd <= rd;
+                        int_exec_op.rs <= rs;
+                        int_exec_op.imm <= std_logic_vector(resize(signed(adrim), DATA_WIDTH));
+                        int_exec_op.readdata1 <= int_rddata1;
+                        int_exec_op.readdata2 <= int_rddata2;
+                        int_exec_op.useimm <= '1';
+                        
                     when "101001" =>
                         -- Format: I    Syntax: SH rd, imm16(rs)   Semantics: (int16_t)[rs+imm±] = rd15:0
-                        --TODO
-                        null;
+                        -- read value from register
+                        int_rdaddr1 <= rs;
+                        int_rdaddr2 <= rd;
+                        
+                        -- set mem_op_type output
+                        int_mem_op.memtype <= MEM_H;
+                        int_mem_op.memwrite <= '1';
+                        int_exec_op.aluop <= ALU_NOP;
+                        int_exec_op.rd <= rd;
+                        int_exec_op.rs <= rs;
+                        int_exec_op.imm <= std_logic_vector(resize(signed(adrim), DATA_WIDTH));
+                        int_exec_op.readdata1 <= int_rddata1;
+                        int_exec_op.readdata2 <= int_rddata2;
+                        int_exec_op.useimm <= '1';
+                        
                     when "101011" =>
                         -- Format: I    Syntax:  SW rd, imm16(rs)   Semantics: (int32_t)[rs+imm±] = rd
-                        --TODO
-                        null;
+                        -- read value from register
+                        int_rdaddr1 <= rs;
+                        int_rdaddr2 <= rd;
+                        
+                        -- set mem_op_type output
+                        int_mem_op.memtype <= MEM_W;
+                        int_mem_op.memwrite <= '1';
+                        int_exec_op.aluop <= ALU_NOP;
+                        int_exec_op.rd <= rd;
+                        int_exec_op.rs <= rs;
+                        int_exec_op.imm <= std_logic_vector(resize(signed(adrim), DATA_WIDTH));
+                        int_exec_op.readdata1 <= int_rddata1;
+                        int_exec_op.readdata2 <= int_rddata2;
+                        int_exec_op.useimm <= '1';
+                        
                     when others =>
                         --TODO
                         null;
