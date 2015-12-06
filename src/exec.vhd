@@ -44,10 +44,6 @@ signal alu_R : std_logic_vector(DATA_WIDTH-1 downto 0);
 signal alu_Z : std_logic;
 signal alu_V : std_logic;
 
-signal add_A : std_logic_vector(DATA_WIDTH-1 downto 0);
-signal add_B : std_logic_vector(DATA_WIDTH-1 downto 0);
-signal add_R : std_logic_vector(DATA_WIDTH-1 downto 0);
-
 begin  -- rtl
 	alu_inst : entity alu
 	port map (
@@ -71,7 +67,7 @@ begin  -- rtl
 			rs <= op.rs;
 			rt <= op.rt;
 			-- depends on instruction format
-			if op.regdst = '1' then
+			if op.regdst = '0' then
 				-- R format
 				rd <= op.rd;
 			else
@@ -98,14 +94,16 @@ begin  -- rtl
 			elsif op.useimm = '0' and op.useamt = '1' then
 				--- shifts, SLL, SRL, SRA
 				alu_A <= op.readdata2;
+
+				-- shamt will stay at op.imm[5:0]
 				alu_B <= op.imm;
 				aluresult <= alu_R;
+			elsif op.cop0 = '1' then
+				aluresult <= cop0_rddata;
 			end if;
 			zero <= alu_Z;
 
 			-- aluresult
-			-- * aluresult <= alu_R 
-			-- * aluresult <= cop0_rddata for mfc0 instr
 			-- * aluresult <= pc_in (adjusted!? with ALU, see op.link) for jal, jalr instr
 			-- * aluresult <= pc_in (adjusted!? with own adder, see op.link) for bltzal, bgtzal instr
 
@@ -118,15 +116,13 @@ begin  -- rtl
 			--TODO: how to compute negative flag?
 			--neg <= ?? (only with signed data)
 
-			-- jmp flag set when: JR
+			report "Starting";
+			if op.branch = '1' then
+				report "imm: " & integer'IMAGE(to_integer(unsigned(op.imm(new_pc'LENGTH downto 0))));
+				new_pc <= std_logic_vector(unsigned(pc_in) + unsigned(op.imm(new_pc'LENGTH downto 0)));
+			end if;
 
-
-
-			-- Markus: ich denk mir bam JALR machn wir es so: ich setzt das link flag im op_type + JMP_JMP + ALU_NOP
-			-- Markus: beim JR geb ich dir ein jmp_op_type = JMP_JMP und den pc_out setz ich auf die ziel adresse
-			-- Markus: bei SLL kriegst von mir readdata2 (der wert von regfile(rt)) und die imm (shamt), also rt => A und imm => B
-
-			-- TODO: ignore these signals for this assignment
+			-- TODO: ignore these signals for lab3
 			-- forwardA
 			-- forwardB
 			-- mem_aluresult
@@ -134,10 +130,4 @@ begin  -- rtl
 			
 		end if;
 	end process multiplex;
-
-
-	adder : process(add_A, add_B)
-	begin
-		add_R <= std_logic_vector(unsigned(add_A) + unsigned(add_B));
-	end process adder;
 end rtl;
