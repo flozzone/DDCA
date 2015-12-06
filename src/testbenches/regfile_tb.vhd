@@ -31,7 +31,7 @@ architecture arch of regfile_tb is
     constant CLK_PERIOD : time := 20 ns;
     signal clk      : std_logic;
 
-    --signal s_reset      : std_logic;
+    signal s_reset      : std_logic;
     signal s_stall      : std_logic;
     signal s_rdaddr1    : std_logic_vector(REG_BITS-1 downto 0);
     signal s_rdaddr2    : std_logic_vector(REG_BITS-1 downto 0);
@@ -51,7 +51,7 @@ begin
     regfile_inst : entity regfile
     port map (
         clk         => clk,         -- in
-        reset       => '1',     -- in
+        reset       => s_reset,     -- in
         stall       => s_stall,       -- in
         rdaddr1     => s_rdaddr1,     -- in
         rdaddr2     => s_rdaddr2,     -- in
@@ -66,10 +66,12 @@ begin
     begin
         --IMPORTAND: set testrunner time to 4 ps
 
-        --s_reset <= '1';
+        s_reset <= '0';
         clk <= '0';
+        
 
         wait for 2 ps;
+        s_reset <= '1';
         clk <= '1';
 
         assert r_rddata1 = a_rddata1 report testfile & ": rddata1 is not equal: a_rddata1=" & to_bstring(a_rddata1) & " r_rddata1=" & to_bstring(r_rddata1);

@@ -1,6 +1,7 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate -label clk /regfile_tb/clk
+add wave -noupdate -label s_reset /regfile_tb/s_reset
 add wave -noupdate -label s_stall /regfile_tb/s_stall
 add wave -noupdate -label s_rdaddr1 -radix hexadecimal -radixshowbase 0 /regfile_tb/s_rdaddr1
 add wave -noupdate -label s_rdaddr2 -radix hexadecimal -radixshowbase 0 /regfile_tb/s_rdaddr2
@@ -13,7 +14,7 @@ add wave -noupdate -label a_rddata1 -radix hexadecimal -radixshowbase 0 /regfile
 add wave -noupdate -label a_rddata2 -radix hexadecimal -radixshowbase 0 /regfile_tb/a_rddata2
 add wave -noupdate -label testfile /regfile_tb/testfile
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {2 ps} 0} {{Cursor 2} {2405 ps} 0}
+WaveRestoreCursors {{Cursor 1} {3 ps} 0} {{Cursor 2} {2405 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100

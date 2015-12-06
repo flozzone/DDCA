@@ -10,7 +10,7 @@ entity regfile is
         clk, reset       : in  std_logic;
         stall            : in  std_logic;
         rdaddr1, rdaddr2 : in  std_logic_vector(REG_BITS-1 downto 0);
-        rddata1, rddata2 : out std_logic_vector(DATA_WIDTH-1 downto 0);
+        rddata1, rddata2 : out std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
         wraddr           : in  std_logic_vector(REG_BITS-1 downto 0);
         wrdata           : in  std_logic_vector(DATA_WIDTH-1 downto 0);
         regwrite         : in  std_logic);
@@ -21,7 +21,8 @@ architecture rtl of regfile is
     
     type register_type is array ((2**REG_BITS)-1 downto 0) of std_logic_vector (DATA_WIDTH-1 downto 0);
     signal register_A : register_type := (others => std_logic_vector(to_unsigned(0, DATA_WIDTH))); -- init
-
+    constant ZERO:  std_logic_vector (REG_BITS-1 downto 0) := (others => '0');
+    
 begin  -- rtl
     
     sync : process (clk, reset, stall, rdaddr1, rdaddr2, wraddr, wrdata, regwrite, register_A)
@@ -36,7 +37,7 @@ begin  -- rtl
             
         elsif rising_edge(clk) and stall = '0'then
             if regwrite = '1' then
-                if not (To_integer(unsigned(wraddr)) = 0) then
+                if not (wraddr = ZERO) then
                     -- no writes on addr 0
                     register_A(To_integer(unsigned(wraddr))) <= wrdata;
                 end if;
