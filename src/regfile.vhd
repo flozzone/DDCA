@@ -24,7 +24,7 @@ architecture rtl of regfile is
 
 begin  -- rtl
     
-    sync : process (clk, reset)
+    sync : process (clk, reset, stall, rdaddr1, rdaddr2, wraddr, wrdata, regwrite, register_A)
     
     begin
         if reset = '0' then
@@ -34,7 +34,7 @@ begin  -- rtl
             -- reset registry
             --register_A <= (others => (others => '0'));
             
-        elsif rising_edge(clk) then
+        elsif rising_edge(clk) and stall = '0'then
             if regwrite = '1' then
                 if not (To_integer(unsigned(wraddr)) = 0) then
                     -- no writes on addr 0
@@ -42,28 +42,28 @@ begin  -- rtl
                 end if;
             end if; -- wrdata
             
-            if stall = '0' then
-                -- latch requested values
-                -- read from adress 0 returns 0
-                -- writes are only visible in the next cycle, 
-                -- but the newest value should always be read
-                if (To_integer(unsigned(rdaddr1)) = 0) then
-                    rddata1 <= std_logic_vector(to_unsigned(0, rddata2'length));
-                elsif (wraddr = rdaddr1) and (regwrite = '1') then    
-                    rddata1 <= wrdata;
-                else 
-                    rddata1 <= register_A(To_integer(unsigned(rdaddr1)));
-                end if;
 
-                if (To_integer(unsigned(rdaddr2)) = 0) then
-                    rddata2 <= std_logic_vector(to_unsigned(0, rddata2'length));
-                elsif (wraddr = rdaddr2) and (regwrite = '1') then    
-                    rddata2 <= wrdata;
-                else 
-                    rddata2 <= register_A(To_integer(unsigned(rdaddr2)));
-                end if;               
+			-- latch requested values
+			-- read from adress 0 returns 0
+			-- writes are only visible in the next cycle, 
+			-- but the newest value should always be read
+			
+			if (To_integer(unsigned(rdaddr1)) = 0) then
+				rddata1 <= (others => '0');
+			elsif (wraddr = rdaddr1) and (regwrite = '1') then    
+				rddata1 <= wrdata;
+			else 
+				rddata1 <= register_A(To_integer(unsigned(rdaddr1)));
+			end if;
 
-            end if; -- stall
+			if (To_integer(unsigned(rdaddr2)) = 0) then
+				rddata2 <= std_logic_vector(to_unsigned(0, rddata2'length));
+			elsif (wraddr = rdaddr2) and (regwrite = '1') then    
+				rddata2 <= wrdata;
+			else 
+				rddata2 <= register_A(To_integer(unsigned(rdaddr2)));
+			end if;               
+
         end if; -- clk edge
     end process sync;
 end rtl;
