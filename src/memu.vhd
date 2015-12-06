@@ -30,7 +30,7 @@ architecture rtl of memu is
 
 type PATTERN is array (3 downto 0) of character;
 
-function word_game(
+function byte_swap(
 		data : std_logic_vector(DATA_WIDTH-1 downto 0);
 		x : PATTERN)
 			return std_logic_vector is
@@ -72,7 +72,7 @@ begin
 		ret := ret or ((3-i)*BYTE_WIDTH-1 downto 0 => '0') & tmp_word & (i*BYTE_WIDTH-1 downto 0 => '0');
 	end loop;
 	return ret;
-end word_game;
+end byte_swap;
 
 procedure set_exception(memread : in std_logic;
 														 memwrite : in std_logic;
@@ -116,16 +116,16 @@ begin  -- rtl
 				case A(1 downto 0) is
 					when "00" =>
 						M.byteena <= "1000";
-						M.wrdata <= word_game(W, "AXXX");
+						M.wrdata <= byte_swap(W, "AXXX");
 					when "01" =>
 						M.byteena <= "0100";
-						M.wrdata <= word_game(W, "XAXX");
+						M.wrdata <= byte_swap(W, "XAXX");
 					when "10" =>
 						M.byteena <= "0010";
-						M.wrdata <= word_game(W, "XXAX");
+						M.wrdata <= byte_swap(W, "XXAX");
 					when "11" =>
 						M.byteena <= "0001";
-						M.wrdata <= word_game(W, "XXXA");
+						M.wrdata <= byte_swap(W, "XXXA");
 					when others =>
 						null;
 				end case;
@@ -134,16 +134,16 @@ begin  -- rtl
 				case A(1 downto 0) is
 					when "00" =>
 						M.byteena <= "1100";
-						M.wrdata <= word_game(W, "BAXX");
+						M.wrdata <= byte_swap(W, "BAXX");
 					when "01" =>
 						M.byteena <= "1100";
-						M.wrdata <= word_game(W, "BAXX");
+						M.wrdata <= byte_swap(W, "BAXX");
 					when "10" =>
 						M.byteena <= "0011";
-						M.wrdata <= word_game(W, "XXBA");
+						M.wrdata <= byte_swap(W, "XXBA");
 					when "11" =>
 						M.byteena <= "0011";
-						M.wrdata <= word_game(W, "XXBA");
+						M.wrdata <= byte_swap(W, "XXBA");
 					when others =>
 						null;
 				end case;
@@ -151,16 +151,16 @@ begin  -- rtl
 				case A(1 downto 0) is
 					when "00" =>
 						M.byteena <= "1111";
-						M.wrdata <= word_game(W, "DCBA");
+						M.wrdata <= byte_swap(W, "DCBA");
 					when "01" =>
 						M.byteena <= "1111";
-						M.wrdata <= word_game(W, "DCBA");
+						M.wrdata <= byte_swap(W, "DCBA");
 					when "10" =>
 						M.byteena <= "1111";
-						M.wrdata <= word_game(W, "DCBA");
+						M.wrdata <= byte_swap(W, "DCBA");
 					when "11" =>
 						M.byteena <= "1111";
-						M.wrdata <= word_game(W, "DCBA");
+						M.wrdata <= byte_swap(W, "DCBA");
 					when others =>
 						null;
 				end case;
@@ -205,42 +205,42 @@ begin  -- rtl
 			case op.memtype is
 				when MEM_B =>
 					case A(1 downto 0) is
-						when "00" => R <= word_game(D, "SSSD");
-						when "01" => R <= word_game(D, "SSSC");
-						when "10" => R <= word_game(D, "SSSB");
-						when "11" => R <= word_game(D, "SSSA");
+						when "00" => R <= byte_swap(D, "SSSD");
+						when "01" => R <= byte_swap(D, "SSSC");
+						when "10" => R <= byte_swap(D, "SSSB");
+						when "11" => R <= byte_swap(D, "SSSA");
 						when others => null;
 					end case;
 				when MEM_BU =>
 					case A(1 downto 0) is
-						when "00" => R <= word_game(D, "000D");
-						when "01" => R <= word_game(D, "000C");
-						when "10" => R <= word_game(D, "000B");
-						when "11" => R <= word_game(D, "000A");
+						when "00" => R <= byte_swap(D, "000D");
+						when "01" => R <= byte_swap(D, "000C");
+						when "10" => R <= byte_swap(D, "000B");
+						when "11" => R <= byte_swap(D, "000A");
 						when others => null;
 					end case;
 				when MEM_H =>
 					case A(1 downto 0) is
-						when "00" => R <= word_game(D, "SSDC");
-						when "01" => R <= word_game(D, "SSDC");
-						when "10" => R <= word_game(D, "SSBA");
-						when "11" => R <= word_game(D, "SSBA");
+						when "00" => R <= byte_swap(D, "SSDC");
+						when "01" => R <= byte_swap(D, "SSDC");
+						when "10" => R <= byte_swap(D, "SSBA");
+						when "11" => R <= byte_swap(D, "SSBA");
 						when others => null;
 					end case;
 				when MEM_HU =>
 					case A(1 downto 0) is
-						when "00" => R <= word_game(D, "00DC");
-						when "01" => R <= word_game(D, "00DC");
-						when "10" => R <= word_game(D, "00BA");
-						when "11" => R <= word_game(D, "00BA");
+						when "00" => R <= byte_swap(D, "00DC");
+						when "01" => R <= byte_swap(D, "00DC");
+						when "10" => R <= byte_swap(D, "00BA");
+						when "11" => R <= byte_swap(D, "00BA");
 						when others => null;
 					end case;
 				when MEM_W =>
 					case A(1 downto 0) is
-						when "00" => R <= word_game(D, "DCBA");
-						when "01" => R <= word_game(D, "DCBA");
-						when "10" => R <= word_game(D, "DCBA");
-						when "11" => R <= word_game(D, "DCBA");
+						when "00" => R <= byte_swap(D, "DCBA");
+						when "01" => R <= byte_swap(D, "DCBA");
+						when "10" => R <= byte_swap(D, "DCBA");
+						when "11" => R <= byte_swap(D, "DCBA");
 						when others => null;
 					end case;
 				when others =>
