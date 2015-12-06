@@ -33,17 +33,17 @@ architecture arch of regfile_tb is
 
     signal s_reset      : std_logic;
     signal s_stall      : std_logic;
-    signal s_rdaddr1    : std_logic_vector(REG_BITS-1 downto 0);
-    signal s_rdaddr2    : std_logic_vector(REG_BITS-1 downto 0);
-    signal s_wraddr     : std_logic_vector(REG_BITS-1 downto 0);
-    signal s_wrdata     : std_logic_vector(DATA_WIDTH-1 downto 0);
-    signal s_regwrite   : std_logic;
+    signal s_rdaddr1    : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
+    signal s_rdaddr2    : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
+    signal s_wraddr     : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
+    signal s_wrdata     : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
+    signal s_regwrite   : std_logic := '0';
 
-    signal r_rddata1    : std_logic_vector(DATA_WIDTH-1 downto 0);
-    signal r_rddata2    : std_logic_vector(DATA_WIDTH-1 downto 0);
+    signal r_rddata1    : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
+    signal r_rddata2    : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
 
-    signal a_rddata1    : std_logic_vector(DATA_WIDTH-1 downto 0);
-    signal a_rddata2    : std_logic_vector(DATA_WIDTH-1 downto 0);
+    signal a_rddata1    : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
+    signal a_rddata2    : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
 
     signal testfile : string(8 downto 1);
 
@@ -68,7 +68,7 @@ begin
 
         s_reset <= '0';
         clk <= '0';
-        
+
 
         wait for 2 ps;
         s_reset <= '1';
@@ -76,7 +76,7 @@ begin
 
         assert r_rddata1 = a_rddata1 report testfile & ": rddata1 is not equal: a_rddata1=" & to_bstring(a_rddata1) & " r_rddata1=" & to_bstring(r_rddata1);
         assert r_rddata2 = a_rddata2 report testfile & ": rddata2 is not equal: a_rddata2=" & to_bstring(a_rddata2) & " r_rddata2=" & to_bstring(r_rddata2);
-        
+
         wait for 2 ps;
         clk <= '0';
 
