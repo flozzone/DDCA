@@ -18,11 +18,28 @@ architecture rtl of pipeline is
 --fetch signals
 signal f_instr : std_logic_vector(INSTR_WIDTH-1 downto 0));
 
+--decoder signals
+signal dec_pc_out : std_logic_vector(PC_WIDTH-1 downto 0);
+signal dec_exec_op : exec_op_type;
+signal dec_cop0_op : cop0_op_type;
+signal dec_jmp_op : jmp_op_type;
+signal dec_mem_op : mem_op_type;
+signal dec_wb_op : wb_op_type;
+signal dec_exec_dec : std_logic;
 
---memory singals
+
+--exec signals
+
+
+--memory signals
 signal mem_wbop_out : mem_op_type;
 signal mem_aluresult_out, mem_memresult : std_logic_vector(DATA_WIDTH-1 downto 0));
 signal mem_rd_out : out std_logic_vector(REG_BITS-1 downto 0);
+
+--wb signals
+signal wb_regwrite : std_logic;
+signal wb_result : std_logic_vector(DATA_WIDTH-1 downto 0));
+signal wb_rd_out : std_logic_vector(REG_BITS-1 downto 0);
 	
 begin  -- rtl
 
@@ -65,11 +82,11 @@ begin  -- rtl
 				
 			--out
 				pc_out =>
-				exec_op =>
+				exec_op => dec_exec_op,
 				cop0_op =>
-				jmp_op =>
-				mem_op =>
-				wb_op =>
+				jmp_op => dec_jmp_op,
+				mem_op => dec_mem_op,
+				wb_op => dec_wb_op,
 				exc_dec =>		
 			);
 	
@@ -77,9 +94,15 @@ begin  -- rtl
 		exec_inst : entity work.exec
 			port map(
 			--in
-				memop_in =>
-				jmpop_in =>
-				wbop_in =>
+				clk => clk,
+				reset => reset,
+				stall => null, --TODO
+				flush => '0',
+				op => dec_exec_op,
+				pc_in =>
+				memop_in => dec_mem_op,
+				jmpop_in => dec_jmp_op,
+				wbop_in => dec_wb_op,
 				forwardA =>
 				forwardB =>
 				cop0_rddata =>
@@ -106,7 +129,7 @@ begin  -- rtl
 				clk => clk,
 				reset => reset,
 				stall => null, --TODO
-				flush => null, --TODO
+				flush => '0',
 				mem_op => null, --TODO
 				jmp_op => null, --TODO
 				pc_in => null, --TODO
@@ -146,9 +169,9 @@ begin  -- rtl
 				memresult => mem_memresult,
 				
 			--out
-				rd_out =>
-				result =>
-				regwrite =>		
+				rd_out => wb_rd_out,
+				result => wb_result,
+				regwrite =>	wb_regwrite
 			);
 			
 	end process pipeline_proc;
