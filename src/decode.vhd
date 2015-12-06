@@ -65,6 +65,9 @@ architecture rtl of decode is
     signal func             : std_logic_vector(5 downto 0);
     signal adrim            : std_logic_vector(15 downto 0);
     signal taradr           : std_logic_vector(25 downto 0);
+    
+    -- flags
+    signal save_pc_r31      : std_logic;
 
 begin  -- rtl
     
@@ -105,9 +108,25 @@ begin  -- rtl
             int_wrdata_reg  <= (others => '0');
             int_regwrite<= '0';
             
-        elsif rising_edge(clk) then
-            --TODO: rising edge stuff
+            -- reset flags
+            save_pc_r31 <= '0';
             
+        elsif rising_edge(clk) then
+            -- write back
+            if int_regwrite = '1' then 
+                --TODO: write back stuff            
+                int_wraddr_reg <= wraddr;
+                int_wrdata_reg <= wrdata;
+            end if;
+            
+            if save_pc_r31 = '1' then
+                --TODO
+                int_wraddr_reg <= std_logic_vector(to_unsigned(31, REG_BITS));
+                int_wrdata_reg <= std_logic_vector(resize(unsigned(int_pc_in), DATA_WIDTH));
+                save_pc_r31 <= '0';
+            end if;
+            
+            -- latch inputs
             if stall = '0' then
                 --TODO: latch inputs into intern registers
                 int_pc_in   <= pc_in;
@@ -293,8 +312,10 @@ begin  -- rtl
                         -- set exec_op_typ output
                         int_exec_op.rs <= rs;
                         int_exec_op.readdata1 <= int_rddata1;
-                        int_exec_op.imm <= std_logic_vector(resize(unsigned(adrim), DATA_WIDTH));
+                        --int_exec_op.imm <= std_logic_vector(resize(unsigned(adrim), DATA_WIDTH));
+                        int_exec_op.imm <= std_logic_vector(resize(shift_left(Unsigned(adrim), 2), DATA_WIDTH));
                         int_exec_op.useimm <= '1';
+                        pc_out <= int_pc_in;
                         
                         -- ############## start case rd ############## --
                         case rd is 
@@ -313,12 +334,14 @@ begin  -- rtl
                                 int_exec_op.aluop <= ALU_ADD;
                                 int_jmp_op <= JMP_BLTZ;
                                 int_exec_op.rd <= std_logic_vector(to_unsigned(31, REG_BITS)); 
+                                save_pc_r31 <= '1';
                                 
                             when "10001" =>
                                 -- Syntax: BGEZAL rs, imm18 Semantics: r31 = pc+4; if (rs±>= 0) pc += imm±<< 2
                                 int_exec_op.aluop <= ALU_ADD;
                                 int_jmp_op <= JMP_BGEZ;
-                                int_exec_op.rd <= std_logic_vector(to_unsigned(31, REG_BITS)); 
+                                int_exec_op.rd <= std_logic_vector(to_unsigned(31, REG_BITS));
+                                save_pc_r31 <= '1';
                                 
                             when others =>
                                 --TODO
@@ -452,6 +475,9 @@ begin  -- rtl
                 int_wraddr_reg  <= (others => '0');
                 int_wrdata_reg  <= (others => '0');
                 int_regwrite<= '0';
+                
+                --TODO: reset save_pc_r31 flag?
+                --save_pc_r31 <= '0';
             end if;
             
         end if;
