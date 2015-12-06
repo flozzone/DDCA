@@ -28,7 +28,7 @@ architecture arch of memu_tb is
 	signal a_XL   : std_logic;
 	signal a_XS   : std_logic;
 
-  signal testfile : string(31 downto 1);
+  signal testfile : string(8 downto 1);
 
 begin
 	memu_inst : entity memu
