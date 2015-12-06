@@ -18,7 +18,6 @@ architecture rtl of pipeline is
 --fetch signals
 signal f_instr : std_logic_vector(INSTR_WIDTH-1 downto 0));
 
-
 --memory singals
 signal mem_wbop_out : mem_op_type;
 signal mem_aluresult_out, mem_memresult : std_logic_vector(DATA_WIDTH-1 downto 0));
@@ -55,7 +54,7 @@ begin  -- rtl
 			--in
 				clk => clk,
 				reset => reset,
-				stall => null, --TODO
+				stall => stall,
 				flush => '0',
 				pc_in => null, --TODO
 				instr => f_instr,
@@ -77,6 +76,9 @@ begin  -- rtl
 		exec_inst : entity work.exec
 			port map(
 			--in
+				clk => clk,
+				reset => reset,
+				stall => stall,
 				memop_in =>
 				jmpop_in =>
 				wbop_in =>
@@ -105,7 +107,7 @@ begin  -- rtl
 			--in
 				clk => clk,
 				reset => reset,
-				stall => null, --TODO
+				stall => stall,
 				flush => null, --TODO
 				mem_op => null, --TODO
 				jmp_op => null, --TODO
@@ -138,7 +140,7 @@ begin  -- rtl
 			--in
 				clk => clk,
 				reset => reset,
-				stall => null,
+				stall => stall,
 				flush => '0',
 				op => mem_op_type,
 				rd_in => mem_rd_out,
