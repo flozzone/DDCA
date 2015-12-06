@@ -44,7 +44,9 @@ signal alu_R : std_logic_vector(DATA_WIDTH-1 downto 0);
 signal alu_Z : std_logic;
 signal alu_V : std_logic;
 
-signal exec_op : in  exec_op_type;
+signal add_A : std_logic_vector(DATA_WIDTH-1 downto 0);
+signal add_B : std_logic_vector(DATA_WIDTH-1 downto 0);
+signal add_R : std_logic_vector(DATA_WIDTH-1 downto 0);
 
 begin  -- rtl
 	alu_inst : entity alu
@@ -60,17 +62,22 @@ begin  -- rtl
 	multiplex : process(clk, reset, stall, flush, op, pc_in, memop_in, jmpop_in, wbop_in, 
 			forwardA, forwardB, cop0_rddata, mem_aluresult, wb_result, alu_R, alu_Z, alu_V)
 	begin
-		-- TODO: just for convenience
-		exec_op <= op;
-		----
-
 
 		if reset = '0' then
 			null;
 		elsif rising_edge(clk) and stall = '0' then
-			exc_ovf <= op.ovf;
+
+			-- pass register addresses
 			rs <= op.rs;
 			rt <= op.rt;
+			-- depends on instruction format
+			if op.regdst = '1' then
+				-- R format
+				rd <= op.rd;
+			else
+				-- others
+				rd <= op.rt;
+			end if;
 
 			pc_out <= pc_in;
 			memop_out <= memop_in;
@@ -78,13 +85,20 @@ begin  -- rtl
 			wbop_out <= wbop_in;
 
 			-- ALU
-			alu_op <= exec_op.aluop;
-			alu_A <= exec_op.readdata1;
-			if exec_op.useimm = '0' then
-				alu_B <= exec_op.readdata2;
+			alu_op <= op.aluop;
+			alu_A <= op.readdata1;
+			if op.useimm = '0' and op.useamt = '0' then
+				-- R-Format instructions
+				alu_B <= op.readdata2;
 				aluresult <= alu_R;
-			else
-				alu_B <= exec_op.imm;
+			elsif op.useimm = '1' and op.useamt = '0' then
+				-- all I-Format instructions
+				alu_B <= op.imm;
+				aluresult <= alu_R;
+			elsif op.useimm = '0' and op.useamt = '1' then
+				--- shifts, SLL, SRL, SRA
+				alu_A <= op.readdata2;
+				alu_B <= op.imm;
 				aluresult <= alu_R;
 			end if;
 			zero <= alu_Z;
@@ -95,25 +109,35 @@ begin  -- rtl
 			-- * aluresult <= pc_in (adjusted!? with ALU, see op.link) for jal, jalr instr
 			-- * aluresult <= pc_in (adjusted!? with own adder, see op.link) for bltzal, bgtzal instr
 
+			-- assert overflow only when required by instruction
+			exc_ovf <= '0';
+			if op.ovf = '1' then
+				exc_ovf <= op.ovf;
+			end if;
 
 			--TODO: how to compute negative flag?
-			--neg <= ??
+			--neg <= ?? (only with signed data)
+
+			-- jmp flag set when: JR
+
+
+
+			-- Markus: ich denk mir bam JALR machn wir es so: ich setzt das link flag im op_type + JMP_JMP + ALU_NOP
+			-- Markus: beim JR geb ich dir ein jmp_op_type = JMP_JMP und den pc_out setz ich auf die ziel adresse
+			-- Markus: bei SLL kriegst von mir readdata2 (der wert von regfile(rt)) und die imm (shamt), also rt => A und imm => B
 
 			-- TODO: ignore these signals for this assignment
 			-- forwardA
 			-- forwardB
 			-- mem_aluresult
 			-- wb_result
-
-			-- depends on instruction format
-			if op.regdst = '1' then
-				-- R format
-				rd <= op.rd;
-			else
-				-- others
-				rd <= op.rt;
-			end if;
 			
 		end if;
 	end process multiplex;
+
+
+	adder : process(add_A, add_B)
+	begin
+		add_R <= std_logic_vector(unsigned(add_A) + unsigned(add_B));
+	end process adder;
 end rtl;
