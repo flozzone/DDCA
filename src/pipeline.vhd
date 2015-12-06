@@ -133,5 +133,19 @@ begin  -- rtl
 		wb_inst : entity wb
 			port map(
 			);
+			
+			port (
+			
+		clk, reset : in  std_logic;
+		stall      : in  std_logic;
+		flush      : in  std_logic;
+		op	   	   : in  wb_op_type;
+		rd_in      : in  std_logic_vector(REG_BITS-1 downto 0);
+		aluresult  : in  std_logic_vector(DATA_WIDTH-1 downto 0);
+		memresult  : in  std_logic_vector(DATA_WIDTH-1 downto 0);
+		rd_out     : out std_logic_vector(REG_BITS-1 downto 0);
+		result     : out std_logic_vector(DATA_WIDTH-1 downto 0);
+		regwrite   : out std_logic);	
+			
 	end process pipeline_proc;
 end rtl;
