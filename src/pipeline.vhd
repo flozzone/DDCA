@@ -15,33 +15,59 @@ end pipeline;
 
 architecture rtl of pipeline is
 
-signal flush : std_logic;
+signal clk     			: std_logic;
+signal reset   			: std_logic;
+signal stall    		: std_logic;
+signal flush  		  : std_logic;
 
---fetch signals
-signal f_instr : std_logic_vector(INSTR_WIDTH-1 downto 0));
+-- fetch - decode
+signal fd_pc
+signal fd_instr : std_logic_vector(INSTR_WIDTH-1 downto 0)); 
 
---decoder signals
-signal dec_pc_out : std_logic_vector(PC_WIDTH-1 downto 0);
-signal dec_exec_op : exec_op_type;
-signal dec_cop0_op : cop0_op_type;
-signal dec_jmp_op : jmp_op_type;
-signal dec_mem_op : mem_op_type;
-signal dec_wb_op : wb_op_type;
-signal dec_exec_dec : std_logic;
+-- decode - execute
+signal de_pc        : std_logic_vector(PC_WIDTH-1 downto 0);
+signal de_exec_op   : exec_op_type;
+signal de_cop0_op   : cop0_op_type;
+signal de_jmp_op    : jmp_op_type;
+signal de_mem_op    : mem_op_type;
+signal de_wb_op     : wb_op_type;
+signal de_exec_dec  : std_logic;
 
+-- execute - memory
+signal em_rd				: std_logic_vector(REG_BITS-1 downto 0);
+signal em_aluresult	: std_logic_vector(DATA_WIDTH-1 downto 0));
+signal em_wrdata		: std_logic_vector(DATA_WIDTH-1 downto 0));
+signal em_zero			: std_logic;
+signal em_neg				: std_logic;
+signal em_new_pc		: std_logic_vector(PC_WIDTH-1 downto 0);
+signal em_pc				: std_logic_vector(PC_WIDTH-1 downto 0);
+signal em_memop			: mem_op_type;
+signal em_jmpop			: jmp_op_type;
+signal em_wbop			: wb_op_type;
 
---exec signals
+-- memory - write back
+signal mw_memresult : std_logic_vector(DATA_WIDTH-1 downto 0));
+signal mw_pc				: std_logic_vector(PC_WIDTH-1 downto 0);
+signal mw_rd				: std_logic_vector(REG_BITS-1 downto 0);
+signal mw_aluresult : std_logic_vector(DATA_WIDTH-1 downto 0));
+signal mw_wbop			: wb_op_type;
 
+-- other
+signal fm_pcsrc			: std_logic;
+signal fm_new_pc		: std_logic_vector(PC_WIDTH-1 downto 0);
+signal dw_data		: std_logic_vector(DATA_WIDTH-1 downto 0));
+signal dw_regwrite  : std_logic;
+signal dw_rd				: std_logic_vector(REG_BITS-1 downto 0);
 
 --memory signals
-signal mem_wbop_out : mem_op_type;
-signal mem_aluresult_out, mem_memresult : std_logic_vector(DATA_WIDTH-1 downto 0));
-signal mem_rd_out : out std_logic_vector(REG_BITS-1 downto 0);
+--signal mem_wbop_out  : mem_op_type;
+--signal mem_aluresult_out, mem_memresult : std_logic_vector(DATA_WIDTH-1 downto 0));
+--signal mem_rd_out : out std_logic_vector(REG_BITS-1 downto 0);
 
 --wb signals
-signal wb_regwrite : std_logic;
-signal wb_result : std_logic_vector(DATA_WIDTH-1 downto 0));
-signal wb_rd_out : std_logic_vector(REG_BITS-1 downto 0);
+--signal wb_regwrite : std_logic;
+--signal wb_result : std_logic_vector(DATA_WIDTH-1 downto 0));
+--signal wb_rd_out : std_logic_vector(REG_BITS-1 downto 0);
 	
 begin  -- rtl
 
@@ -61,11 +87,11 @@ begin  -- rtl
 				clk => clk,
 				reset => reset,
 				stall => stall,
-				pcsrc => null, --TODO
-				pc_in => null, --TODO
+				pcsrc => fm_pcsrc,
+				pc_in => fm_new_pc,
 			-- out
-				pc_out => null, --TODO
-				instr => f_instr			
+				pc_out => fd_pc,
+				instr => fd_instr
 			);
 
 
@@ -76,20 +102,20 @@ begin  -- rtl
 				reset => reset,
 				stall => stall,
 				flush => flush,
-				pc_in => null, --TODO
-				instr => f_instr,
-				wraddr =>
-				wrdata =>
-				regwrite =>
+				pc_in => fd_pc,
+				instr => fd_instr,
+				wraddr => dw_rd,
+				wrdata => dw_data,
+				regwrite => dw_regwrite,
 				
 			--out
-				pc_out =>
-				exec_op => dec_exec_op,
-				cop0_op =>
-				jmp_op => dec_jmp_op,
-				mem_op => dec_mem_op,
-				wb_op => dec_wb_op,
-				exc_dec =>		
+				pc_out => de_pc,
+				exec_op => de_exec_op,
+				cop0_op => null, -- TODO
+				jmp_op => de_jmp_op,
+				mem_op => de_mem_op,
+				wb_op => de_wb_op,
+				exc_dec => null, -- TODO
 			);
 	
 	
@@ -100,12 +126,12 @@ begin  -- rtl
 				reset => reset,
 				stall => stall,
 				flush => flush,
-				memop_in => dec_mem_op,
-				jmpop_in => dec_jmp_op,
-				wbop_in => dec_wb_op,
-				forwardA =>
-				forwardB =>
-				cop0_rddata =>
+				memop_in => de_mem_op,
+				jmpop_in => de_jmp_op,
+				wbop_in => de_wb_op,
+				forwardA => null, -- TODO
+				forwardB => null, -- TODO
+				cop0_rddata => null, -- TODO
 				mem_aluresult =>
 				wb_result =>
 				
