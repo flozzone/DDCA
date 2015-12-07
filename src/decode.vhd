@@ -7,614 +7,899 @@ use work.op_pack.all;
 use work.regfile;
 
 entity decode is
-	
-	port (
-		clk, reset : in  std_logic;
-		stall      : in  std_logic;
-		flush      : in  std_logic;
-		pc_in      : in  std_logic_vector(PC_WIDTH-1 downto 0);
-		instr	   : in  std_logic_vector(INSTR_WIDTH-1 downto 0);
-		wraddr     : in  std_logic_vector(REG_BITS-1 downto 0);
-		wrdata     : in  std_logic_vector(DATA_WIDTH-1 downto 0);
-		regwrite   : in  std_logic;
-		pc_out     : out std_logic_vector(PC_WIDTH-1 downto 0);
-		exec_op    : out exec_op_type;
-		cop0_op    : out cop0_op_type;
-		jmp_op     : out jmp_op_type;
-		mem_op     : out mem_op_type;
-		wb_op      : out wb_op_type;
-		exc_dec    : out std_logic);
+
+    port (
+        clk, reset : in  std_logic;
+        stall      : in  std_logic;
+        flush      : in  std_logic;
+        pc_in      : in  std_logic_vector(PC_WIDTH-1 downto 0);
+        instr      : in  std_logic_vector(INSTR_WIDTH-1 downto 0);
+        wraddr     : in  std_logic_vector(REG_BITS-1 downto 0);
+        wrdata     : in  std_logic_vector(DATA_WIDTH-1 downto 0);
+        regwrite   : in  std_logic;
+        pc_out     : out std_logic_vector(PC_WIDTH-1 downto 0);
+        exec_op    : out exec_op_type;
+        cop0_op    : out cop0_op_type;
+        jmp_op     : out jmp_op_type;
+        mem_op     : out mem_op_type;
+        wb_op      : out wb_op_type;
+        exc_dec    : out std_logic);
 
 end decode;
 
 architecture rtl of decode is
-    
+
+    constant INSTR_ZERO : std_logic_vector (INSTR_WIDTH-1 downto 0) := (others => '0');
+
+    -- instruction codes
+    constant OP_SPECIAL : std_logic_vector(5 downto 0) := "000000";
+    constant OP_REGIMM  : std_logic_vector(5 downto 0) := "000001";
+    constant OP_J       : std_logic_vector(5 downto 0) := "000010";
+    constant OP_JAL     : std_logic_vector(5 downto 0) := "000011";
+    constant OP_BEQ     : std_logic_vector(5 downto 0) := "000100";
+    constant OP_BNE     : std_logic_vector(5 downto 0) := "000101";
+    constant OP_BLEZ    : std_logic_vector(5 downto 0) := "000110";
+    constant OP_BGTZ    : std_logic_vector(5 downto 0) := "000111";
+    constant OP_ADDI    : std_logic_vector(5 downto 0) := "001000";
+    constant OP_ADDIU   : std_logic_vector(5 downto 0) := "001001";
+    constant OP_SLTI    : std_logic_vector(5 downto 0) := "001010";
+    constant OP_SLTIU   : std_logic_vector(5 downto 0) := "001011";
+    constant OP_ANDI    : std_logic_vector(5 downto 0) := "001100";
+    constant OP_ORI     : std_logic_vector(5 downto 0) := "001101";
+    constant OP_XORI    : std_logic_vector(5 downto 0) := "001110";
+    constant OP_LUI     : std_logic_vector(5 downto 0) := "001111";
+    constant OP_COP0    : std_logic_vector(5 downto 0) := "010000";
+    constant OP_LB      : std_logic_vector(5 downto 0) := "100000";
+    constant OP_LH      : std_logic_vector(5 downto 0) := "100001";
+    constant OP_LW      : std_logic_vector(5 downto 0) := "100011";
+    constant OP_LBU     : std_logic_vector(5 downto 0) := "100100";
+    constant OP_LHU     : std_logic_vector(5 downto 0) := "100101";
+    constant OP_SB      : std_logic_vector(5 downto 0) := "101000";
+    constant OP_SH      : std_logic_vector(5 downto 0) := "101001";
+    constant OP_SW      : std_logic_vector(5 downto 0) := "101011";
+
+    -- instruction func codes
+    constant FU_SLL     : std_logic_vector(5 downto 0) := "000000";
+    constant FU_SRL     : std_logic_vector(5 downto 0) := "000010";
+    constant FU_SRA     : std_logic_vector(5 downto 0) := "000011";
+    constant FU_SLLV    : std_logic_vector(5 downto 0) := "000100";
+    constant FU_SRLV    : std_logic_vector(5 downto 0) := "000110";
+    constant FU_SRAV    : std_logic_vector(5 downto 0) := "000111";
+    constant FU_JR      : std_logic_vector(5 downto 0) := "001000";
+    constant FU_JALR    : std_logic_vector(5 downto 0) := "001001";
+    constant FU_ADD     : std_logic_vector(5 downto 0) := "100000";
+    constant FU_ADDU    : std_logic_vector(5 downto 0) := "100001";
+    constant FU_SUB     : std_logic_vector(5 downto 0) := "100010";
+    constant FU_SUBU    : std_logic_vector(5 downto 0) := "100011";
+    constant FU_AND     : std_logic_vector(5 downto 0) := "100100";
+    constant FU_OR      : std_logic_vector(5 downto 0) := "100101";
+    constant FU_XOR     : std_logic_vector(5 downto 0) := "100110";
+    constant FU_NOR     : std_logic_vector(5 downto 0) := "100111";
+    constant FU_SLT     : std_logic_vector(5 downto 0) := "101010";
+    constant FU_SLTU    : std_logic_vector(5 downto 0) := "101011";
+
+    -- instruction rd codes
+    constant RD_BLTZ    : std_logic_vector(4 downto 0) := "00000";
+    constant RD_BGEZ    : std_logic_vector(4 downto 0) := "00001";
+    constant RD_BLTZAL  : std_logic_vector(4 downto 0) := "10000";
+    constant RD_BGEZAL  : std_logic_vector(4 downto 0) := "10001";
+
+    -- instruction rs codes
+    constant RS_MFC0    : std_logic_vector(4 downto 0) := "00000";
+    constant RS_MTC0    : std_logic_vector(4 downto 0) := "00100";
+
     -- state machine states
     type DECODER_STATE_TYPE is (RESET_ST, DECODE_ST, READREGISTER, OUTPUT_ST);
     type DECODER_CMD IS (DEC_NOP, DEC_EXEC, DEC_COP0, DEC_JMP, DEC_MEM, DEC_WB);
 
-    -- signal deklarations
-    signal int_exec_op      : exec_op_type;
-    signal int_cop0_op      : cop0_op_type;
-    signal int_jmp_op       : jmp_op_type;
-    signal int_mem_op      : mem_op_type;
-    signal int_wb_op        : wb_op_type;
-    signal int_exc_dec      : std_logic;
-    
     -- intern decoder signals
-    signal int_pc_in        : std_logic_vector(PC_WIDTH-1 downto 0);
-	signal int_instr	    : std_logic_vector(INSTR_WIDTH-1 downto 0);
-    signal int_wraddr       : std_logic_vector(REG_BITS-1 downto 0);
-    signal int_wrdata       : std_logic_vector(DATA_WIDTH-1 downto 0);
-    
+    signal int_pc           : std_logic_vector(PC_WIDTH-1 downto 0);
+    signal int_instr        : std_logic_vector(INSTR_WIDTH-1 downto 0);
+
     -- intern regfile signals
-    signal int_stall_reg    : std_logic; --TODO: use it
     signal int_rdaddr1      : std_logic_vector(REG_BITS-1 downto 0);
     signal int_rdaddr2      : std_logic_vector(REG_BITS-1 downto 0);
     signal int_rddata1      : std_logic_vector(DATA_WIDTH-1 downto 0);
     signal int_rddata2      : std_logic_vector(DATA_WIDTH-1 downto 0);
-    signal int_wraddr_reg   : std_logic_vector(REG_BITS-1 downto 0);
-    signal int_wrdata_reg   : std_logic_vector(DATA_WIDTH-1 downto 0);
-    signal int_regwrite     : std_logic;
-    
-    signal opcode           : std_logic_vector(5 downto 0);
-    signal rs               : std_logic_vector(4 downto 0);
-    signal rt               : std_logic_vector(4 downto 0);
-    signal rd               : std_logic_vector(4 downto 0);
-    signal shamt            : std_logic_vector(4 downto 0);
-    signal func             : std_logic_vector(5 downto 0);
-    signal adrim            : std_logic_vector(15 downto 0);
-    signal taradr           : std_logic_vector(25 downto 0);
-    
-    -- flags
-    signal save_pc_r31      : std_logic;
+
+    alias opcode    : std_logic_vector(5 downto 0)  is int_instr(31 downto 26);
+    alias rs        : std_logic_vector(4 downto 0)  is int_instr(25 downto 21);
+    alias rt        : std_logic_vector(4 downto 0)  is int_instr(20 downto 16);
+    alias rd        : std_logic_vector(4 downto 0)  is int_instr(15 downto 11);
+    alias shamt     : std_logic_vector(4 downto 0)  is int_instr(10 downto 6);
+    alias func      : std_logic_vector(5 downto 0)  is int_instr(5 downto 0);
+    alias adrim     : std_logic_vector(15 downto 0) is int_instr(15 downto 0);
+    alias taradr    : std_logic_vector(25 downto 0) is int_instr(25 downto 0);
 
 begin  -- rtl
-    
+
     -- component deklarations
     regfile_inst : entity regfile
     port map (
         clk         => clk,
         reset       => reset,
-        stall       => int_stall_reg,   -- in
+        stall       => stall,           -- in
         rdaddr1     => int_rdaddr1,     -- in
         rdaddr2     => int_rdaddr2,     -- in
         rddata1     => int_rddata1,     -- out
         rddata2     => int_rddata2,     -- out
-        wraddr      => int_wraddr_reg,  -- in
-        wrdata      => int_wrdata_reg,  -- in
-        regwrite    => int_regwrite     -- in
+        wraddr      => wraddr,          -- in
+        wrdata      => wrdata,          -- in
+        regwrite    => regwrite         -- in
     );
-    
-    -- ############# --
-    -- process: sync --
-    -- ############# --
-    sync : process (clk, reset)
+
+    -- ##################### --
+    -- process: decode_input --
+    -- ##################### --
+    decode_input : process (clk, reset)
     begin
         if reset = '0' then
-            --TODO: reset
-            int_pc_in   <= (others => '0');
+            -- reset intern signals
+            int_pc      <= (others => '0');
             int_instr   <= (others => '0');
-            int_wraddr  <= (others => '0');
-            int_wrdata  <= (others => '0');
-            
-            -- reset regfile
-            int_stall_reg <= '0';
             int_rdaddr1 <= (others => '0');
             int_rdaddr2 <= (others => '0');
-            int_rddata1 <= (others => '0');
-            int_rdaddr2 <= (others => '0');
-            int_wraddr_reg  <= (others => '0');
-            int_wrdata_reg  <= (others => '0');
-            int_regwrite<= '0';
-            
-            -- reset flags
-            save_pc_r31 <= '0';
-            
         elsif rising_edge(clk) then
-            -- write back
-            if int_regwrite = '1' then 
-                --TODO: write back stuff            
-                int_wraddr_reg <= wraddr;
-                int_wrdata_reg <= wrdata;
-            end if;
-            
-            if save_pc_r31 = '1' then
-                --TODO
-                int_wraddr_reg <= std_logic_vector(to_unsigned(31, REG_BITS));
-                int_wrdata_reg <= std_logic_vector(resize(unsigned(int_pc_in), DATA_WIDTH));
-                save_pc_r31 <= '0';
-            end if;
-            
-            -- latch inputs
-            if stall = '0' then
-                --TODO: latch inputs into intern registers
-                int_pc_in   <= pc_in;
-                int_instr   <= instr;
-                int_wraddr  <= wraddr;
-                int_wrdata  <= wrdata;
-                
-                -- reset output signals
-                int_exec_op <= EXEC_NOP;
-                int_cop0_op <= COP0_NOP;
-                int_jmp_op  <= JMP_NOP;
-                int_mem_op <= MEM_NOP;
-                int_wb_op   <= WB_NOP;
-                int_exc_dec <= '0';
-                
-                -- decode instruction into its components
-                opcode <= int_instr(31 downto 26);
-                rs     <= int_instr(25 downto 21);
-                rt     <= int_instr(20 downto 16);
-                rd     <= int_instr(15 downto 11);
-                shamt  <= int_instr(10 downto 6);
-                func   <= int_instr(5 downto 0);
-                adrim  <= int_instr(15 downto 0);
-                taradr <= int_instr(25 downto 0);
-    
-                -- ############## start case opcode ############## --
-                case opcode is
-                    when "000000" =>
-                        -- Format: R    Syntax: --  Semantics:  Table 21
-                        -- read value from register
-                        int_rdaddr1 <= rs;
-                        int_rdaddr2 <= rt;
-                        
-                        -- set exec_op_typ output
-                        int_exec_op.rd <= rd;
-                        int_exec_op.rs <= rs;
-                        int_exec_op.rt <= rt;
-                        int_exec_op.readdata1 <= int_rddata1;
-                        int_exec_op.readdata2 <= int_rddata2;
-                        
-                        -- ############## start case func ############## --
-                        case func is 
-                            when "000000" =>
-                                -- Syntax: SLL rd, rt, shamt    Semantics: rd = rt << shamt
-                                -- set exec_op_typ output
-                                int_exec_op.aluop <= ALU_SLL;
-                                int_exec_op.imm <= std_logic_vector(resize(unsigned(shamt), DATA_WIDTH));
-                                int_exec_op.useamt <= '1';
-                                --TODO regdst
-                                -- int_exec_op.regdst <= '?'
-                                
-                            when "000010" =>
-                                -- Syntax: SRL rd, rt, shamt    Semantics: rd = rt0/ >> shamt
-                                -- set exec_op_typ output
-                                int_exec_op.aluop <= ALU_SRL;
-                                int_exec_op.imm <= std_logic_vector(resize(unsigned(shamt), DATA_WIDTH));
-                                int_exec_op.useamt <= '1';
-                                --TODO regdst
-                                -- int_exec_op.regdst <= '?'
-                                
-                            when "000011" =>
-                                -- Syntax: SRA rd, rt, shamt    Semantics: rd = rt± >> shamt
-                                -- set exec_op_typ output
-                                int_exec_op.aluop <= ALU_SRA;
-                                int_exec_op.imm <= std_logic_vector(resize(unsigned(shamt), DATA_WIDTH));
-                                int_exec_op.useamt <= '1';
-                                --TODO regdst
-                                -- int_exec_op.regdst <= '?'
-                                
-                            when "000100" =>
-                                -- Syntax: SLLV rd, rt, rs  Semantics: rd = rt << rs4:0
-                                -- set exec_op_typ output
-                                int_exec_op.aluop <= ALU_SLL;
-                                --TODO regdst
-                                -- int_exec_op.regdst <= '?'
-                                
-                            when "000110" =>
-                                -- Syntax: SRLV rd, rt, rs  Semantics: rd = rt0/ >> rs4:0
-                                -- set exec_op_typ output
-                                int_exec_op.aluop <= ALU_SRL;
-                                --TODO regdst
-                                -- int_exec_op.regdst <= '?'
-                                
-                            when "000111" =>
-                                -- Syntax: SRAV rd, rt, rs  Semantics: rd = rt±>> rs4:0
-                                -- set exec_op_typ output
-                                int_exec_op.aluop <= ALU_SRA;
-                                --TODO regdst
-                                -- int_exec_op.regdst <= '?'
-                                
-                            when "001000" =>
-                                -- Syntax: JR rs            Semantics: pc = rs
-                                -- set jmp_op_type output
-                                int_jmp_op <= JMP_JMP;
-                                pc_out <= int_rddata1(PC_WIDTH-1 downto 0);
-                                
-                            when "001001" =>
-                                -- Syntax: JALR rd, rs      Semantics: rd = pc+4; pc = rs
-                                --TODO
-                                null;
-                            when "100000" =>
-                                -- Syntax: ADD rd, rs, rt   Semantics: rd = rs + rt, overflow trap
-                                -- set exec_op_typ output
-                                int_exec_op.aluop <= ALU_ADD;
-                                int_exec_op.ovf <= '1';
-                                --TODO regdst
-                                -- int_exec_op.regdst <= '?'
-                                
-                            when "100001" =>
-                                -- Syntax: ADDU rd, rs, rt  Semantics: rd = rs + rt
-                                -- set exec_op_typ output
-                                int_exec_op.aluop <= ALU_ADD;
-                                --TODO regdst
-                                -- int_exec_op.regdst <= '?'
-                                
-                            when "100010" =>
-                                -- Syntax: SUB rd, rs, rt   Semantics: rd = rs - rt, overflow trap
-                                -- set exec_op_typ output
-                                int_exec_op.aluop <= ALU_SUB;
-                                int_exec_op.ovf <= '1';
-                                --TODO regdst
-                                -- int_exec_op.regdst <= '?'
-                                
-                            when "100011" =>
-                                -- Syntax: SUBU rd, rs, rt  Semantics: rd = rs - rt
-                                -- set exec_op_typ output
-                                int_exec_op.aluop <= ALU_SUB;
-                                --TODO regdst
-                                -- int_exec_op.regdst <= '?'
-                                
-                            when "100100" =>
-                                -- Syntax: AND rd, rs, rt   Semantics: rd = rs & rt
-                                -- set exec_op_typ output
-                                int_exec_op.aluop <= ALU_AND;
-                                --TODO regdst
-                                -- int_exec_op.regdst <= '?'
-                                
-                            when "100101" =>
-                                -- Syntax: OR rd, rs, rt    Semantics: rd = rs | rt
-                                -- set exec_op_typ output
-                                int_exec_op.aluop <= ALU_OR;
-                                --TODO regdst
-                                -- int_exec_op.regdst <= '?'
-                                
-                            when "100110" =>
-                                -- Syntax: XOR rd, rs, rt   Semantics: rd = rs ^ rt
-                                -- set exec_op_typ output
-                                int_exec_op.aluop <= ALU_XOR;
-                                --TODO regdst
-                                -- int_exec_op.regdst <= '?'
-                                
-                            when "100111" =>
-                                -- Syntax: NOR rd, rs, rt   Semantics: rd = ~(rs | rt)
-                                -- set exec_op_typ output
-                                int_exec_op.aluop <= ALU_NOR;
-                                --TODO regdst
-                                -- int_exec_op.regdst <= '?'
-                                
-                            when "101010" =>
-                                -- Syntax: SLT rd, rs, rt   Semantics: rd = (rs± < rt±) ? 1 : 0
-                                -- set exec_op_typ output
-                                int_exec_op.aluop <= ALU_SLT;
-                                --TODO regdst
-                                -- int_exec_op.regdst <= '?'
-                                
-                            when "101011" =>
-                                -- Syntax: SLTU rd, rs, rt  Semantics: rd = (rs0/ < rt0/ ) ? 1 : 0
-                                -- set exec_op_typ output
-                                int_exec_op.aluop <= ALU_SLTU;
-                                --TODO regdst
-                                -- int_exec_op.regdst <= '?'
-                                
-                            when others =>
-                                --TODO
-                                null;
-                        end case;
-                        -- ############## end case func ############## --
-                    when "000001" =>
-                        -- Format: I    Syntax: --  Semantics: Table 22
-                        -- read value from register
-                        int_rdaddr1 <= rs;
-                        
-                        -- set exec_op_typ output
-                        int_exec_op.rs <= rs;
-                        int_exec_op.readdata1 <= int_rddata1;
-                        int_exec_op.imm <= std_logic_vector(resize(shift_left(signed(adrim), 2), DATA_WIDTH));
-                        int_exec_op.useimm <= '1';
-                        pc_out <= int_pc_in;
-                        
-                        -- ############## start case rd ############## --
-                        case rd is 
-                            when "00000" =>
-                                -- Syntax: BLTZ rs, imm18   Semantics: if (rs±< 0) pc += imm±<< 2
-                                int_exec_op.aluop <= ALU_NOP;
-                                int_jmp_op <= JMP_BLTZ;
-                                
-                            when "00001" =>
-                                -- Syntax: BGEZ rs, imm18   Semantics: if (rs±>= 0) pc += imm±<< 2
-                                int_exec_op.aluop <= ALU_NOP;
-                                int_jmp_op <= JMP_BGEZ;
-                                
-                            when "10000" =>
-                                -- Syntax: BLTZAL rs, imm18 Semantics: r31 = pc+4; if (rs±< 0) pc += imm±<< 2
-                                int_exec_op.aluop <= ALU_ADD;
-                                int_jmp_op <= JMP_BLTZ;
-                                int_exec_op.rd <= std_logic_vector(to_unsigned(31, REG_BITS)); 
-                                save_pc_r31 <= '1';
-                                
-                            when "10001" =>
-                                -- Syntax: BGEZAL rs, imm18 Semantics: r31 = pc+4; if (rs±>= 0) pc += imm±<< 2
-                                int_exec_op.aluop <= ALU_ADD;
-                                int_jmp_op <= JMP_BGEZ;
-                                int_exec_op.rd <= std_logic_vector(to_unsigned(31, REG_BITS));
-                                save_pc_r31 <= '1';
-                                
-                            when others =>
-                                --TODO
-                                null;
-                        end case;
-                        -- ############## end case rd ############## --
-                    when "000010" =>
-                        -- Format: J    Syntax: J address   Semantics: pc = address0/ << 2    
-                        int_jmp_op <= JMP_JMP;
-                        pc_out <= std_logic_vector(resize(shift_left(Unsigned(taradr), 2), PC_WIDTH));
-                    when "000011" =>
-                        -- Format: J    Syntax: JAL address   Semantics: r31 = pc+4; pc = address0/ << 2
-                        --TODO
-                        null;
-                    when "000100" =>
-                        -- Format: I    Syntax: BEQ rd, rs, imm18   Semantics: if (rs == rd) pc += imm± << 2
-                        --TODO
-                        null;
-                    when "000101" =>
-                        -- Format: I    Syntax: BNE rd, rs, imm18   Semantics: if (rs != rd) pc += imm± << 2
-                        --TODO
-                        null;
-                    when "000110" =>
-                        -- Format: I    Syntax:  BLEZ rs, imm18   Semantics: if (rs±<= 0) pc += imm± << 2
-                        --TODO
-                        null;
-                    when "000111" =>
-                        -- Format: I    Syntax:  BGTZ rs, imm18   Semantics: if (rs±> 0) pc += imm± << 2
-                        --TODO
-                        null;
-                    when "001000" =>
-                        -- Format: I    Syntax:  ADDI rd, rs, imm16   Semantics: rd = rs + imm±, overflow trap
-                        -- read value from register
-                        int_rdaddr1 <= rs;
-                        
-                        -- set exec_op_typ output
-                        int_exec_op.aluop <= ALU_ADD;
-                        int_exec_op.rd <= rd;
-                        int_exec_op.rs <= rs;
-                        int_exec_op.imm <= std_logic_vector(resize(signed(adrim), DATA_WIDTH));
-                        int_exec_op.readdata1 <= int_rddata1;
-                        int_exec_op.useimm <= '1';
-                        int_exec_op.ovf <= '1';
-                        
-                    when "001001" =>
-                        -- Format: I    Syntax: ADDIU rd, rs, imm16    Semantics: rd = rs + imm±
-                        int_rdaddr1 <= rs;
-                        
-                        -- set exec_op_typ output
-                        int_exec_op.aluop <= ALU_ADD;
-                        int_exec_op.rd <= rd;
-                        int_exec_op.rs <= rs;
-                        int_exec_op.imm <= std_logic_vector(resize(signed(adrim), DATA_WIDTH));
-                        int_exec_op.readdata1 <= int_rddata1;
-                        int_exec_op.useimm <= '1';
-                        
-                    when "001010" =>
-                        -- Format: I    Syntax: SLTI rd, rs, imm16   Semantics: rd = (rs± < imm±) ? 1 : 0
-                        --TODO
-                        null;
-                    when "001011" =>
-                        -- Format: I    Syntax: SLTIU rd, rs, imm16    Semantics: rd = (rs0/ < imm0/) ? 1 : 0
-                        --TODO
-                        null;
-                    when "001100" =>
-                        -- Format: I    Syntax: ANDI rd, rs, imm16   Semantics: rd = rs & imm0
-                        -- read value from register
-                        int_rdaddr1 <= rs;
-                        
-                        -- set exec_op_typ output
-                        int_exec_op.aluop <= ALU_AND;
-                        int_exec_op.rd <= rd;
-                        int_exec_op.rs <= rs;
-                        int_exec_op.imm <= std_logic_vector(resize(signed(adrim), DATA_WIDTH));
-                        int_exec_op.readdata1 <= int_rddata1;
-                        int_exec_op.useimm <= '1';
-                        
-                    when "001101" =>
-                        -- Format: I    Syntax:  ORI rd, rs, imm16   Semantics: rd = rs | imm0
-                        -- read value from register
-                        int_rdaddr1 <= rs;
-                        
-                        -- set exec_op_typ output
-                        int_exec_op.aluop <= ALU_OR;
-                        int_exec_op.rd <= rd;
-                        int_exec_op.rs <= rs;
-                        int_exec_op.imm <= std_logic_vector(resize(signed(adrim), DATA_WIDTH));
-                        int_exec_op.readdata1 <= int_rddata1;
-                        int_exec_op.useimm <= '1';
-                        
-                    when "001110" =>
-                        -- Format: I    Syntax:  XORI rd, rs, imm16   Semantics: rd = rs ^ imm0
-                        -- read value from register
-                        int_rdaddr1 <= rs;
-                        
-                        -- set exec_op_typ output
-                        int_exec_op.aluop <= ALU_XOR;
-                        int_exec_op.rd <= rd;
-                        int_exec_op.rs <= rs;
-                        int_exec_op.imm <= std_logic_vector(resize(signed(adrim), DATA_WIDTH));
-                        int_exec_op.readdata1 <= int_rddata1;
-                        int_exec_op.useimm <= '1';
-                        
-                    when "001111" =>
-                        -- Format: I    Syntax:  LUI rd, imm16   Semantics: rd = imm0/ << 16
-                        -- set exec_op_typ output
-                        int_exec_op.aluop <= ALU_LUI;
-                        int_exec_op.rd <= rd;
-                        int_exec_op.imm <= std_logic_vector(resize(signed(adrim), DATA_WIDTH));
-                        int_exec_op.useimm <= '1';
-                        
-                    when "010000" =>
-                        -- Format: R    Syntax: --   Semantics: Table 23
-                        -- ############## start case rs ############## --
-                        case rs is
-                            when "00000" =>
-                                -- Syntax: MFC0 rt, rd Semantics: rt = rd, rd register in coprocessor 0
-                                --TODO
-                                null;
-                            when "00100" =>
-                                -- Syntax: MTC0 rt, rd Semantics: rd = rt, rd register in coprocessor 0
-                                --TODO
-                                
-                                --TODO: set cop0=1
-                                null;
-                            when others =>
-                                --TODO
-                                null;
-                        end case;
-                        -- ############## end case rs ############## --
-                    when "100000" =>
-                        -- Format: I    Syntax:  LB rd, imm16(rs)    Semantics: rd = (int8_t)[rs+imm±]
-                        -- read value from register
-                        int_rdaddr1 <= rs;
-                        
-                        -- set mem_op_type output
-                        int_mem_op.memtype <= MEM_B;
-                        int_mem_op.memread <= '1';
-                        int_exec_op.aluop <= ALU_NOP;
-                        int_exec_op.rd <= rd;
-                        int_exec_op.rs <= rs;
-                        int_exec_op.readdata1 <= int_rddata1;
-                        
-                    when "100001" =>
-                        -- Format: I    Syntax: LH rd, imm16(rs)   Semantics: rd = (int16_t)[rs+imm±]
-                        -- read value from register
-                        int_rdaddr1 <= rs;
-                        
-                        -- set mem_op_type output
-                        int_mem_op.memtype <= MEM_H;
-                        int_mem_op.memread <= '1';
-                        int_exec_op.aluop <= ALU_NOP;
-                        int_exec_op.rd <= rd;
-                        int_exec_op.rs <= rs;
-                        int_exec_op.readdata1 <= int_rddata1;
-                        
-                    when "100011" =>
-                        -- Format: I    Syntax: LW rd, imm16(rs)   Semantics: rd = (int32_t)[rs+imm±]
-                        -- read value from register
-                        int_rdaddr1 <= rs;
-                        
-                        -- set mem_op_type output
-                        int_mem_op.memtype <= MEM_W;
-                        int_mem_op.memread <= '1';
-                        int_exec_op.aluop <= ALU_NOP;
-                        int_exec_op.rd <= rd;
-                        int_exec_op.rs <= rs;
-                        int_exec_op.readdata1 <= int_rddata1;
-                        
-                    when "100100" =>
-                        -- Format: I    Syntax: LBU rd, imm16(rs)   Semantics: rd = (uint8_t)[rs+imm±]
-                        -- read value from register
-                        int_rdaddr1 <= rs;
-                        
-                        -- set mem_op_type output
-                        int_mem_op.memtype <= MEM_BU;
-                        int_mem_op.memread <= '1';
-                        int_exec_op.aluop <= ALU_NOP;
-                        int_exec_op.rd <= rd;
-                        int_exec_op.rs <= rs;
-                        int_exec_op.readdata1 <= int_rddata1;
-                        
-                    when "100101" =>
-                        -- Format: I    Syntax:  LHU rd, imm16(rs)   Semantics: rd = (uint16_t)[rs+imm±]
-                        -- read value from register
-                        int_rdaddr1 <= rs;
-                        
-                        -- set mem_op_type output
-                        int_mem_op.memtype <= MEM_HU;
-                        int_mem_op.memread <= '1';
-                        int_exec_op.aluop <= ALU_NOP;
-                        int_exec_op.rd <= rd;
-                        int_exec_op.rs <= rs;
-                        int_exec_op.readdata1 <= int_rddata1;
-                        
-                    when "101000" =>
-                        -- Format: I    Syntax:  SB rd, imm16(rs)   Semantics: (int8_t)[rs+imm±] = rd7:0
-                        -- read value from register
-                        int_rdaddr1 <= rs;
-                        int_rdaddr2 <= rd;
-                        
-                        -- set mem_op_type output
-                        int_mem_op.memtype <= MEM_B;
-                        int_mem_op.memwrite <= '1';
-                        int_exec_op.aluop <= ALU_NOP;
-                        int_exec_op.rd <= rd;
-                        int_exec_op.rs <= rs;
-                        int_exec_op.imm <= std_logic_vector(resize(signed(adrim), DATA_WIDTH));
-                        int_exec_op.readdata1 <= int_rddata1;
-                        int_exec_op.readdata2 <= int_rddata2;
-                        int_exec_op.useimm <= '1';
-                        
-                    when "101001" =>
-                        -- Format: I    Syntax: SH rd, imm16(rs)   Semantics: (int16_t)[rs+imm±] = rd15:0
-                        -- read value from register
-                        int_rdaddr1 <= rs;
-                        int_rdaddr2 <= rd;
-                        
-                        -- set mem_op_type output
-                        int_mem_op.memtype <= MEM_H;
-                        int_mem_op.memwrite <= '1';
-                        int_exec_op.aluop <= ALU_NOP;
-                        int_exec_op.rd <= rd;
-                        int_exec_op.rs <= rs;
-                        int_exec_op.imm <= std_logic_vector(resize(signed(adrim), DATA_WIDTH));
-                        int_exec_op.readdata1 <= int_rddata1;
-                        int_exec_op.readdata2 <= int_rddata2;
-                        int_exec_op.useimm <= '1';
-                        
-                    when "101011" =>
-                        -- Format: I    Syntax:  SW rd, imm16(rs)   Semantics: (int32_t)[rs+imm±] = rd
-                        -- read value from register
-                        int_rdaddr1 <= rs;
-                        int_rdaddr2 <= rd;
-                        
-                        -- set mem_op_type output
-                        int_mem_op.memtype <= MEM_W;
-                        int_mem_op.memwrite <= '1';
-                        int_exec_op.aluop <= ALU_NOP;
-                        int_exec_op.rd <= rd;
-                        int_exec_op.rs <= rs;
-                        int_exec_op.imm <= std_logic_vector(resize(signed(adrim), DATA_WIDTH));
-                        int_exec_op.readdata1 <= int_rddata1;
-                        int_exec_op.readdata2 <= int_rddata2;
-                        int_exec_op.useimm <= '1';
-                        
-                    when others =>
-                        --TODO
-                        null;
-                end case;
-                -- ############## end case opcode ############## --
-                
-            end if;
-            
             if flush = '1' then
-                --TODO: flush registers
-                int_pc_in   <= (others => '0');
+                -- flush intern signals
+                int_pc      <= (others => '0');
                 int_instr   <= (others => '0');
-                int_wraddr  <= (others => '0');
-                int_wrdata  <= (others => '0');
-                int_stall_reg <= '0'; --TODO stall = 1 ?
                 int_rdaddr1 <= (others => '0');
                 int_rdaddr2 <= (others => '0');
-                int_rddata1 <= (others => '0');
-                int_rdaddr2 <= (others => '0');
-                int_wraddr_reg  <= (others => '0');
-                int_wrdata_reg  <= (others => '0');
-                int_regwrite<= '0';
-                
-                --TODO: reset save_pc_r31 flag?
-                --save_pc_r31 <= '0';
+            elsif stall = '0' then
+                -- latch intern signals
+                int_pc      <= pc_in;
+                int_instr   <= instr;
+                int_rdaddr1 <= instr(25 downto 21); -- rs
+                int_rdaddr2 <= instr(20 downto 16); -- rt / rd
             end if;
-            
         end if;
-    end process sync;
+    end process decode_input;
+
+    -- ###################### --
+    -- process: decode_output --
+    -- ###################### --
+    decode_output : process (int_pc, int_instr, int_rddata1, int_rddata2)
+    begin
+
+        -- set default output signals
+        pc_out  <= int_pc;
+        exec_op <= EXEC_NOP;
+        cop0_op <= COP0_NOP;
+        jmp_op  <= JMP_NOP;
+        mem_op  <= MEM_NOP;
+        wb_op   <= WB_NOP;
+        exc_dec <= '0';
+
+        if not (int_instr = INSTR_ZERO) then
+            -- ############## start case opcode ############## --
+            case opcode is
+                when OP_SPECIAL =>
+                    -- Format: R    Syntax: --  Semantics:  Table 21
+                    --TODO: move wb_op here, isntead of inside case
+                    --wb_op.memtoreg  <= '0'; --TODO: do not need
+                    --wb_op.regwrite  <= '1';
+
+                    -- ############## start case func ############## --
+                    case func is
+                        when FU_SLL =>
+                            -- Syntax: SLL rd, rt, shamt    Semantics: rd = rt << shamt
+                            -- read value from register
+                            exec_op.readdata2 <= int_rddata2;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_SLL;
+                            exec_op.imm(REG_BITS-1 downto 0) <= shamt;
+                            exec_op.rd      <= rd;
+                            exec_op.useamt  <= '1';
+
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '1';
+
+                        when FU_SRL =>
+                            -- Syntax: SRL rd, rt, shamt    Semantics: rd = rt0/ >> shamt
+                            -- read value from register
+                            exec_op.readdata2 <= int_rddata2;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_SRL;
+                            exec_op.imm(REG_BITS-1 downto 0) <= shamt;
+                            exec_op.rd      <= rd;
+                            exec_op.useamt  <= '1';
+
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '1';
+
+                        when FU_SRA =>
+                            -- Syntax: SRA rd, rt, shamt    Semantics: rd = rt± >> shamt
+                            -- read value from register
+                            exec_op.readdata2 <= int_rddata2;
+
+                            -- set output values
+                            exec_op.aluop <= ALU_SRA;
+                            exec_op.imm(REG_BITS-1 downto 0) <= shamt;
+                            exec_op.rd      <= rd;
+                            exec_op.useamt  <= '1';
+
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '1';
+
+                        when FU_SLLV =>
+                            -- Syntax: SLLV rd, rt, rs  Semantics: rd = rt << rs4:0
+                            -- read value from register
+                            exec_op.readdata1(4 downto 0) <= int_rddata1(4 downto 0);
+                            exec_op.readdata2 <= int_rddata2;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_SLL;
+                            exec_op.rd      <= rd;
+
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '1';
+
+                        when FU_SRLV =>
+                            -- Syntax: SRLV rd, rt, rs  Semantics: rd = rt0/ >> rs4:0
+                            -- read value from register
+                            exec_op.readdata1(4 downto 0) <= int_rddata1(4 downto 0);
+                            exec_op.readdata2 <= int_rddata2;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_SRL;
+                            exec_op.rd      <= rd;
+
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '1';
+
+                        when FU_SRAV =>
+                            -- Syntax: SRAV rd, rt, rs  Semantics: rd = rt±>> rs4:0
+                            -- read value from register
+                            exec_op.readdata1(4 downto 0) <= int_rddata1(4 downto 0);
+                            exec_op.readdata2 <= int_rddata2;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_SRA;
+                            exec_op.rd      <= rd;
+
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '1';
+
+                        when FU_JR =>
+                            -- Syntax: JR rs            Semantics: pc = rs
+                            -- read value from register
+                            exec_op.readdata1 <= int_rddata1;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_NOP;  --TODO: do not need
+                            jmp_op          <= JMP_JMP;
+
+                        when FU_JALR =>
+                            -- Syntax: JALR rd, rs      Semantics: rd = pc+4; pc = rs
+                            -- read value from register
+                            exec_op.readdata1 <= int_rddata1;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_NOP;  --TODO: do not need
+                            exec_op.rd      <= rd;
+                            exec_op.link    <= '1';
+
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '1';
+
+                        when FU_ADD =>
+                            -- Syntax: ADD rd, rs, rt   Semantics: rd = rs + rt, overflow trap
+                            -- read value from register
+                            exec_op.readdata1 <= int_rddata1;
+                            exec_op.readdata2 <= int_rddata2;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_ADD;
+                            exec_op.rd      <= rd;
+                            exec_op.ovf     <= '1';
+
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '1';
+
+                        when FU_ADDU =>
+                            -- Syntax: ADDU rd, rs, rt  Semantics: rd = rs + rt
+                            -- read value from register
+                            exec_op.readdata1 <= int_rddata1;
+                            exec_op.readdata2 <= int_rddata2;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_ADD;
+                            exec_op.rd      <= rd;
+
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '1';
+
+                        when FU_SUB =>
+                            -- Syntax: SUB rd, rs, rt   Semantics: rd = rs - rt, overflow trap
+                            -- read value from register
+                            exec_op.readdata1 <= int_rddata1;
+                            exec_op.readdata2 <= int_rddata2;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_SUB;
+                            exec_op.rd      <= rd;
+                            exec_op.ovf     <= '1';
+
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '1';
+
+                        when FU_SUBU =>
+                            -- Syntax: SUBU rd, rs, rt  Semantics: rd = rs - rt
+                            -- read value from register
+                            exec_op.readdata1 <= int_rddata1;
+                            exec_op.readdata2 <= int_rddata2;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_SUB;
+                            exec_op.rd      <= rd;
+
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '1';
+
+                        when FU_AND =>
+                            -- Syntax: AND rd, rs, rt   Semantics: rd = rs & rt
+                            -- read value from register
+                            exec_op.readdata1 <= int_rddata1;
+                            exec_op.readdata2 <= int_rddata2;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_AND;
+                            exec_op.rd      <= rd;
+
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '1';
+
+                        when FU_OR =>
+                            -- Syntax: AND rd, rs, rt   Semantics: rd = rs & rt
+                            -- read value from register
+                            exec_op.readdata1 <= int_rddata1;
+                            exec_op.readdata2 <= int_rddata2;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_OR;
+                            exec_op.rd      <= rd;
+
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '1';
+
+                        when FU_XOR =>
+                            -- Syntax: XOR rd, rs, rt   Semantics: rd = rs ^ rt
+                            -- read value from register
+                            exec_op.readdata1 <= int_rddata1;
+                            exec_op.readdata2 <= int_rddata2;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_XOR;
+                            exec_op.rd      <= rd;
+
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '1';
+
+                        when FU_NOR =>
+                            -- Syntax: NOR rd, rs, rt   Semantics: rd = ~(rs | rt)
+                            -- read value from register
+                            exec_op.readdata1 <= int_rddata1;
+                            exec_op.readdata2 <= int_rddata2;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_NOR;
+                            exec_op.rd      <= rd;
+
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '1';
+
+                        when FU_SLT =>
+                            -- Syntax: SLT rd, rs, rt   Semantics: rd = (rs± < rt±) ? 1 : 0
+                            -- read value from register
+                            exec_op.readdata1 <= int_rddata1;
+                            exec_op.readdata2 <= int_rddata2;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_SLT;
+                            exec_op.rd      <= rd;
+
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '1';
+
+                        when FU_SLTU =>
+                            -- Syntax: SLTU rd, rs, rt  Semantics: rd = (rs0/ < rt0/ ) ? 1 : 0
+                            -- read value from register
+                            exec_op.readdata1 <= int_rddata1;
+                            exec_op.readdata2 <= int_rddata2;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_SLTU;
+                            exec_op.rd      <= rd;
+
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '1';
+
+                        when others =>
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '0';
+                    end case;
+                    -- ############## end case func ############## --
+                when OP_REGIMM =>
+                    -- Format: I    Syntax: --  Semantics: Table 22
+
+                    -- ############## start case rd ############## --
+                    case rd is
+                        when RD_BLTZ =>
+                            -- Syntax: BLTZ rs, imm18   Semantics: if (rs±< 0) pc += imm±<< 2
+                            -- read value from register
+                            exec_op.readdata1 <= int_rddata1;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_NOP;
+                            -- sign extend and shift imm
+                            exec_op.imm     <= (others => adrim(15));
+                            exec_op.imm(1 downto 0)  <= "00";
+                            exec_op.imm(17 downto 2) <= adrim(15 downto 0);
+                            --exec_op.useimm  <= '1';
+                            exec_op.branch  <= '1';
+
+                            jmp_op  <= JMP_BLTZ;
+
+                        when RD_BGEZ =>
+                            -- Syntax: BGEZ rs, imm18   Semantics: if (rs±>= 0) pc += imm±<< 2
+                            -- read value from register
+                            exec_op.readdata1 <= int_rddata1;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_NOP;
+                            -- sign extend and shift imm
+                            exec_op.imm     <= (others => adrim(15));
+                            exec_op.imm(1 downto 0)  <= "00";
+                            exec_op.imm(17 downto 2) <= adrim(15 downto 0);
+                            --exec_op.useimm  <= '1';
+                            exec_op.branch  <= '1';
+
+                            jmp_op  <= JMP_BGEZ;
+
+                        when RD_BLTZAL =>
+                            -- Syntax: BLTZAL rs, imm18 Semantics: r31 = pc+4; if (rs±< 0) pc += imm±<< 2
+                            -- read value from register
+                            exec_op.readdata1 <= int_rddata1;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_NOP;
+                            exec_op.rd      <= std_logic_vector(to_unsigned(31, REG_BITS));
+                            -- sign extend and shift imm
+                            exec_op.imm     <= (others => adrim(15));
+                            exec_op.imm(1 downto 0)  <= "00";
+                            exec_op.imm(17 downto 2) <= adrim(15 downto 0);
+
+                            exec_op.link    <= '1';
+                            exec_op.branch  <= '1';
+
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '1';
+
+                            jmp_op  <= JMP_BLTZ;
+
+                        when RD_BGEZAL =>
+                            -- Syntax: BGEZAL rs, imm18 Semantics: r31 = pc+4; if (rs±>= 0) pc += imm±<< 2
+                            -- read value from register
+                            exec_op.readdata1 <= int_rddata1;
+
+                            -- set output values
+                            exec_op.aluop   <= ALU_NOP;
+                            exec_op.rd      <= std_logic_vector(to_unsigned(31, REG_BITS));
+                            -- sign extend and shift imm
+                            exec_op.imm     <= (others => adrim(15));
+                            exec_op.imm(1 downto 0)  <= "00";
+                            exec_op.imm(17 downto 2) <= adrim(15 downto 0);
+
+                            exec_op.link    <= '1';
+                            exec_op.branch  <= '1';
+
+                            wb_op.memtoreg  <= '0'; --TODO: do not need
+                            wb_op.regwrite  <= '1';
+
+                            jmp_op  <= JMP_BGEZ;
+
+                        when others =>
+                            -- do nothing
+                            null;
+                    end case;
+                    -- ############## end case rd ############## --
+                when OP_J =>
+                    -- Format: J    Syntax: J address   Semantics: pc = address0/ << 2
+                    -- set output values
+                    exec_op.aluop   <= ALU_NOP;
+                    exec_op.readdata1(PC_WIDTH+1 downto 2) <= taradr(PC_WIDTH-1 downto 0);
+
+                    jmp_op  <= JMP_JMP;
+
+                when OP_JAL =>
+                    -- Format: J    Syntax: JAL address   Semantics: r31 = pc+4; pc = address0/ << 2
+                    -- set output values
+                    exec_op.aluop   <= ALU_NOP;
+                    exec_op.readdata1(PC_WIDTH+1 downto 2) <= taradr(PC_WIDTH-1 downto 0);
+                    exec_op.rd      <= std_logic_vector(to_unsigned(31, REG_BITS));
+                    exec_op.link    <= '1';
+
+                    wb_op.memtoreg  <= '0'; --TODO: do not need
+                    wb_op.regwrite  <= '1';
+
+                    jmp_op  <= JMP_JMP;
+
+                when OP_BEQ =>
+                    -- Format: I    Syntax: BEQ rd, rs, imm18   Semantics: if (rs == rd) pc += imm± << 2
+                    -- read value from register
+                    exec_op.readdata1 <= int_rddata1;
+                    exec_op.readdata2 <= int_rddata2;
+
+                    -- set output values
+                    exec_op.aluop   <= ALU_SUB;
+                    -- sign extend and shift imm
+                    exec_op.imm     <= (others => adrim(15));
+                    exec_op.imm(1 downto 0)  <= "00";
+                    exec_op.imm(17 downto 2) <= adrim(15 downto 0);
+
+                    exec_op.branch  <= '1';
+
+                    jmp_op  <= JMP_BEQ;
+
+                when OP_BNE =>
+                    -- Format: I    Syntax: BNE rd, rs, imm18   Semantics: if (rs != rd) pc += imm± << 2
+                    -- read value from register
+                    exec_op.readdata1 <= int_rddata1;
+                    exec_op.readdata2 <= int_rddata2;
+
+                    -- set output values
+                    exec_op.aluop   <= ALU_SUB;
+                    -- sign extend and shift imm
+                    exec_op.imm     <= (others => adrim(15));
+                    exec_op.imm(1 downto 0)  <= "00";
+                    exec_op.imm(17 downto 2) <= adrim(15 downto 0);
+
+                    exec_op.branch  <= '1';
+
+                    jmp_op  <= JMP_BNE;
+
+                when OP_BLEZ =>
+                    -- Format: I    Syntax:  BLEZ rs, imm18   Semantics: if (rs±<= 0) pc += imm± << 2
+                    -- read value from register
+                    exec_op.readdata1 <= int_rddata1;
+
+                    -- set output values
+                    exec_op.aluop   <= ALU_NOP;
+                    -- sign extend and shift imm
+                    exec_op.imm     <= (others => adrim(15));
+                    exec_op.imm(1 downto 0)  <= "00";
+                    exec_op.imm(17 downto 2) <= adrim(15 downto 0);
+
+                    exec_op.branch  <= '1';
+
+                    jmp_op  <= JMP_BLTZ;
+
+                when OP_BGTZ =>
+                    -- Format: I    Syntax:  BGTZ rs, imm18   Semantics: if (rs±> 0) pc += imm± << 2
+                    -- read value from register
+                    exec_op.readdata1 <= int_rddata1;
+
+                    -- set output values
+                    exec_op.aluop   <= ALU_NOP;
+                    -- sign extend and shift imm
+                    exec_op.imm     <= (others => adrim(15));
+                    exec_op.imm(1 downto 0)  <= "00";
+                    exec_op.imm(17 downto 2) <= adrim(15 downto 0);
+
+                    exec_op.branch  <= '1';
+
+                    jmp_op  <= JMP_BGTZ;
+
+                when OP_ADDI =>
+                    -- Format: I    Syntax:  ADDI rd, rs, imm16   Semantics: rd = rs + imm±, overflow trap
+                    -- read value from register
+                    exec_op.readdata1 <= int_rddata1;
+
+                    -- set output values
+                    exec_op.aluop   <= ALU_ADD;
+                    exec_op.rd      <= rd;
+                    -- sign extend imm
+                    exec_op.imm     <= (others => adrim(15));
+                    exec_op.imm(15 downto 0) <= adrim(15 downto 0);
+                    exec_op.useimm  <= '1';
+                    exec_op.ovf     <= '1';
+
+                    wb_op.memtoreg  <= '0'; --TODO: do not need
+                    wb_op.regwrite  <= '1';
+
+                when OP_ADDIU =>
+                    -- Format: I    Syntax: ADDIU rd, rs, imm16    Semantics: rd = rs + imm±
+                    -- read value from register
+                    exec_op.readdata1 <= int_rddata1;
+
+                    -- set output values
+                    exec_op.aluop   <= ALU_ADD;
+                    exec_op.rd      <= rd;
+                    -- sign extend imm
+                    exec_op.imm     <= (others => adrim(15));
+                    exec_op.imm(15 downto 0) <= adrim(15 downto 0);
+                    exec_op.useimm  <= '1';
+
+                    wb_op.memtoreg  <= '0'; --TODO: do not need
+                    wb_op.regwrite  <= '1';
+
+                when OP_SLTI =>
+                    -- Format: I    Syntax: SLTI rd, rs, imm16   Semantics: rd = (rs± < imm±) ? 1 : 0
+                    -- read value from register
+                    exec_op.readdata1 <= int_rddata1;
+
+                    -- set output values
+                    exec_op.aluop   <= ALU_SLT;
+                    exec_op.rd      <= rd;
+                    -- sign extend imm
+                    exec_op.imm     <= (others => adrim(15));
+                    exec_op.imm(15 downto 0) <= adrim(15 downto 0);
+                    exec_op.useimm  <= '1';
+
+                    wb_op.memtoreg  <= '0'; --TODO: do not need
+                    wb_op.regwrite  <= '1';
+
+                when OP_SLTIU =>
+                    -- Format: I    Syntax: SLTIU rd, rs, imm16    Semantics: rd = (rs0/ < imm0/) ? 1 : 0
+                    -- read value from register
+                    exec_op.readdata1 <= int_rddata1;
+
+                    -- set output values
+                    exec_op.aluop   <= ALU_SLTU;
+                    exec_op.rd      <= rd;
+                    -- zero extend imm
+                    exec_op.imm     <= (others => '0'); --TODO not really needed
+                    exec_op.imm(15 downto 0) <= adrim(15 downto 0);
+                    exec_op.useimm  <= '1';
+
+                    wb_op.memtoreg  <= '0'; --TODO: do not need
+                    wb_op.regwrite  <= '1';
+
+                when OP_ANDI =>
+                    -- Format: I    Syntax: ANDI rd, rs, imm16   Semantics: rd = rs & imm0
+                    -- read value from register
+                    exec_op.readdata1 <= int_rddata1;
+
+                    -- set output values
+                    exec_op.aluop   <= ALU_AND;
+                    exec_op.rd      <= rd;
+                    -- zero extend imm
+                    exec_op.imm     <= (others => '0'); --TODO not really needed
+                    exec_op.imm(15 downto 0) <= adrim(15 downto 0);
+                    exec_op.useimm  <= '1';
+
+                    wb_op.memtoreg  <= '0'; --TODO: do not need
+                    wb_op.regwrite  <= '1';
+
+                when OP_ORI =>
+                    -- Format: I    Syntax:  ORI rd, rs, imm16   Semantics: rd = rs | imm0
+                    -- read value from register
+                    exec_op.readdata1 <= int_rddata1;
+
+                    -- set output values
+                    exec_op.aluop   <= ALU_OR;
+                    exec_op.rd      <= rd;
+                    -- zero extend imm
+                    exec_op.imm     <= (others => '0'); --TODO not really needed
+                    exec_op.imm(15 downto 0) <= adrim(15 downto 0);
+                    exec_op.useimm  <= '1';
+
+                    wb_op.memtoreg  <= '0'; --TODO: do not need
+                    wb_op.regwrite  <= '1';
+
+                when OP_XORI =>
+                    -- Format: I    Syntax:  XORI rd, rs, imm16   Semantics: rd = rs ^ imm0
+                    -- read value from register
+                    exec_op.readdata1 <= int_rddata1;
+
+                    -- set output values
+                    exec_op.aluop   <= ALU_XOR;
+                    exec_op.rd      <= rd;
+                    -- zero extend imm
+                    exec_op.imm     <= (others => '0'); --TODO not really needed
+                    exec_op.imm(15 downto 0) <= adrim(15 downto 0);
+                    exec_op.useimm  <= '1';
+
+                    wb_op.memtoreg  <= '0'; --TODO: do not need
+                    wb_op.regwrite  <= '1';
+
+                when OP_LUI =>
+                    -- Format: I    Syntax:  LUI rd, imm16   Semantics: rd = imm0/ << 16
+                    -- set output values
+                    exec_op.aluop   <= ALU_LUI;
+                    exec_op.rd      <= rd;
+                    -- zero extend imm
+                    exec_op.imm     <= (others => '0'); --TODO not really needed
+                    exec_op.imm(15 downto 0) <= adrim(15 downto 0);
+                    exec_op.useimm  <= '1';
+
+                    wb_op.memtoreg  <= '0'; --TODO: do not need
+                    wb_op.regwrite  <= '1';
+
+                when OP_COP0 =>
+                    -- Format: R    Syntax: --   Semantics: Table 23
+                    -- ############## start case rs ############## --
+                    case rs is
+                        when RS_MFC0 =>
+                            -- Syntax: MFC0 rt, rd Semantics: rt = rd, rd register in coprocessor 0
+                            --TODO
+                            null;
+                        when RS_MTC0 =>
+                            -- Syntax: MTC0 rt, rd Semantics: rd = rt, rd register in coprocessor 0
+                            --TODO: set cop0=1
+                            null;
+                        when others =>
+                            -- do nothing
+                            null;
+                    end case;
+                    -- ############## end case rs ############## --
+                when OP_LB =>
+                    -- Format: I    Syntax:  LB rd, imm16(rs)    Semantics: rd = (int8_t)[rs+imm±]
+                    -- read value from register
+                    exec_op.readdata1 <= int_rddata1;
+
+                    -- set output values
+                    exec_op.aluop   <= ALU_ADD;
+                    exec_op.rd      <= rd;
+                    -- sign extend imm
+                    exec_op.imm     <= (others => adrim(15));
+                    exec_op.imm(15 downto 0) <= adrim(15 downto 0);
+                    exec_op.useimm  <= '1';
+
+                    mem_op.memtype  <= MEM_B;
+                    mem_op.memread  <= '1';
+                    mem_op.memwrite <= '0'; --TODO: do not need
+
+                    wb_op.memtoreg  <= '1';
+                    wb_op.regwrite  <= '1';
+
+                when OP_LH =>
+                    -- Format: I    Syntax: LH rd, imm16(rs)   Semantics: rd = (int16_t)[rs+imm±]
+                    -- read value from register
+                    exec_op.readdata1 <= int_rddata1;
+
+                    -- set output values
+                    exec_op.aluop   <= ALU_ADD;
+                    exec_op.rd      <= rd;
+                    -- sign extend imm
+                    exec_op.imm     <= (others => adrim(15));
+                    exec_op.imm(15 downto 0) <= adrim(15 downto 0);
+                    exec_op.useimm  <= '1';
+
+                    mem_op.memtype  <= MEM_H;
+                    mem_op.memread  <= '1';
+                    mem_op.memwrite <= '0'; --TODO: do not need
+
+                    wb_op.memtoreg  <= '1';
+                    wb_op.regwrite  <= '1';
+
+                when OP_LW =>
+                    -- Format: I    Syntax: LW rd, imm16(rs)   Semantics: rd = (int32_t)[rs+imm±]
+                    -- read value from register
+                    exec_op.readdata1 <= int_rddata1;
+
+                    -- set output values
+                    exec_op.aluop   <= ALU_ADD;
+                    exec_op.rd      <= rd;
+                    -- sign extend imm
+                    exec_op.imm     <= (others => adrim(15));
+                    exec_op.imm(15 downto 0) <= adrim(15 downto 0);
+                    exec_op.useimm  <= '1';
+
+                    mem_op.memtype  <= MEM_W;
+                    mem_op.memread  <= '1';
+                    mem_op.memwrite <= '0'; --TODO: do not need
+
+                    wb_op.memtoreg  <= '1';
+                    wb_op.regwrite  <= '1';
+
+                when OP_LBU =>
+                    -- Format: I    Syntax: LBU rd, imm16(rs)   Semantics: rd = (uint8_t)[rs+imm±]
+                    -- read value from register
+                    exec_op.readdata1 <= int_rddata1;
+
+                    -- set output values
+                    exec_op.aluop   <= ALU_ADD;
+                    exec_op.rd      <= rd;
+                    -- sign extend imm
+                    exec_op.imm     <= (others => adrim(15));
+                    exec_op.imm(15 downto 0) <= adrim(15 downto 0);
+                    exec_op.useimm  <= '1';
+
+                    mem_op.memtype  <= MEM_BU;
+                    mem_op.memread  <= '1';
+                    mem_op.memwrite <= '0'; --TODO: do not need
+
+                    wb_op.memtoreg  <= '1';
+                    wb_op.regwrite  <= '1';
+
+                when OP_LHU =>
+                    -- Format: I    Syntax:  LHU rd, imm16(rs)   Semantics: rd = (uint16_t)[rs+imm±]
+                    -- read value from register
+                    exec_op.readdata1 <= int_rddata1;
+
+                    -- set output values
+                    exec_op.aluop   <= ALU_ADD;
+                    exec_op.rd      <= rd;
+                    -- sign extend imm
+                    exec_op.imm     <= (others => adrim(15));
+                    exec_op.imm(15 downto 0) <= adrim(15 downto 0);
+                    exec_op.useimm  <= '1';
+
+                    mem_op.memtype  <= MEM_HU;
+                    mem_op.memread  <= '1';
+                    mem_op.memwrite <= '0'; --TODO: do not need
+
+                    wb_op.memtoreg  <= '1';
+                    wb_op.regwrite  <= '1';
+
+                when OP_SB =>
+                    -- Format: I    Syntax:  SB rd, imm16(rs)   Semantics: (int8_t)[rs+imm±] = rd7:0
+                    -- read value from register
+                    exec_op.readdata1 <= int_rddata1;
+                    exec_op.readdata2 <= (others => '0'); --TODO: do not need
+                    exec_op.readdata2(7 downto 0) <= int_rddata2(7 downto 0);
+
+                    -- set output values
+                    exec_op.aluop   <= ALU_ADD;
+                    exec_op.rd      <= rd;
+                    -- sign extend imm
+                    exec_op.imm     <= (others => adrim(15));
+                    exec_op.imm(15 downto 0) <= adrim(15 downto 0);
+                    exec_op.useimm  <= '1';
+
+                    mem_op.memtype  <= MEM_B;
+                    mem_op.memread  <= '0'; --TODO: do not need
+                    mem_op.memwrite <= '1';
+
+                when OP_SH =>
+                    -- Format: I    Syntax: SH rd, imm16(rs)   Semantics: (int16_t)[rs+imm±] = rd15:0
+                    -- read value from register
+                    exec_op.readdata1 <= int_rddata1;
+                    exec_op.readdata2 <= (others => '0'); --TODO: do not need
+                    exec_op.readdata2(15 downto 0) <= int_rddata2(15 downto 0);
+
+                    -- set output values
+                    exec_op.aluop   <= ALU_ADD;
+                    exec_op.rd      <= rd;
+                    -- sign extend imm
+                    exec_op.imm     <= (others => adrim(15));
+                    exec_op.imm(15 downto 0) <= adrim(15 downto 0);
+                    exec_op.useimm  <= '1';
+
+                    mem_op.memtype  <= MEM_H;
+                    mem_op.memread  <= '0'; --TODO: do not need
+                    mem_op.memwrite <= '1';
+
+                when OP_SW =>
+                    -- Format: I    Syntax:  SW rd, imm16(rs)   Semantics: (int32_t)[rs+imm±] = rd
+                    -- read value from register
+                    exec_op.readdata1 <= int_rddata1;
+                    exec_op.readdata2 <= int_rddata2;
+
+                    -- set output values
+                    exec_op.aluop   <= ALU_ADD;
+                    exec_op.rd      <= rd;
+                    -- sign extend imm
+                    exec_op.imm     <= (others => adrim(15));
+                    exec_op.imm(15 downto 0) <= adrim(15 downto 0);
+                    exec_op.useimm  <= '1';
+
+                    mem_op.memtype  <= MEM_W;
+                    mem_op.memread  <= '0'; --TODO: do not need
+                    mem_op.memwrite <= '1';
+
+                when others =>
+                    -- do nothing
+                    null;
+            end case;
+            -- ############## end case opcode ############## --
+
+        end if;
+
+    end process decode_output;
 
 end rtl;
