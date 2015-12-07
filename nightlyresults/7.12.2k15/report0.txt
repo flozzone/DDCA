@@ -1,0 +1,24 @@
+Test Level 0
+============
+Starting tests on alu
+# Failed 0/62 tests.
+# End time: 01:31:28 on Dec 07,2015, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0
+Finished tests on alu
+Starting tests on jmpu
+# Failed 0/33 tests.
+# End time: 01:31:35 on Dec 07,2015, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0
+Finished tests on jmpu
+Starting tests on memu
+** Warning: /tmp/tmp.pjX25zctZ0/src/memu.vhd(176): (vcom-1514) Range choice direction (downto) does not determine aggregate index range direction (to).
+** Warning: /tmp/tmp.pjX25zctZ0/src/memu.vhd(187): (vcom-1514) Range choice direction (downto) does not determine aggregate index range direction (to).
+# Failed 0/63 tests.
+# End time: 01:31:42 on Dec 07,2015, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 0
+Finished tests on memu
+Starting tests on regfile
+# Failed 0/29 tests.
+# End time: 01:31:49 on Dec 07,2015, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 0
+Finished tests on regfile
