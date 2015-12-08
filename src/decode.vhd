@@ -31,6 +31,15 @@ architecture rtl of decode is
 
     constant INSTR_ZERO : std_logic_vector (INSTR_WIDTH-1 downto 0) := (others => '0');
 
+    type INSTR_TYPE is (INSTR_J, INSTR_JAL, INSTR_BEQ, INSTR_BNE, INSTR_BLEZ, INSTR_BGTZ, 
+                        INSTR_ADDI, INSTR_ADDIU, INSTR_SLTI, INSTR_SLTIU, INSTR_ANDI,
+                        INSTR_ORI, INSTR_XORI, INSTR_LUI, INSTR_LB, INSTR_LH, INSTR_LW,
+                        INSTR_LBU, INSTR_LHU, INSTR_SB, INSTR_SH, INSTR_SW, INSTR_SLL,
+                        INSTR_SRL, INSTR_SRA, INSTR_SLLV, INSTR_SRLV, INSTR_SRAV, 
+                        INSTR_JR, INSTR_JALR, INSTR_ADD, INSTR_ADDU, INSTR_SUB, INSTR_SUBU,
+                        INSTR_AND, INSTR_OR, INSTR_XOR, INSTR_NOR, INSTR_SLT, INSTR_SLTU,
+                        INSTR_BLTZ, INSTR_BGEZ, INSTR_BLTZAL, INSTR_BGEZAL, INSTR_MFC0, INSTR_MTC0);
+
     -- instruction codes
     constant OP_SPECIAL : std_logic_vector(5 downto 0) := "000000";
     constant OP_REGIMM  : std_logic_vector(5 downto 0) := "000001";
@@ -111,6 +120,8 @@ architecture rtl of decode is
     alias adrim     : std_logic_vector(15 downto 0) is int_instr(15 downto 0);
     alias taradr    : std_logic_vector(25 downto 0) is int_instr(25 downto 0);
 
+    signal dbg_instr : INSTR_TYPE;
+
 begin  -- rtl
 
     -- component deklarations
@@ -184,6 +195,8 @@ begin  -- rtl
                     case func is
                         when FU_SLL =>
                             -- Syntax: SLL rd, rt, shamt    Semantics: rd = rt << shamt
+                            dbg_instr <= INSTR_SLL;
+
                             -- read value from register
                             exec_op.readdata2 <= int_rddata2;
 
@@ -198,6 +211,8 @@ begin  -- rtl
 
                         when FU_SRL =>
                             -- Syntax: SRL rd, rt, shamt    Semantics: rd = rt0/ >> shamt
+                            dbg_instr <= INSTR_SRL;
+
                             -- read value from register
                             exec_op.readdata2 <= int_rddata2;
 
@@ -212,6 +227,8 @@ begin  -- rtl
 
                         when FU_SRA =>
                             -- Syntax: SRA rd, rt, shamt    Semantics: rd = rt± >> shamt
+                            dbg_instr <= INSTR_SRA;
+
                             -- read value from register
                             exec_op.readdata2 <= int_rddata2;
 
@@ -226,6 +243,8 @@ begin  -- rtl
 
                         when FU_SLLV =>
                             -- Syntax: SLLV rd, rt, rs  Semantics: rd = rt << rs4:0
+                            dbg_instr <= INSTR_SLLV;
+
                             -- read value from register
                             exec_op.readdata1(4 downto 0) <= int_rddata1(4 downto 0);
                             exec_op.readdata2 <= int_rddata2;
@@ -239,6 +258,8 @@ begin  -- rtl
 
                         when FU_SRLV =>
                             -- Syntax: SRLV rd, rt, rs  Semantics: rd = rt0/ >> rs4:0
+                            dbg_instr <= INSTR_SRLV;
+
                             -- read value from register
                             exec_op.readdata1(4 downto 0) <= int_rddata1(4 downto 0);
                             exec_op.readdata2 <= int_rddata2;
@@ -252,6 +273,8 @@ begin  -- rtl
 
                         when FU_SRAV =>
                             -- Syntax: SRAV rd, rt, rs  Semantics: rd = rt±>> rs4:0
+                            dbg_instr <= INSTR_SRAV;
+
                             -- read value from register
                             exec_op.readdata1(4 downto 0) <= int_rddata1(4 downto 0);
                             exec_op.readdata2 <= int_rddata2;
@@ -265,6 +288,8 @@ begin  -- rtl
 
                         when FU_JR =>
                             -- Syntax: JR rs            Semantics: pc = rs
+                            dbg_instr <= INSTR_JR;
+
                             -- read value from register
                             exec_op.readdata1 <= int_rddata1;
 
@@ -274,6 +299,8 @@ begin  -- rtl
 
                         when FU_JALR =>
                             -- Syntax: JALR rd, rs      Semantics: rd = pc+4; pc = rs
+                            dbg_instr <= INSTR_SLLV;
+
                             -- read value from register
                             exec_op.readdata1 <= int_rddata1;
 
@@ -287,6 +314,8 @@ begin  -- rtl
 
                         when FU_ADD =>
                             -- Syntax: ADD rd, rs, rt   Semantics: rd = rs + rt, overflow trap
+                            dbg_instr <= INSTR_ADD;
+
                             -- read value from register
                             exec_op.readdata1 <= int_rddata1;
                             exec_op.readdata2 <= int_rddata2;
@@ -301,6 +330,8 @@ begin  -- rtl
 
                         when FU_ADDU =>
                             -- Syntax: ADDU rd, rs, rt  Semantics: rd = rs + rt
+                            dbg_instr <= INSTR_ADDU;
+
                             -- read value from register
                             exec_op.readdata1 <= int_rddata1;
                             exec_op.readdata2 <= int_rddata2;
@@ -314,6 +345,8 @@ begin  -- rtl
 
                         when FU_SUB =>
                             -- Syntax: SUB rd, rs, rt   Semantics: rd = rs - rt, overflow trap
+                            dbg_instr <= INSTR_SUB;
+
                             -- read value from register
                             exec_op.readdata1 <= int_rddata1;
                             exec_op.readdata2 <= int_rddata2;
@@ -328,6 +361,8 @@ begin  -- rtl
 
                         when FU_SUBU =>
                             -- Syntax: SUBU rd, rs, rt  Semantics: rd = rs - rt
+                            dbg_instr <= INSTR_SUBU;
+
                             -- read value from register
                             exec_op.readdata1 <= int_rddata1;
                             exec_op.readdata2 <= int_rddata2;
@@ -341,6 +376,8 @@ begin  -- rtl
 
                         when FU_AND =>
                             -- Syntax: AND rd, rs, rt   Semantics: rd = rs & rt
+                            dbg_instr <= INSTR_AND;
+
                             -- read value from register
                             exec_op.readdata1 <= int_rddata1;
                             exec_op.readdata2 <= int_rddata2;
@@ -353,7 +390,9 @@ begin  -- rtl
                             wb_op.regwrite  <= '1';
 
                         when FU_OR =>
-                            -- Syntax: AND rd, rs, rt   Semantics: rd = rs & rt
+                            -- Syntax: OR rd, rs, rt   Semantics: rd = rs & rt
+                            dbg_instr <= INSTR_OR;
+
                             -- read value from register
                             exec_op.readdata1 <= int_rddata1;
                             exec_op.readdata2 <= int_rddata2;
@@ -367,6 +406,8 @@ begin  -- rtl
 
                         when FU_XOR =>
                             -- Syntax: XOR rd, rs, rt   Semantics: rd = rs ^ rt
+                            dbg_instr <= INSTR_XOR;
+
                             -- read value from register
                             exec_op.readdata1 <= int_rddata1;
                             exec_op.readdata2 <= int_rddata2;
@@ -380,6 +421,8 @@ begin  -- rtl
 
                         when FU_NOR =>
                             -- Syntax: NOR rd, rs, rt   Semantics: rd = ~(rs | rt)
+                            dbg_instr <= INSTR_NOR;
+
                             -- read value from register
                             exec_op.readdata1 <= int_rddata1;
                             exec_op.readdata2 <= int_rddata2;
@@ -393,6 +436,8 @@ begin  -- rtl
 
                         when FU_SLT =>
                             -- Syntax: SLT rd, rs, rt   Semantics: rd = (rs± < rt±) ? 1 : 0
+                            dbg_instr <= INSTR_SLT;
+
                             -- read value from register
                             exec_op.readdata1 <= int_rddata1;
                             exec_op.readdata2 <= int_rddata2;
@@ -406,6 +451,8 @@ begin  -- rtl
 
                         when FU_SLTU =>
                             -- Syntax: SLTU rd, rs, rt  Semantics: rd = (rs0/ < rt0/ ) ? 1 : 0
+                            dbg_instr <= INSTR_SLTU;
+
                             -- read value from register
                             exec_op.readdata1 <= int_rddata1;
                             exec_op.readdata2 <= int_rddata2;
@@ -429,6 +476,8 @@ begin  -- rtl
                     case rd is
                         when RD_BLTZ =>
                             -- Syntax: BLTZ rs, imm18   Semantics: if (rs±< 0) pc += imm±<< 2
+                            dbg_instr <= INSTR_BLTZ;
+
                             -- read value from register
                             exec_op.readdata1 <= int_rddata1;
 
@@ -445,6 +494,8 @@ begin  -- rtl
 
                         when RD_BGEZ =>
                             -- Syntax: BGEZ rs, imm18   Semantics: if (rs±>= 0) pc += imm±<< 2
+                            dbg_instr <= INSTR_BGEZ;
+
                             -- read value from register
                             exec_op.readdata1 <= int_rddata1;
 
@@ -461,6 +512,8 @@ begin  -- rtl
 
                         when RD_BLTZAL =>
                             -- Syntax: BLTZAL rs, imm18 Semantics: r31 = pc+4; if (rs±< 0) pc += imm±<< 2
+                            dbg_instr <= INSTR_BLTZAL;
+
                             -- read value from register
                             exec_op.readdata1 <= int_rddata1;
 
@@ -482,6 +535,8 @@ begin  -- rtl
 
                         when RD_BGEZAL =>
                             -- Syntax: BGEZAL rs, imm18 Semantics: r31 = pc+4; if (rs±>= 0) pc += imm±<< 2
+                            dbg_instr <= INSTR_BGEZAL;
+
                             -- read value from register
                             exec_op.readdata1 <= int_rddata1;
 
@@ -508,6 +563,8 @@ begin  -- rtl
                     -- ############## end case rd ############## --
                 when OP_J =>
                     -- Format: J    Syntax: J address   Semantics: pc = address0/ << 2
+                    dbg_instr <= INSTR_J;
+
                     -- set output values
                     exec_op.aluop   <= ALU_NOP;
                     exec_op.readdata1(PC_WIDTH+1 downto 2) <= taradr(PC_WIDTH-1 downto 0);
@@ -516,6 +573,8 @@ begin  -- rtl
 
                 when OP_JAL =>
                     -- Format: J    Syntax: JAL address   Semantics: r31 = pc+4; pc = address0/ << 2
+                    dbg_instr <= INSTR_JAL;
+
                     -- set output values
                     exec_op.aluop   <= ALU_NOP;
                     exec_op.readdata1(PC_WIDTH+1 downto 2) <= taradr(PC_WIDTH-1 downto 0);
@@ -529,6 +588,8 @@ begin  -- rtl
 
                 when OP_BEQ =>
                     -- Format: I    Syntax: BEQ rd, rs, imm18   Semantics: if (rs == rd) pc += imm± << 2
+                    dbg_instr <= INSTR_BEQ;
+
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
                     exec_op.readdata2 <= int_rddata2;
@@ -546,6 +607,8 @@ begin  -- rtl
 
                 when OP_BNE =>
                     -- Format: I    Syntax: BNE rd, rs, imm18   Semantics: if (rs != rd) pc += imm± << 2
+                    dbg_instr <= INSTR_BNE;
+
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
                     exec_op.readdata2 <= int_rddata2;
@@ -563,6 +626,8 @@ begin  -- rtl
 
                 when OP_BLEZ =>
                     -- Format: I    Syntax:  BLEZ rs, imm18   Semantics: if (rs±<= 0) pc += imm± << 2
+                    dbg_instr <= INSTR_BLEZ;
+
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
 
@@ -579,6 +644,8 @@ begin  -- rtl
 
                 when OP_BGTZ =>
                     -- Format: I    Syntax:  BGTZ rs, imm18   Semantics: if (rs±> 0) pc += imm± << 2
+                    dbg_instr <= INSTR_BGTZ;
+
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
 
@@ -595,6 +662,8 @@ begin  -- rtl
 
                 when OP_ADDI =>
                     -- Format: I    Syntax:  ADDI rd, rs, imm16   Semantics: rd = rs + imm±, overflow trap
+                    dbg_instr <= INSTR_ADDI;
+
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
 
@@ -612,6 +681,8 @@ begin  -- rtl
 
                 when OP_ADDIU =>
                     -- Format: I    Syntax: ADDIU rd, rs, imm16    Semantics: rd = rs + imm±
+                    dbg_instr <= INSTR_ADDIU;
+
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
 
@@ -628,6 +699,8 @@ begin  -- rtl
 
                 when OP_SLTI =>
                     -- Format: I    Syntax: SLTI rd, rs, imm16   Semantics: rd = (rs± < imm±) ? 1 : 0
+                    dbg_instr <= INSTR_SLTI;
+
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
 
@@ -644,6 +717,8 @@ begin  -- rtl
 
                 when OP_SLTIU =>
                     -- Format: I    Syntax: SLTIU rd, rs, imm16    Semantics: rd = (rs0/ < imm0/) ? 1 : 0
+                    dbg_instr <= INSTR_SLTIU;
+
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
 
@@ -660,6 +735,8 @@ begin  -- rtl
 
                 when OP_ANDI =>
                     -- Format: I    Syntax: ANDI rd, rs, imm16   Semantics: rd = rs & imm0
+                    dbg_instr <= INSTR_ANDI;
+
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
 
@@ -676,6 +753,8 @@ begin  -- rtl
 
                 when OP_ORI =>
                     -- Format: I    Syntax:  ORI rd, rs, imm16   Semantics: rd = rs | imm0
+                    dbg_instr <= INSTR_ORI;
+
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
 
@@ -692,6 +771,8 @@ begin  -- rtl
 
                 when OP_XORI =>
                     -- Format: I    Syntax:  XORI rd, rs, imm16   Semantics: rd = rs ^ imm0
+                    dbg_instr <= INSTR_XORI;
+
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
 
@@ -708,6 +789,8 @@ begin  -- rtl
 
                 when OP_LUI =>
                     -- Format: I    Syntax:  LUI rd, imm16   Semantics: rd = imm0/ << 16
+                    dbg_instr <= INSTR_LUI;
+
                     -- set output values
                     exec_op.aluop   <= ALU_LUI;
                     exec_op.rd      <= rd;
@@ -721,14 +804,17 @@ begin  -- rtl
 
                 when OP_COP0 =>
                     -- Format: R    Syntax: --   Semantics: Table 23
+
                     -- ############## start case rs ############## --
                     case rs is
                         when RS_MFC0 =>
                             -- Syntax: MFC0 rt, rd Semantics: rt = rd, rd register in coprocessor 0
+                            dbg_instr <= INSTR_MFC0;
                             --TODO
                             null;
                         when RS_MTC0 =>
                             -- Syntax: MTC0 rt, rd Semantics: rd = rt, rd register in coprocessor 0
+                            dbg_instr <= INSTR_MTC0;
                             --TODO: set cop0=1
                             null;
                         when others =>
