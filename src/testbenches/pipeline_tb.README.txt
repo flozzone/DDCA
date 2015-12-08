@@ -1,0 +1,12 @@
+- die testbench ist mit 2ps clock period eingestellt
+- ich hab mir die resolution der simulation auf 100fs runtergschraubt, so dauert sie simulation vom ersten minimal.s beispiel nicht mal 1s
+- die fetch stage und entity, instanziert imem_altera mit einem generic map auf "../src/imem.mif" und da liegt dann das compilat
+- imem.mif ist im repo = compile(minimal.s)
+  und ist in binärform bereits in src/imem.mif enthalten, deshalb der Revert vom commit
+  um andere beispiele zu laden zB: arith.s, memory.s, usw muss man sie kompilieren
+  oder besser net compilieren, weil es ja bereits asm ist, sondern nur asemblieren
+  und das geht mittels binutils
+- binutils für MIPS sind in den repos von ubuntu net enthalten
+  => selbst bauen ( es gibt dafür auch schon a skript tools/build_binutils.sh
+     - vorher braucht man natürlich die: build-essentials
+     - am tilab server ist es wahrscheinlich schon installiert
