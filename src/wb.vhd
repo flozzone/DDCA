@@ -34,21 +34,21 @@ begin  -- rtl
     input : process(clk, reset)
     begin
         if reset = '0' then
-      int_op <= WB_NOP;
-      int_rd_in <= (others => '0');
-      int_aluresult <= (others => '0');
-      int_memresult <= (others => '0');
+            int_op <= WB_NOP;
+            int_rd_in <= (others => '0');
+            int_aluresult <= (others => '0');
+            int_memresult <= (others => '0');
         elsif rising_edge(clk) then
             if flush = '1' then
-        int_op <= WB_NOP;
-        int_rd_in <= (others => '0');
-        int_aluresult <= (others => '0');
-        int_memresult <= (others => '0');
+                int_op <= WB_NOP;
+                int_rd_in <= (others => '0');
+                int_aluresult <= (others => '0');
+                int_memresult <= (others => '0');
             elsif stall = '0' then
-        int_op <= op;
-        int_rd_in <= rd_in;
-        int_aluresult <= aluresult;
-        int_memresult <= memresult;
+                int_op <= op;
+                int_rd_in <= rd_in;
+                int_aluresult <= aluresult;
+                int_memresult <= memresult;
             end if;
         end if;
     end process input;
@@ -57,19 +57,19 @@ begin  -- rtl
     begin
         regwrite <= '0';
 
-    -- TODO: added because of inferred latch
-    result <= (others => 'U');
-    rd_out <= (others => 'U');
+		    -- TODO: added because of inferred latch
+		    result <= (others => 'U');
+		    rd_out <= (others => 'U');
 
-    if int_op.regwrite = '1' then
-        regwrite <= '1';
-        rd_out <= int_rd_in;
-        if int_op.memtoreg = '0' then
-            result <= int_aluresult;
-        elsif int_op.memtoreg = '1' then
-            result <= int_memresult;
-        end if;
-    end if;
+		    if int_op.regwrite = '1' then
+		        regwrite <= '1';
+		        rd_out <= int_rd_in;
+		        if int_op.memtoreg = '0' then
+		            result <= int_aluresult;
+		        elsif int_op.memtoreg = '1' then
+		            result <= int_memresult;
+		        end if;
+		    end if;
 
     end process wb;
 end rtl;
