@@ -15,7 +15,7 @@
 
 # Quartus II: Generate Tcl File for Project
 # File: DDCA-mimi.tcl
-# Generated on: Wed Dec  2 06:35:52 2015
+# Generated on: Tue Dec  8 19:19:51 2015
 
 # Load Quartus II Tcl Project package
 package require ::quartus::project
@@ -43,29 +43,10 @@ if {[is_project_open]} {
 if {$make_assignments} {
 	set_global_assignment -name FAMILY "Cyclone IV E"
 	set_global_assignment -name DEVICE EP4CE115F29C7
+	set_global_assignment -name TOP_LEVEL_ENTITY pipeline
 	set_global_assignment -name ORIGINAL_QUARTUS_VERSION 15.0.0
 	set_global_assignment -name PROJECT_CREATION_TIME_DATE "06:34:50  DEZEMBER 02, 2015"
 	set_global_assignment -name LAST_QUARTUS_VERSION 15.0.0
-	set_global_assignment -name VHDL_FILE wb.vhd
-	set_global_assignment -name VHDL_FILE serial_port_wrapper.vhd
-	set_global_assignment -name VHDL_FILE regfile.vhd
-	set_global_assignment -name VHDL_FILE pll_altera.vhd
-	set_global_assignment -name VHDL_FILE pipeline.vhd
-	set_global_assignment -name VHDL_FILE op_pack.vhd
-	set_global_assignment -name VHDL_FILE ocram_altera.vhd
-	set_global_assignment -name VHDL_FILE mimi.vhd
-	set_global_assignment -name VHDL_FILE memu.vhd
-	set_global_assignment -name VHDL_FILE mem.vhd
-	set_global_assignment -name VHDL_FILE jmpu.vhd
-	set_global_assignment -name VHDL_FILE imem_altera.vhd
-	set_global_assignment -name VHDL_FILE fwd.vhd
-	set_global_assignment -name VHDL_FILE fetch.vhd
-	set_global_assignment -name VHDL_FILE exec.vhd
-	set_global_assignment -name VHDL_FILE decode.vhd
-	set_global_assignment -name VHDL_FILE ctrl.vhd
-	set_global_assignment -name VHDL_FILE core_pack.vhd
-	set_global_assignment -name VHDL_FILE core.vhd
-	set_global_assignment -name VHDL_FILE alu.vhd
 	set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 	set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 	set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
@@ -73,6 +54,58 @@ if {$make_assignments} {
 	set_global_assignment -name NOMINAL_CORE_SUPPLY_VOLTAGE 1.2V
 	set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (VHDL)"
 	set_global_assignment -name EDA_OUTPUT_DATA_FORMAT VHDL -section_id eda_simulation
+	set_global_assignment -name VHDL_FILE ../src/testbench_util/src/testbench_util_pkg.vhd
+	set_global_assignment -name VHDL_FILE ../src/testbenches/regfile_tb.vhd
+	set_global_assignment -name VHDL_FILE ../src/testbenches/pipeline_tb.vhd
+	set_global_assignment -name VHDL_FILE ../src/testbenches/memu_tb.vhd
+	set_global_assignment -name VHDL_FILE ../src/testbenches/fetch_tb.vhd
+	set_global_assignment -name VHDL_FILE ../src/testbenches/exec_tb.vhd
+	set_global_assignment -name VHDL_FILE ../src/testbenches/alu_tb.vhd
+	set_global_assignment -name VHDL_FILE ../src/synchronizer/src/sync_pkg.vhd
+	set_global_assignment -name VHDL_FILE ../src/synchronizer/src/sync_beh.vhd
+	set_global_assignment -name VHDL_FILE ../src/synchronizer/src/sync.vhd
+	set_global_assignment -name VHDL_FILE ../src/serial_port/src/serial_port_transmitter_pkg.vhd
+	set_global_assignment -name VHDL_FILE ../src/serial_port/src/serial_port_transmitter_beh.vhd
+	set_global_assignment -name VHDL_FILE ../src/serial_port/src/serial_port_transmitter.vhd
+	set_global_assignment -name VHDL_FILE ../src/serial_port/src/serial_port_testbench.vhd
+	set_global_assignment -name VHDL_FILE ../src/serial_port/src/serial_port_receiver_pkg.vhd
+	set_global_assignment -name VHDL_FILE ../src/serial_port/src/serial_port_receiver_beh.vhd
+	set_global_assignment -name VHDL_FILE ../src/serial_port/src/serial_port_receiver.vhd
+	set_global_assignment -name VHDL_FILE ../src/serial_port/src/serial_port_pkg.vhd
+	set_global_assignment -name VHDL_FILE ../src/serial_port/src/serial_port_beh.vhd
+	set_global_assignment -name VHDL_FILE ../src/serial_port/src/serial_port.vhd
+	set_global_assignment -name VHDL_FILE ../src/ram/src/ram_pkg.vhd
+	set_global_assignment -name VHDL_FILE ../src/ram/src/fifo_1c1r1w_mixed.vhd
+	set_global_assignment -name VHDL_FILE ../src/ram/src/fifo_1c1r1w.vhd
+	set_global_assignment -name VHDL_FILE ../src/ram/src/dp_ram_1c1r1w_beh.vhd
+	set_global_assignment -name VHDL_FILE ../src/ram/src/dp_ram_1c1r1w.vhd
+	set_global_assignment -name VHDL_FILE ../src/math/src/math_pkg.vhd
+	set_global_assignment -name VHDL_FILE ../src/wb.vhd
+	set_global_assignment -name VHDL_FILE ../src/serial_port_wrapper.vhd
+	set_global_assignment -name VHDL_FILE ../src/regfile.vhd
+	set_global_assignment -name VHDL_FILE ../src/pll_altera.vhd
+	set_global_assignment -name VHDL_FILE ../src/pipeline.vhd
+	set_global_assignment -name VHDL_FILE ../src/op_pack.vhd
+	set_global_assignment -name VHDL_FILE ../src/ocram_altera.vhd
+	set_global_assignment -name VHDL_FILE ../src/mimi.vhd
+	set_global_assignment -name VHDL_FILE ../src/memu.vhd
+	set_global_assignment -name VHDL_FILE ../src/mem.vhd
+	set_global_assignment -name VHDL_FILE ../src/jmpu.vhd
+	set_global_assignment -name VHDL_FILE ../src/imem_altera.vhd
+	set_global_assignment -name VHDL_FILE ../src/fwd.vhd
+	set_global_assignment -name VHDL_FILE ../src/fetch.vhd
+	set_global_assignment -name VHDL_FILE ../src/exec.vhd
+	set_global_assignment -name VHDL_FILE ../src/decode.vhd
+	set_global_assignment -name VHDL_FILE ../src/ctrl.vhd
+	set_global_assignment -name VHDL_FILE ../src/core_pack.vhd
+	set_global_assignment -name VHDL_FILE ../src/core.vhd
+	set_global_assignment -name VHDL_FILE ../src/alu.vhd
+	set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+	set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+	set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+	set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+	set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+	set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 
 	# Commit assignments
 	export_assignments

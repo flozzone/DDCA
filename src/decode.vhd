@@ -31,7 +31,7 @@ architecture rtl of decode is
 
     constant INSTR_ZERO : std_logic_vector (INSTR_WIDTH-1 downto 0) := (others => '0');
 
-    type INSTR_TYPE is (INSTR_J, INSTR_JAL, INSTR_BEQ, INSTR_BNE, INSTR_BLEZ, INSTR_BGTZ, 
+    type INSTR_TYPE is (INSTR_NOP, INSTR_J, INSTR_JAL, INSTR_BEQ, INSTR_BNE, INSTR_BLEZ, INSTR_BGTZ, 
                         INSTR_ADDI, INSTR_ADDIU, INSTR_SLTI, INSTR_SLTIU, INSTR_ANDI,
                         INSTR_ORI, INSTR_XORI, INSTR_LUI, INSTR_LB, INSTR_LH, INSTR_LW,
                         INSTR_LBU, INSTR_LHU, INSTR_SB, INSTR_SH, INSTR_SW, INSTR_SLL,
@@ -181,6 +181,7 @@ begin  -- rtl
         mem_op  <= MEM_NOP;
         wb_op   <= WB_NOP;
         exc_dec <= '0';
+        dbg_instr <= INSTR_NOP;
 
         if not (int_instr = INSTR_ZERO) then
             -- ############## start case opcode ############## --
