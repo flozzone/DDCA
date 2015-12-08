@@ -37,97 +37,153 @@ entity exec is
 end exec;
 architecture rtl of exec is
 
-signal alu_op : alu_op_type;
-signal alu_A : std_logic_vector(DATA_WIDTH-1 downto 0);
-signal alu_B : std_logic_vector(DATA_WIDTH-1 downto 0);
-signal alu_R : std_logic_vector(DATA_WIDTH-1 downto 0);
-signal alu_Z : std_logic;
-signal alu_V : std_logic;
+signal int_alu_op : alu_op_type;
+signal int_alu_A : std_logic_vector(DATA_WIDTH-1 downto 0);
+signal int_alu_B : std_logic_vector(DATA_WIDTH-1 downto 0);
+signal int_alu_R : std_logic_vector(DATA_WIDTH-1 downto 0);
+signal int_alu_Z : std_logic;
+signal int_alu_V : std_logic;
+
+signal int_pc_in            : std_logic_vector(PC_WIDTH-1 downto 0);
+signal int_op	   	         : exec_op_type;
+signal int_memop_in         : mem_op_type;
+signal int_jmpop_in         : jmp_op_type;
+signal int_jmpop_out        : jmp_op_type;
+signal int_wbop_in          : wb_op_type;
+signal int_wbop_out         : wb_op_type;
+signal int_forwardA         : fwd_type;
+signal int_forwardB         : fwd_type;
+signal int_cop0_rddata      : std_logic_vector(DATA_WIDTH-1 downto 0);
+signal int_mem_aluresult    : std_logic_vector(DATA_WIDTH-1 downto 0);
+signal int_wb_result        : std_logic_vector(DATA_WIDTH-1 downto 0);
+signal int_exc_ovf          : std_logic;
 
 begin  -- rtl
 	alu_inst : entity alu
 	port map (
-		op => alu_op,
-		A => alu_A,
-		B => alu_B,
-		R => alu_R,
-		Z => alu_Z,
-		V => alu_V
+		op => int_alu_op,
+		A => int_alu_A,
+		B => int_alu_B,
+		R => int_alu_R,
+		Z => int_alu_Z,
+		V => int_alu_V
 	);
 
-	multiplex : process(clk, reset, stall, flush, op, pc_in, memop_in, jmpop_in, wbop_in, 
-			forwardA, forwardB, cop0_rddata, mem_aluresult, wb_result, alu_R, alu_Z, alu_V)
+	  -- ##################### --
+    -- process: input --
+    -- ##################### --
+    input : process (clk, reset)
+    begin
+        if reset = '0' then
+            -- reset intern signals
+            int_pc_in      <= (others => '0');
+            int_op   <= EXEC_NOP;
+            int_memop_in <= MEM_NOP;
+            int_jmpop_in <= JMP_NOP;
+						int_wbop_in <= WB_NOP;
+						int_forwardA <= FWD_NONE;
+						int_forwardB <= FWD_NONE;
+						int_cop0_rddata <= (others => '0');
+						int_mem_aluresult <= (others => '0');
+						int_wb_result <= (others => '0');
+        elsif rising_edge(clk) then
+            if flush = '1' then
+                -- flush intern signals
+                int_pc_in      <= (others => '0');
+		            int_op   <= EXEC_NOP;
+		            int_memop_in <= MEM_NOP;
+		            int_jmpop_in <= JMP_NOP;
+								int_wbop_in <= WB_NOP;
+								int_forwardA <= FWD_NONE;
+								int_forwardB <= FWD_NONE;
+								int_cop0_rddata <= (others => '0');
+								int_mem_aluresult <= (others => '0');
+								int_wb_result <= (others => '0');
+            elsif stall = '0' then
+                -- latch intern signals
+                int_pc_in      <= pc_in;
+		            int_op   <= op;
+		            int_memop_in <= memop_in;
+		            int_jmpop_in <= jmpop_in;
+								int_wbop_in <= wbop_in;
+								int_forwardA <= forwardA;
+								int_forwardB <= forwardB;
+								int_cop0_rddata <= cop0_rddata;
+								int_mem_aluresult <= mem_aluresult;
+								int_wb_result <= wb_result;
+            end if;
+        end if;
+    end process input;
+
+
+	multiplex : process(int_op, int_pc_in, int_memop_in, int_jmpop_in, int_wbop_in, 
+			int_forwardA, int_forwardB, int_cop0_rddata, int_mem_aluresult, int_wb_result, int_alu_R, int_alu_Z, int_alu_V)
 	begin
 
-		if reset = '0' then
-			null;
-		elsif rising_edge(clk) and stall = '0' then
+		-- default values
+		rs <= int_op.rs;
+		rt <= int_op.rt;
+		pc_out <= int_pc_in;
+		memop_out <= int_memop_in;
+		jmpop_out <= int_jmpop_in;
+		wbop_out <= int_wbop_in;
+		exc_ovf <= '0';
+		wrdata <= (others => '0');
+		zero <= '0';
+		neg <= '0';
+		new_pc <= (others => '0');
 
-			-- pass register addresses
-			rs <= op.rs;
-			rt <= op.rt;
-			-- depends on instruction format
-			if op.regdst = '0' then
-				-- R format
-				rd <= op.rd;
-			else
-				-- others
-				rd <= op.rt;
-			end if;
-
-			pc_out <= pc_in;
-			memop_out <= memop_in;
-			jmpop_out <= jmpop_in;
-			wbop_out <= wbop_in;
+		-- depends on instruction format
+		if int_op.regdst = '0' then
+			-- R format
+			rd <= int_op.rd;
+		else
+			-- others
+			rd <= int_op.rt;
+		end if;
 
 			-- ALU
-			alu_op <= op.aluop;
-			alu_A <= op.readdata1;
-			if op.useimm = '0' and op.useamt = '0' then
-				-- R-Format instructions
-				alu_B <= op.readdata2;
-				aluresult <= alu_R;
-			elsif op.useimm = '1' and op.useamt = '0' then
-				-- all I-Format instructions
-				alu_B <= op.imm;
-				aluresult <= alu_R;
-			elsif op.useimm = '0' and op.useamt = '1' then
-				--- shifts, SLL, SRL, SRA
-				alu_A <= op.readdata2;
-
+		int_alu_op <= int_op.aluop;
+		int_alu_A <= int_op.readdata1;
+		if int_op.useimm = '0' and int_op.useamt = '0' then
+			-- R-Format instructions
+			int_alu_B <= int_op.readdata2;
+			aluresult <= int_alu_R;
+		elsif int_op.useimm = '1' and int_op.useamt = '0' then
+			-- all I-Format instructions
+			int_alu_B <= int_op.imm;
+			aluresult <= int_alu_R;
+		elsif int_op.useimm = '0' and int_op.useamt = '1' then
+			--- shifts, SLL, SRL, SRA
+			int_alu_A <= int_op.readdata2;
 				-- shamt will stay at op.imm[5:0]
-				alu_B <= op.imm;
-				aluresult <= alu_R;
-			elsif op.cop0 = '1' then
-				aluresult <= cop0_rddata;
-			end if;
-			zero <= alu_Z;
-
+			int_alu_B <= int_op.imm;
+			aluresult <= int_alu_R;
+		elsif int_op.cop0 = '1' then
+			aluresult <= int_cop0_rddata;
+		end if;
+		zero <= int_alu_Z;
 			-- aluresult
-			-- * aluresult <= pc_in (adjusted!? with ALU, see op.link) for jal, jalr instr
-			-- * aluresult <= pc_in (adjusted!? with own adder, see op.link) for bltzal, bgtzal instr
-
+		-- * aluresult <= pc_in (adjusted!? with ALU, see op.link) for jal, jalr instr
+		-- * aluresult <= pc_in (adjusted!? with own adder, see op.link) for bltzal, bgtzal instr
 			-- assert overflow only when required by instruction
-			exc_ovf <= '0';
-			if op.ovf = '1' then
-				exc_ovf <= op.ovf;
-			end if;
+		
+		if int_op.ovf = '1' then
+			exc_ovf <= int_op.ovf;
+		end if;
 
 			--TODO: how to compute negative flag?
-			--neg <= ?? (only with signed data)
+		--neg <= ?? (only with signed data)
 
-			report "Starting";
-			if op.branch = '1' then
-				report "imm: " & integer'IMAGE(to_integer(unsigned(op.imm(new_pc'LENGTH downto 0))));
-				new_pc <= std_logic_vector(unsigned(pc_in) + unsigned(op.imm(new_pc'LENGTH downto 0)));
-			end if;
-
-			-- TODO: ignore these signals for lab3
-			-- forwardA
-			-- forwardB
-			-- mem_aluresult
-			-- wb_result
-			
+		if int_op.branch = '1' then
+			assert false report "NOT IMPLEMENTED";
+			new_pc <= std_logic_vector(unsigned(int_pc_in) + unsigned(int_op.imm(new_pc'LENGTH downto 0)));
 		end if;
-	end process multiplex;
+			-- TODO: ignore these signals for lab3
+		-- forwardA
+		-- forwardB
+		-- mem_aluresult
+		-- wb_result
+		
+end process multiplex;
 end rtl;
