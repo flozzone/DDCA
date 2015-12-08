@@ -1,6 +1,5 @@
 library ieee;
 use ieee.std_logic_1164.all;
-
 use work.core_pack.all;
 use work.op_pack.all;
 
@@ -15,7 +14,183 @@ entity pipeline is
 end pipeline;
 
 architecture rtl of pipeline is
+
+	signal stall    		: std_logic;
+	signal flush  		  : std_logic;
 	
+	-- fetch - decode
+	signal fd_pc				: std_logic_vector(PC_WIDTH-1 downto 0);
+	signal fd_instr 		: std_logic_vector(INSTR_WIDTH-1 downto 0);
+	
+	-- decode - execute
+	signal de_pc        : std_logic_vector(PC_WIDTH-1 downto 0);
+	signal de_exec_op   : exec_op_type;
+	signal de_jmp_op    : jmp_op_type;
+	signal de_mem_op    : mem_op_type;
+	signal de_wb_op     : wb_op_type;
+	signal de_exec_dec  : std_logic;
+	
+	-- execute - memory
+	signal em_rd				: std_logic_vector(REG_BITS-1 downto 0);
+	signal em_aluresult	: std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal em_wrdata		: std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal em_zero			: std_logic;
+	signal em_neg				: std_logic;
+	signal em_new_pc		: std_logic_vector(PC_WIDTH-1 downto 0);
+	signal em_pc				: std_logic_vector(PC_WIDTH-1 downto 0);
+	signal em_memop			: mem_op_type;
+	signal em_jmpop			: jmp_op_type;
+	signal em_wbop			: wb_op_type;
+	
+	-- memory - write back
+	signal mw_memresult : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal mw_pc				: std_logic_vector(PC_WIDTH-1 downto 0);
+	signal mw_rd				: std_logic_vector(REG_BITS-1 downto 0);
+	signal mw_aluresult : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal mw_wbop			: wb_op_type;
+	
+	-- other
+	signal fm_pcsrc			: std_logic;
+	signal fm_new_pc		: std_logic_vector(PC_WIDTH-1 downto 0);
+	
+	signal dw_data		  : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal dw_regwrite  : std_logic;
+	signal dw_rd				: std_logic_vector(REG_BITS-1 downto 0);
+	
+	signal aluresult		: std_logic_vector(DATA_WIDTH-1 downto 0);
+	
+	signal cop0_op      : cop0_op_type;
+	signal cop0_rddata  : std_logic_vector(DATA_WIDTH-1 downto 0);
+
+	signal exc_dec			: std_logic;
+	signal rs, rt 			: std_logic_vector(REG_BITS-1 downto 0);
+	signal forwardA			: fwd_type;
+	signal forwardB			: fwd_type;
+	
+	signal tmp_wb_result : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal tmp_exc_ovf : std_logic;
+	signal exc_load, exc_store : std_logic;
 begin  -- rtl
-	
+
+
+
+	fetch_inst : entity work.fetch
+		port map(
+		-- in
+			clk => clk,
+			reset => reset,
+			stall => stall,
+			pcsrc => fm_pcsrc,
+			pc_in => fm_new_pc,
+		-- out
+			pc_out => fd_pc,
+			instr => fd_instr
+		);
+
+		decode_inst : entity work.decode
+		port map(
+		--in
+			clk => clk,
+			reset => reset,
+			stall => stall,
+			flush => flush,
+			pc_in => fd_pc,
+			instr => fd_instr,
+			wraddr => dw_rd,
+			wrdata => dw_data,
+			regwrite => dw_regwrite,
+			
+		--out
+			pc_out => de_pc,
+			exec_op => de_exec_op,
+			cop0_op => cop0_op, -- TODO
+			jmp_op => de_jmp_op,
+			mem_op => de_mem_op,
+			wb_op => de_wb_op,
+			exc_dec => exc_dec
+		);
+
+
+	exec_inst : entity work.exec
+		port map(
+		--in
+			clk => clk,
+			reset => reset,
+			stall => stall,
+			flush => flush,
+			memop_in => de_mem_op,
+			jmpop_in => de_jmp_op,
+			op => de_exec_op,
+			pc_in => de_pc,
+			wbop_in => de_wb_op,
+			forwardA => forwardA, -- TODO
+			forwardB => forwardB, -- TODO
+			cop0_rddata => cop0_rddata, -- TODO
+			mem_aluresult => aluresult,
+			wb_result => tmp_wb_result, -- TODO !important
+			
+		--out
+			pc_out => em_pc,
+			rd => em_rd,
+			rs => rs, -- TODO
+			rt => rt, -- TODO
+			aluresult => em_aluresult,
+			wrdata => em_wrdata,
+			zero => em_zero,
+			neg => em_neg,
+			new_pc => em_new_pc,
+			memop_out => em_memop,
+			jmpop_out => em_jmpop,
+			wbop_out => em_wbop,
+			exc_ovf => tmp_exc_ovf -- TODO important?
+		);
+
+		mem_inst : entity work.mem
+		port map(
+		--in
+			clk => clk,
+			reset => reset,
+			stall => stall,
+			flush => flush,
+			mem_op => em_memop,
+			jmp_op => em_jmpop,
+			pc_in => em_pc,
+			rd_in => em_rd,
+			aluresult_in => em_aluresult,
+			wrdata => em_wrdata,
+			zero  => em_zero,
+			neg => em_neg,
+			new_pc_in => em_new_pc,
+			wbop_in => em_wbop,
+			mem_data => mem_in.rddata,
+			
+		--out
+			pc_out => mw_pc,
+			pcsrc => fm_pcsrc,
+			rd_out => mw_rd,
+			aluresult_out => aluresult, 
+			memresult => mw_memresult, 
+			new_pc_out => fm_new_pc,
+			wbop_out => mw_wbop,
+			mem_out => mem_out,
+			exc_load => exc_load, --TODO
+			exc_store  => exc_store --TODO
+		);				
+		wb_inst : entity work.wb
+		port map(
+		--in
+			clk => clk,
+			reset => reset,
+			stall => stall,
+			flush => flush,
+			op => mw_wbop,
+			rd_in => mw_rd,
+			aluresult => aluresult,
+			memresult => mw_memresult,
+			
+		--out
+			rd_out => dw_rd,
+			result => dw_data,
+			regwrite =>	dw_regwrite
+		);
 end rtl;
