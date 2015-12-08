@@ -72,7 +72,8 @@ architecture rtl of pipeline is
 	signal exc_load, exc_store : std_logic;
 begin  -- rtl
 
-
+	flush <= '0';
+	stall <= '0';
 
 	fetch_inst : entity work.fetch
 		port map(
