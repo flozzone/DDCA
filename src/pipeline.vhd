@@ -53,21 +53,21 @@ architecture rtl of pipeline is
 	signal fm_pcsrc			: std_logic;
 	signal fm_new_pc		: std_logic_vector(PC_WIDTH-1 downto 0);
 	
-	signal dw_data		  : std_logic_vector(DATA_WIDTH-1 downto 0);
-	signal dw_regwrite  : std_logic;
-	signal dw_rd				: std_logic_vector(REG_BITS-1 downto 0);
+	signal dw_data		: std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
+	signal dw_regwrite  : std_logic := '0';
+	signal dw_rd		: std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 	
 	signal aluresult		: std_logic_vector(DATA_WIDTH-1 downto 0);
 	
 	signal cop0_op      : cop0_op_type;
-	signal cop0_rddata  : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal cop0_rddata  : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
 
 	signal exc_dec			: std_logic;
 	signal rs, rt 			: std_logic_vector(REG_BITS-1 downto 0);
 	signal forwardA			: fwd_type;
 	signal forwardB			: fwd_type;
 	
-	signal tmp_wb_result : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal tmp_wb_result : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
 	signal tmp_exc_ovf : std_logic;
 	signal exc_load, exc_store : std_logic;
 begin  -- rtl
