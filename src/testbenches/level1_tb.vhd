@@ -48,9 +48,9 @@ begin
 	sync_proc : process
 	begin
 		clk <= '0';
-		wait for CLK_PERIOD/2;
+		wait for CLK_PERIOD;
 		clk <= '1';
-		wait for CLK_PERIOD/2;
+		wait for CLK_PERIOD;
 	end process sync_proc;
 
 	--init_proc : process(
@@ -66,54 +66,49 @@ begin
 		file vector_file : text open read_mode is "../sim/testbench/level1/test.tc";
 		variable bin : bit_vector(92 downto 0);
 		variable vec : std_logic_vector(92 downto 0);
-	begin
-		if falling_edge(clk) then
-				if not endfile(vector_file) then
-					has_data <= true;
-					readline(vector_file, rdline);
-					read(rdline, bin);
-					vec := to_stdlogicvector(bin);
-	
-					print(output, "############ LINE: " & integer'IMAGE(int_clk_cnt +1) & " ##############");
-	
-	        int_s_reset <= vec(92);
-	        int_s_mem_in.busy <= vec(91);
-	        int_s_mem_in.rddata <= vec(90 downto 59);
-	        a_mem_out.address <= vec(58 downto 38);
-	        a_mem_out.rd <= vec(37);
-	        a_mem_out.wr <= vec(36);
-	        a_mem_out.byteena <= vec(35 downto 32);
-	        a_mem_out.wrdata <= vec(31 downto 0);
-				else
-					has_data <= false;
-					print(output, "############ EOF ##############");
-					assert false report "EOF of testfile reached" severity FAILURE;
-			end if;			
-		end if;
-	end process assert_proc;
-
-	test : process(clk)
 		variable clk_cnt : integer := 0;
 	begin
 		if rising_edge(clk) then
-			if has_data = true then
-
-				s_reset <= int_s_reset;
-				s_mem_in <= int_s_mem_in;
-				--a_mem_out <= int_a_mem_out;
-
-				assert r_mem_out.address = a_mem_out.address report "clk "&str(int_clk_cnt+1)&": wrong mem.address (" & str(r_mem_out.address) & ") expected "& str(a_mem_out.address);
-				assert r_mem_out.rd = a_mem_out.rd report "clk "&str(int_clk_cnt+1)&": wrong mem.rd (" & chr(r_mem_out.rd) & ") expected "&chr(a_mem_out.rd);
-				assert r_mem_out.wr = a_mem_out.wr report "clk "&str(int_clk_cnt+1)&": wrong mem.wr (" & chr(r_mem_out.wr) & ") expected "&chr(a_mem_out.wr);
-
-				assert r_mem_out.byteena = a_mem_out.byteena report "clk "&str(int_clk_cnt+1)&": wrong mem.byteena ("&str(r_mem_out.byteena)&") expected "&str(a_mem_out.byteena);
-				assert r_mem_out.wrdata = a_mem_out.wrdata report "clk "&str(int_clk_cnt+1)&": wrong mem.wrdata (" & str(r_mem_out.wrdata) & ") expected "&str(a_mem_out.wrdata);
+			if not endfile(vector_file) then
 				clk_cnt := clk_cnt + 1;
-				
+				--wait for 2 ps;
+				readline(vector_file, rdline);
+				read(rdline, bin);
+				vec := to_stdlogicvector(bin);
+	
+				print(output, "############ LINE: " & integer'IMAGE(clk_cnt) & " ##############");
+	
+				s_reset <= vec(92);
+				s_mem_in.busy <= vec(91);
+				s_mem_in.rddata <= vec(90 downto 59);
+				a_mem_out.address <= vec(58 downto 38);
+				a_mem_out.rd <= vec(37);
+				a_mem_out.wr <= vec(36);
+				a_mem_out.byteena <= vec(35 downto 32);
+				a_mem_out.wrdata <= vec(31 downto 0);
+
+				has_data <= true;
+				int_clk_cnt <= clk_cnt;
+			else
+				has_data <= false;
+				print(output, "############ EOF ##############");
+				assert false report "EOF of testfile reached" severity FAILURE;
+			end if;
+		end if;
+	end process assert_proc;
+
+	test : process
+	begin
+			wait for 3 ps;
+			if has_data = true then
+				assert r_mem_out.address = a_mem_out.address report "clk "&str(int_clk_cnt)&": wrong mem_out.address (" & str(r_mem_out.address) & ") expected "& str(a_mem_out.address);
+				assert r_mem_out.rd = a_mem_out.rd report "clk "&str(int_clk_cnt)&": wrong mem_out.rd (" & chr(r_mem_out.rd) & ") expected "&chr(a_mem_out.rd);
+				assert r_mem_out.wr = a_mem_out.wr report "clk "&str(int_clk_cnt)&": wrong mem_out.wr (" & chr(r_mem_out.wr) & ") expected "&chr(a_mem_out.wr);
+				assert r_mem_out.byteena = a_mem_out.byteena report "clk "&str(int_clk_cnt)&": wrong mem_out.byteena ("&str(r_mem_out.byteena)&") expected "&str(a_mem_out.byteena);
+				assert r_mem_out.wrdata = a_mem_out.wrdata report "clk "&str(int_clk_cnt)&": wrong mem_out.wrdata (" & str(r_mem_out.wrdata) & ") expected "&str(a_mem_out.wrdata);	
 			else
 				assert false report "No data to test";
-			end if;			
-		end if;
-		int_clk_cnt <= clk_cnt;
+			end if;
+			wait for 1 ps;
 	end process test;
 end arch;

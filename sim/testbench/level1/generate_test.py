@@ -48,6 +48,21 @@ class TestSuite:
         if self.cnt is 0:
             self.sig.append((name, l))
 
+    def gen_sig(self):
+        tmp = 0
+        for (name, l) in suite.sig:
+            tmp += l
+        for (name, l) in suite.sig:
+            if l is 1:
+                print("%s <= vec(%i);" % (name, tmp-1))
+                tmp -= 1
+            else:
+                a = tmp-1
+                b = tmp-1-l
+                print("%s <= vec(%i downto %i);" % (name, a, b+1))
+                tmp -= l
+	
+
     def test(self, reset=True, s_busy=False, s_rddata=None, addr=None,
             rd=False, wr=False, byteena=None, wrdata=None):
         self.put(reset, "s_reset", 1)
@@ -62,18 +77,11 @@ class TestSuite:
         self.cnt += 1
 
 suite = TestSuite("test.tc")
+
+# 1. clk
 suite.test(reset=False)
-print suite.sig
-tmp = 0
-for (name, l) in suite.sig:
-    tmp += l
-for (name, l) in suite.sig:
-    if l is 1:
-        print("%s <= vec(%i);" % (name, tmp-1))
-        tmp -= 1
-    else:
-        a = tmp-1
-        b = tmp-1-l
-        print("%s <= vec(%i downto %i);" % (name, a, b+1))
-        tmp -= l
+suite.gen_sig()
+
+# 2. clk
 suite.test(reset=True)
+suite.test(s_busy=True) 
