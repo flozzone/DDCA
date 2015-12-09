@@ -825,6 +825,7 @@ begin  -- rtl
                     -- ############## end case rs ############## --
                 when OP_LB =>
                     -- Format: I    Syntax:  LB rd, imm16(rs)    Semantics: rd = (int8_t)[rs+imm±]
+					dbg_instr <= INSTR_LB;
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
 
@@ -845,6 +846,7 @@ begin  -- rtl
 
                 when OP_LH =>
                     -- Format: I    Syntax: LH rd, imm16(rs)   Semantics: rd = (int16_t)[rs+imm±]
+                    dbg_instr <= INSTR_LH;
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
 
@@ -865,6 +867,7 @@ begin  -- rtl
 
                 when OP_LW =>
                     -- Format: I    Syntax: LW rd, imm16(rs)   Semantics: rd = (int32_t)[rs+imm±]
+					dbg_instr <= INSTR_LW;
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
 
@@ -885,6 +888,7 @@ begin  -- rtl
 
                 when OP_LBU =>
                     -- Format: I    Syntax: LBU rd, imm16(rs)   Semantics: rd = (uint8_t)[rs+imm±]
+                    dbg_instr <= INSTR_LBU;
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
 
@@ -905,6 +909,7 @@ begin  -- rtl
 
                 when OP_LHU =>
                     -- Format: I    Syntax:  LHU rd, imm16(rs)   Semantics: rd = (uint16_t)[rs+imm±]
+                    dbg_instr <= INSTR_LHU;
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
 
@@ -925,6 +930,7 @@ begin  -- rtl
 
                 when OP_SB =>
                     -- Format: I    Syntax:  SB rd, imm16(rs)   Semantics: (int8_t)[rs+imm±] = rd7:0
+                    dbg_instr <= INSTR_SB;
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
                     exec_op.readdata2 <= (others => '0'); --TODO: do not need
@@ -944,6 +950,7 @@ begin  -- rtl
 
                 when OP_SH =>
                     -- Format: I    Syntax: SH rd, imm16(rs)   Semantics: (int16_t)[rs+imm±] = rd15:0
+                    dbg_instr <= INSTR_SH;
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
                     exec_op.readdata2 <= (others => '0'); --TODO: do not need
@@ -963,6 +970,7 @@ begin  -- rtl
 
                 when OP_SW =>
                     -- Format: I    Syntax:  SW rd, imm16(rs)   Semantics: (int32_t)[rs+imm±] = rd
+                    dbg_instr <= INSTR_SW;
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
                     exec_op.readdata2 <= int_rddata2;
