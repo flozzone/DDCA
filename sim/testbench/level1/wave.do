@@ -92,6 +92,38 @@ add wave -noupdate -group exec /level1_tb/pipeline_inst/exec_inst/int_cop0_rddat
 add wave -noupdate -group exec /level1_tb/pipeline_inst/exec_inst/int_mem_aluresult
 add wave -noupdate -group exec /level1_tb/pipeline_inst/exec_inst/int_wb_result
 add wave -noupdate -group exec /level1_tb/pipeline_inst/exec_inst/int_exc_ovf
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/clk
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/reset
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/stall
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/flush
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/mem_op
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/jmp_op
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/pc_in
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/rd_in
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/aluresult_in
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/wrdata
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/zero
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/neg
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/new_pc_in
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/pc_out
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/pcsrc
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/rd_out
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/aluresult_out
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/memresult
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/new_pc_out
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/wbop_in
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/wbop_out
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/mem_out
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/mem_data
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/exc_load
+add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/exc_store
+add wave -noupdate -expand -group {write back} /level1_tb/pipeline_inst/wb_inst/op
+add wave -noupdate -expand -group {write back} /level1_tb/pipeline_inst/wb_inst/rd_in
+add wave -noupdate -expand -group {write back} /level1_tb/pipeline_inst/wb_inst/aluresult
+add wave -noupdate -expand -group {write back} /level1_tb/pipeline_inst/wb_inst/memresult
+add wave -noupdate -expand -group {write back} /level1_tb/pipeline_inst/wb_inst/rd_out
+add wave -noupdate -expand -group {write back} /level1_tb/pipeline_inst/wb_inst/result
+add wave -noupdate -expand -group {write back} /level1_tb/pipeline_inst/wb_inst/regwrite
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {11500 fs} 0} {{Cursor 2} {33982800 fs} 0}
 quietly wave cursor active 1
@@ -109,4 +141,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits us
 update
-WaveRestoreZoom {0 fs} {21 ps}
+WaveRestoreZoom {18100 fs} {39100 fs}
