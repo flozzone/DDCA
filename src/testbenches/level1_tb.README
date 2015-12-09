@@ -1,4 +1,4 @@
-- die testbench ist mit 2ps clock period eingestellt
+- die testbench ist mit 4ps clock period eingestellt
 - ich hab mir die resolution der simulation auf 100fs runtergschraubt, so dauert sie simulation vom ersten minimal.s beispiel nicht mal 1s
 - die fetch stage und entity, instanziert imem_altera mit einem generic map auf "../src/imem.mif" und da liegt dann das compilat
 - imem.mif ist im repo = compile(minimal.s)

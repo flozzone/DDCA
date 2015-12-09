@@ -16,7 +16,7 @@ add wave -noupdate -expand -group fetch /level1_tb/pipeline_inst/fetch_inst/curr
 add wave -noupdate -expand -group fetch /level1_tb/pipeline_inst/fetch_inst/imem_addr
 add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/pc_in
 add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/instr
-add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/wraddr
+add wave -noupdate -expand -group decode -expand /level1_tb/pipeline_inst/decode_inst/wraddr
 add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/wrdata
 add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/regwrite
 add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/pc_out
@@ -34,8 +34,9 @@ add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/rd
 add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/rt
 add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/rs
 add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/opcode
+add wave -noupdate /level1_tb/pipeline_inst/decode_inst/dbg_instr
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {27000 fs} 0} {{Cursor 2} {3500 fs} 0}
+WaveRestoreCursors {{Cursor 1} {27000 fs} 0} {{Cursor 2} {0 fs} 0}
 quietly wave cursor active 2
 configure wave -namecolwidth 206
 configure wave -valuecolwidth 100
