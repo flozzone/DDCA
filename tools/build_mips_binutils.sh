@@ -22,7 +22,7 @@ pwd
 if [ ! -f $binutils_tar ]; then
   wget $binutils_src
 fi
-tar -xvf $binutils_tar
+tar -xf $binutils_tar
 mkdir -p build-binutils && cd build-binutils
 ../${binutils_tar%.tar.gz}/configure --target=$TARGET --prefix=$PREFIX
 make
