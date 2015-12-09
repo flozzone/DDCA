@@ -23,6 +23,9 @@ architecture rtl of fetch is
 signal current_pc : std_logic_vector(PC_WIDTH-1 downto 0);
 signal imem_addr : std_logic_vector (11 downto 0);
 
+signal int_pc	: std_logic_vector (PC_WIDTH-1 downto 0);
+
+
 begin  -- rtl
 	imem : entity imem_altera
 	port map (
@@ -31,24 +34,31 @@ begin  -- rtl
 		q	=> instr
 	);
 
-	ctrl : process(clk, reset, stall, pcsrc, pc_in, current_pc)
-	begin
-		if reset = '0' then
-			current_pc <= (others => '0');
-			imem_addr <= std_logic_vector(current_pc(PC_WIDTH-1 downto 2));
-			pc_out <= current_pc;
-		elsif rising_edge(clk) then
-			if stall = '0' then
+	fetch_input : process (clk, reset)
+    begin
+        if reset = '0' then
+            -- reset intern signals
+            int_pc      <= (others => '0');
+			imem_addr 	<= (others => '0');
+            pc_out  	<= (others => '0');
+            instr 		<= (others => '0');
+        elsif rising_edge(clk) then
+            if stall = '0' then
+                -- latch intern signals
 				if pcsrc = '1' then
-					-- next program counter = pc_in
-					current_pc <= pc_in;
+					int_pc <= pc_in;
 				else
-					-- next program counter = current_pc + 4
-					current_pc <= std_logic_vector(unsigned(current_pc) + 4);
+					int_pc <= std_logic_vector(unsigned(int_pc) + 4);
 				end if;
-				imem_addr <= std_logic_vector(current_pc(PC_WIDTH-1 downto 2));
-				pc_out <= current_pc;
-			end if;
-		end if;
-	end process ctrl;
+
+				imem_addr <= std_logic_vector(int_pc(PC_WIDTH-1 downto 2));
+
+            end if;
+        end if;
+    end process fetch_input;
+
+	fetch_output : process(int_pc)
+	begin
+		pc_out <= int_pc;
+	end process fetch_output;
 end rtl;
