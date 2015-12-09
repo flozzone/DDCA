@@ -15,22 +15,22 @@ end level1_tb;
 
 architecture arch of level1_tb is
 	constant CLK_PERIOD : time := 2 ps;
-	signal clk		: std_logic;
+	signal clk			: std_logic;
 	
-	signal s_reset :	 std_logic := '0';
-	signal s_mem_in  : mem_in_type;
-	signal s_intr : std_logic_vector(INTR_COUNT-1 downto 0);
-	signal r_mem_out : mem_out_type;
-	signal a_mem_out : mem_out_type;
+	signal s_reset 		: std_logic := '0';
+	signal s_mem_in  	: mem_in_type := ('0', (others => '0'));
+	signal s_intr 		: std_logic_vector(INTR_COUNT-1 downto 0) := (others => '0');
+	signal r_mem_out 	: mem_out_type := ((others => '0'),'0','0', (others => '0'),(others => '0'));
+	signal a_mem_out 	: mem_out_type := ((others => '0'),'0','0', (others => '0'),(others => '0'));
 
-	signal int_s_reset :	 std_logic;
-	signal int_s_mem_in  : mem_in_type;
-	signal int_s_intr : std_logic_vector(INTR_COUNT-1 downto 0);
-	signal int_r_mem_out : mem_out_type;
-	signal int_a_mem_out : mem_out_type;
+	signal int_s_reset 	: std_logic;
+	signal int_s_mem_in : mem_in_type := ('0', (others => '0'));
+	signal int_s_intr 	: std_logic_vector(INTR_COUNT-1 downto 0);
+	signal int_r_mem_out : mem_out_type := ((others => '0'),'0','0', (others => '0'),(others => '0'));
+	signal int_a_mem_out : mem_out_type := ((others => '0'),'0','0', (others => '0'),(others => '0'));
 
-	signal has_data : boolean;
-	signal int_clk_cnt : integer := 0;
+	signal has_data 	: boolean;
+	signal int_clk_cnt 	: integer := 0;
 
   signal testfile : string(8 downto 1);
 
