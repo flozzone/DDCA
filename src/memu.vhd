@@ -112,6 +112,13 @@ begin  -- rtl
 		M.address <= A;
 
 		-- compute byteena and wrdata
+
+		if op.memread = '0' and op.memwrite = '0' then
+			null;
+		else
+			M.byteena <= "0000";
+			M.wrdata <= (others => '0');
+		end if;
 		case op.memtype is
 			when MEM_B | MEM_BU =>
 				case A(1 downto 0) is
@@ -247,5 +254,6 @@ begin  -- rtl
 				when others =>
 					assert False report "Case not covered";
 			end case;
+			
 	end process memu_unit;
 end rtl;
