@@ -20,8 +20,6 @@ end fetch;
 
 architecture rtl of fetch is
 
-constant FOUR:  std_logic_vector (REG_BITS-1 downto 0) := (others => '0');
-
 signal current_pc 		: std_logic_vector(PC_WIDTH-1 downto 0);
 signal imem_addr 		: std_logic_vector (11 downto 0);
 
@@ -59,7 +57,6 @@ begin  -- rtl
     begin
         if reset = '0' then
             -- reset outupt rddatas and latch_rddata_nexts
-			int_pc			<= (others => '0');
             int_pc_next 	<= (others => '0');
         elsif stall = '1' then
 			int_pc_next <= int_pc;
