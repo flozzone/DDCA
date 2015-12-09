@@ -33,7 +33,7 @@ entity serial_port_transmitter is
     data               : in  std_logic_vector(7 downto 0);
     empty              : in  std_logic;
     rd                 : out std_logic;
-    
+
     tx                 : out std_logic
   );
 end entity serial_port_transmitter;

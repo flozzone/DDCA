@@ -57,18 +57,18 @@ begin  -- rtl
     begin
         regwrite <= '0';
 
-		    if int_op.regwrite = '1' then
-		        regwrite <= '1';
-		        rd_out <= int_rd_in;
-		        if int_op.memtoreg = '0' then
-		            result <= int_aluresult;
-		        elsif int_op.memtoreg = '1' then
-		            result <= int_memresult;
-		        end if;
-				else
-					result <= (others => '0');
-		    	rd_out <= (others => '0');
-		    end if;
+            if int_op.regwrite = '1' then
+                regwrite <= '1';
+                rd_out <= int_rd_in;
+                if int_op.memtoreg = '0' then
+                    result <= int_aluresult;
+                elsif int_op.memtoreg = '1' then
+                    result <= int_memresult;
+                end if;
+                else
+                    result <= (others => '0');
+                rd_out <= (others => '0');
+            end if;
 
     end process wb;
 end rtl;

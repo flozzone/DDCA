@@ -31,11 +31,11 @@ entity dp_ram_1c1r1w is
   port
   (
     clk    : in  std_logic;
-    
+
     raddr1 : in  std_logic_vector(ADDR_WIDTH - 1 downto 0);
     rdata1 : out std_logic_vector(DATA_WIDTH - 1 downto 0);
     rd1    : in  std_logic;
-    
+
     waddr2 : in  std_logic_vector(ADDR_WIDTH - 1 downto 0);
     wdata2 : in  std_logic_vector(DATA_WIDTH - 1 downto 0);
     wr2    : in  std_logic

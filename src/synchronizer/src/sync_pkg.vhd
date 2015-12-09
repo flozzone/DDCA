@@ -25,7 +25,7 @@ package sync_pkg is
   --------------------------------------------------------------------
   --                          COMPONENT                             --
   --------------------------------------------------------------------
-  
+
   -- serial connection of flip-flops to avoid latching of metastable inputs at
   -- the analog/digital interface
   component sync is
@@ -40,7 +40,7 @@ package sync_pkg is
     (
       clk       : in std_logic;
       res_n     : in std_logic;
-      
+
       data_in   : in std_logic;
       data_out  : out std_logic
     );

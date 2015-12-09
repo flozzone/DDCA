@@ -28,7 +28,7 @@ begin
   --------------------------------------------------------------------
   --                    PROCESS : SYNC                              --
   --------------------------------------------------------------------
-  
+
   sync_proc : process(clk, res_n)
   begin
     if res_n = '0' then
@@ -42,10 +42,10 @@ begin
       end loop;
     end if;
   end process sync_proc;
-  
+
   -- output synchronized data
   data_out <= sync(SYNC_STAGES);
-  
+
 end architecture beh;
 
 --- EOF ---

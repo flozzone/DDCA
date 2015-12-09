@@ -34,7 +34,7 @@ entity sync is
   (
     clk   : in std_logic;
     res_n : in std_logic;
-    
+
     data_in   : in std_logic;
     data_out  : out std_logic
   );

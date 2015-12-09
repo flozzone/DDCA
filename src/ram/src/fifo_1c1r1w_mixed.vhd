@@ -45,12 +45,12 @@ begin
       waddr2 => write_address,
       wdata2 => data_in2,
       wr2    => wr_int
-    ); 
-  
+    );
+
   --------------------------------------------------------------------
   --                    PROCESS : SYNC                              --
   --------------------------------------------------------------------
-  
+
   sync : process(clk, res_n)
   begin
     if res_n = '0' then
@@ -65,15 +65,15 @@ begin
       empty_int <= empty_next;
     end if;
   end process sync;
-  
+
   --------------------------------------------------------------------
   --                    PROCESS : EXEC                              --
   --------------------------------------------------------------------
-  
+
   exec : process(write_address, read_address, full_int, empty_int, wr2, rd1)
   begin
     write_address_next <= write_address;
-    read_address_next <= read_address;  
+    read_address_next <= read_address;
     full_next <= full_int;
     empty_next <= empty_int;
     wr_int <= '0';
@@ -83,7 +83,7 @@ begin
       wr_int <= '1'; -- only write, if fifo is not full
       write_address_next <= std_logic_vector(unsigned(write_address) + 1);
     end if;
-    
+
     if rd1 = '1' and empty_int = '0'  then
       rd_int <= '1'; -- only read, if fifo is not empty
       read_address_next <= std_logic_vector(unsigned(read_address) + 1);
@@ -96,13 +96,13 @@ begin
         empty_next <= '1';
       end if;
     end if;
-    
+
     -- if memory is full after current write operation
     if wr2 = '1' then
       empty_next <= '0';
       if read_address = std_logic_vector(unsigned(write_address) + 1) then
         full_next <= '1';
-      end if;      
+      end if;
     end if;
   end process exec;
 

@@ -12,7 +12,7 @@ architecture beh of serial_port_testbench is
   constant CLK_PERIOD : time := 20 ns;
 
   signal clk, reset_n      : std_logic;
-  
+
   signal tx_data : std_logic_vector(7 downto 0);
   signal tx_wr : std_logic;
   signal tx_free : std_logic;
@@ -41,7 +41,7 @@ begin
     BAUD_RATE => 2500000,
     SYNC_STAGES => 2,
     TX_FIFO_DEPTH => 1,
-    RX_FIFO_DEPTH => 1 
+    RX_FIFO_DEPTH => 1
   )
   port map (
     clk => clk,
@@ -56,7 +56,7 @@ begin
     rx => rx,
     tx => tx
   );
-  
+
   -- Generates the clock signal
   clkgen : process
   begin
@@ -74,7 +74,7 @@ begin
     reset_n <= '1';
     wait;
   end process;
-  
+
   send_data : process
   begin
     tx_wr <= '0';

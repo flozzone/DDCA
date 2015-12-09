@@ -160,8 +160,8 @@ begin  -- rtl
             int_alu_B <= int_op.imm;
         elsif int_op.cop0 = '1' then
             aluresult <= int_cop0_rddata;
-				else
-						int_alu_B <= (others => '0');
+                else
+                        int_alu_B <= (others => '0');
         end if;
         zero <= int_alu_Z;
             -- aluresult

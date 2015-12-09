@@ -64,7 +64,7 @@ begin
           receiver_state_next <= RECEIVER_STATE_WAIT_STOP_BIT;
         elsif  bit_cnt < 7 then
           receiver_state_next <= RECEIVER_STATE_WAIT_DATA_BIT;
-        end if;  
+        end if;
       when RECEIVER_STATE_WAIT_STOP_BIT =>
         if clk_cnt = (CLK_DIVISOR - 2) then
           receiver_state_next <= RECEIVER_STATE_MIDDLE_OF_STOP_BIT;
@@ -78,11 +78,11 @@ begin
     end case;
 
   end process receiver_next_state;
-  
+
   --------------------------------------------------------------------
   --                    PROCESS : OUTPUT                            --
-  --------------------------------------------------------------------  
-  
+  --------------------------------------------------------------------
+
   receiver_output : process(receiver_state, clk_cnt, bit_cnt, data_int, rx)
   begin
     data <= "00000000";
@@ -115,11 +115,11 @@ begin
         data <= data_int;
     end case;
   end process receiver_output;
-    
+
   --------------------------------------------------------------------
   --                    PROCESS : SYNC                              --
   --------------------------------------------------------------------
-  
+
   sync : process(clk, res_n)
   begin
     if res_n = '0' then
@@ -130,7 +130,7 @@ begin
       receiver_state <= receiver_state_next;
       clk_cnt <= clk_cnt_next;
       bit_cnt <= bit_cnt_next;
-		data_int <= data_int_next;
+        data_int <= data_int_next;
     end if;
   end process sync;
 end architecture beh;

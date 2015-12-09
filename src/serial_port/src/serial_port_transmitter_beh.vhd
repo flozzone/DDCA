@@ -63,7 +63,7 @@ begin
       -- pre state
       when TRANSMITTER_STATE_TRANSMIT_FIRST =>
         transmitter_state_next <= TRANSMITTER_STATE_TRANSMIT;
-      -- pre state - next state will transmit next data bit  
+      -- pre state - next state will transmit next data bit
       when TRANSMITTER_STATE_TRANSMIT_NEXT =>
         transmitter_state_next <= TRANSMITTER_STATE_TRANSMIT;
       -- send data bit for specified time
@@ -85,19 +85,19 @@ begin
         if clk_cnt = CLK_DIVISOR - 2 then
           -- if the buffer is not empty - new data has to be transmitted
           if empty = '0' then
-            transmitter_state_next <= TRANSMITTER_STATE_NEW_DATA;    
+            transmitter_state_next <= TRANSMITTER_STATE_NEW_DATA;
           -- else nothing to do -> go IDLE
-          else          
+          else
             transmitter_state_next <= TRANSMITTER_STATE_IDLE;
           end if;
         end if;
     end case;
   end process transmitter_next_state;
-  
+
   --------------------------------------------------------------------
   --                    PROCESS : OUTPUT                            --
-  --------------------------------------------------------------------  
-  
+  --------------------------------------------------------------------
+
   transmitter_output : process(transmitter_state, clk_cnt, bit_cnt, data, transmit_data)
   begin
     clk_cnt_next <= clk_cnt;
@@ -146,11 +146,11 @@ begin
         clk_cnt_next <= clk_cnt + 1;
     end case;
   end process transmitter_output;
-    
+
   --------------------------------------------------------------------
   --                    PROCESS : SYNC                              --
   --------------------------------------------------------------------
-  
+
   sync : process(clk, res_n)
   begin
     if res_n = '0' then

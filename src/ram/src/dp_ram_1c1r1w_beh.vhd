@@ -29,11 +29,11 @@ architecture beh of dp_ram_1c1r1w is
     others => (others => '0')
   );
 begin
- 
+
   --------------------------------------------------------------------
   --                    PROCESS : SYNC                              --
   --------------------------------------------------------------------
- 
+
   sync : process(clk)
   begin
     if rising_edge(clk) then
@@ -42,7 +42,7 @@ begin
       end if;
       if rd1 = '1' then
         rdata1 <= ram(to_integer(unsigned(raddr1)));
-      end if;      
+      end if;
     end if;
   end process sync;
 end architecture beh;

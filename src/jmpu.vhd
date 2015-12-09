@@ -6,10 +6,10 @@ use work.core_pack.all;
 use work.op_pack.all;
 
 entity jmpu is
-	port (
-		op   : in  jmp_op_type;
-		N, Z : in  std_logic;
-		J    : out std_logic);
+    port (
+        op   : in  jmp_op_type;
+        N, Z : in  std_logic;
+        J    : out std_logic);
 end jmpu;
 
 architecture rtl of jmpu is

@@ -6,11 +6,11 @@ use work.core_pack.all;
 use work.op_pack.all;
 
 entity fwd is
-	port (
-		-- define input and output ports as needed
-		dummy : in std_logic
+    port (
+        -- define input and output ports as needed
+        dummy : in std_logic
 );
-	
+
 end fwd;
 
 architecture rtl of fwd is

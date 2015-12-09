@@ -36,11 +36,11 @@ package ram_pkg is
     port
     (
       clk    : in std_logic;
-    
+
       raddr1 : in std_logic_vector(ADDR_WIDTH - 1 downto 0);
       rdata1 : out std_logic_vector(DATA_WIDTH - 1 downto 0);
       rd1    : in std_logic;
-    
+
       waddr2 : in std_logic_vector(ADDR_WIDTH - 1 downto 0);
       wdata2 : in std_logic_vector(DATA_WIDTH - 1 downto 0);
       wr2    : in std_logic
@@ -57,10 +57,10 @@ package ram_pkg is
     (
       clk       : in std_logic;
       res_n     : in std_logic;
-    
+
       data_out1 : out std_logic_vector(DATA_WIDTH - 1 downto 0);
       rd1       : in std_logic;
-        
+
       data_in2  : in std_logic_vector(DATA_WIDTH - 1 downto 0);
       wr2       : in std_logic;
 
@@ -68,7 +68,7 @@ package ram_pkg is
       full     : out std_logic
     );
   end component fifo_1c1r1w;
-  
+
 end ram_pkg;
 
 --- EOF ---

@@ -92,8 +92,8 @@ begin  -- rtl
             rddata2 <= latch_rddata2;
         else
             -- latch requested values
-			-- writes are accesable in the next cycle,
-			-- but the newest value should always be read
+            -- writes are accesable in the next cycle,
+            -- but the newest value should always be read
             if (wraddr = rdaddr1) and (int_regwrite = '1') then
                 rddata1             <= wrdata;
                 latch_rddata1_next  <= wrdata;

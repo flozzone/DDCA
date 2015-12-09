@@ -6,10 +6,10 @@ use work.core_pack.all;
 use work.op_pack.all;
 
 entity ctrl is
-	
-	port (
-		-- define input and output ports as needed
-		dummy : in std_logic
+
+    port (
+        -- define input and output ports as needed
+        dummy : in std_logic
 );
 
 end ctrl;

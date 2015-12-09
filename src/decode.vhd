@@ -31,11 +31,11 @@ architecture rtl of decode is
 
     constant INSTR_ZERO : std_logic_vector (INSTR_WIDTH-1 downto 0) := (others => '0');
 
-    type INSTR_TYPE is (INSTR_NOP, INSTR_J, INSTR_JAL, INSTR_BEQ, INSTR_BNE, INSTR_BLEZ, INSTR_BGTZ, 
+    type INSTR_TYPE is (INSTR_NOP, INSTR_J, INSTR_JAL, INSTR_BEQ, INSTR_BNE, INSTR_BLEZ, INSTR_BGTZ,
                         INSTR_ADDI, INSTR_ADDIU, INSTR_SLTI, INSTR_SLTIU, INSTR_ANDI,
                         INSTR_ORI, INSTR_XORI, INSTR_LUI, INSTR_LB, INSTR_LH, INSTR_LW,
                         INSTR_LBU, INSTR_LHU, INSTR_SB, INSTR_SH, INSTR_SW, INSTR_SLL,
-                        INSTR_SRL, INSTR_SRA, INSTR_SLLV, INSTR_SRLV, INSTR_SRAV, 
+                        INSTR_SRL, INSTR_SRA, INSTR_SLLV, INSTR_SRLV, INSTR_SRAV,
                         INSTR_JR, INSTR_JALR, INSTR_ADD, INSTR_ADDU, INSTR_SUB, INSTR_SUBU,
                         INSTR_AND, INSTR_OR, INSTR_XOR, INSTR_NOR, INSTR_SLT, INSTR_SLTU,
                         INSTR_BLTZ, INSTR_BGEZ, INSTR_BLTZAL, INSTR_BGEZAL, INSTR_MFC0, INSTR_MTC0);
@@ -825,7 +825,7 @@ begin  -- rtl
                     -- ############## end case rs ############## --
                 when OP_LB =>
                     -- Format: I    Syntax:  LB rd, imm16(rs)    Semantics: rd = (int8_t)[rs+imm±]
-					dbg_instr <= INSTR_LB;
+                    dbg_instr <= INSTR_LB;
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
 
@@ -867,7 +867,7 @@ begin  -- rtl
 
                 when OP_LW =>
                     -- Format: I    Syntax: LW rd, imm16(rs)   Semantics: rd = (int32_t)[rs+imm±]
-					dbg_instr <= INSTR_LW;
+                    dbg_instr <= INSTR_LW;
                     -- read value from register
                     exec_op.readdata1 <= int_rddata1;
 

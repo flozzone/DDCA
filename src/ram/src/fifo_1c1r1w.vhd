@@ -30,10 +30,10 @@ entity fifo_1c1r1w is
   (
     clk       : in  std_logic;
     res_n     : in  std_logic;
-    
+
     data_out1 : out std_logic_vector(DATA_WIDTH - 1 downto 0);
     rd1       : in  std_logic;
-    
+
     data_in2  : in  std_logic_vector(DATA_WIDTH - 1 downto 0);
     wr2       : in  std_logic;
 
