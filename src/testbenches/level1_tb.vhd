@@ -29,10 +29,11 @@ architecture arch of level1_tb is
 	signal int_r_mem_out : mem_out_type := ((others => '0'),'0','0', (others => '0'),(others => '0'));
 	signal int_a_mem_out : mem_out_type := ((others => '0'),'0','0', (others => '0'),(others => '0'));
 
-	signal has_data 	: boolean;
-	signal int_clk_cnt 	: integer := 0;
 
+	signal int_clk_cnt 	: integer := 0;
   signal testfile : string(8 downto 1);
+	type TEST_TYPE is (NO_TEST, TEST);
+	signal has_data 	: TEST_TYPE;
 
 begin
 
@@ -69,8 +70,9 @@ begin
 		variable clk_cnt : integer := 0;
 	begin
 		if rising_edge(clk) then
+			clk_cnt := clk_cnt + 1;
+			int_clk_cnt <= clk_cnt;
 			if not endfile(vector_file) then
-				clk_cnt := clk_cnt + 1;
 				--wait for 2 ps;
 				readline(vector_file, rdline);
 				read(rdline, bin);
@@ -87,28 +89,28 @@ begin
 				a_mem_out.byteena <= vec(35 downto 32);
 				a_mem_out.wrdata <= vec(31 downto 0);
 
-				has_data <= true;
-				int_clk_cnt <= clk_cnt;
+				has_data <= TEST;
+
 			else
-				has_data <= false;
+				has_data <= NO_TEST;
 				print(output, "############ EOF ##############");
 				assert false report "EOF of testfile reached" severity FAILURE;
 			end if;
 		end if;
 	end process assert_proc;
 
-	test : process
+	test_proc : process
 	begin
 			wait for 3 ps;
-			if has_data = true then
+			if has_data = NO_TEST then
 				assert r_mem_out.address = a_mem_out.address report "clk "&str(int_clk_cnt)&": wrong mem_out.address (" & str(r_mem_out.address) & ") expected "& str(a_mem_out.address);
 				assert r_mem_out.rd = a_mem_out.rd report "clk "&str(int_clk_cnt)&": wrong mem_out.rd (" & chr(r_mem_out.rd) & ") expected "&chr(a_mem_out.rd);
 				assert r_mem_out.wr = a_mem_out.wr report "clk "&str(int_clk_cnt)&": wrong mem_out.wr (" & chr(r_mem_out.wr) & ") expected "&chr(a_mem_out.wr);
 				assert r_mem_out.byteena = a_mem_out.byteena report "clk "&str(int_clk_cnt)&": wrong mem_out.byteena ("&str(r_mem_out.byteena)&") expected "&str(a_mem_out.byteena);
 				assert r_mem_out.wrdata = a_mem_out.wrdata report "clk "&str(int_clk_cnt)&": wrong mem_out.wrdata (" & str(r_mem_out.wrdata) & ") expected "&str(a_mem_out.wrdata);	
 			else
-				assert false report "No data to test";
+				--assert false report "EOF";
 			end if;
 			wait for 1 ps;
-	end process test;
+	end process test_proc;
 end arch;
