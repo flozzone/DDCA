@@ -26,3 +26,22 @@ proc dec2bin {i {width {}}} {
     }
     return $sign$res
 }
+
+# http://stackoverflow.com/questions/9709257/modelsim-message-viewer-empty
+proc load_testbench {name} {
+	set venv [env]
+	echo $venv
+	if { [string match *${name}* $venv] } {
+		echo "is already loaded, skip starting simulation, but restart."
+		restart
+	} else {
+		vsim -t 100fs -assertdebug -msgmode both -displaymsgmode both work.${name}_tb
+
+		set wave_path "testbench/${name}/wave.do"
+		if { [file exists $wave_path] == 1} {
+			do $wave_path
+		} else {
+			echo "Wave file not found."
+		}
+	}
+}

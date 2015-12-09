@@ -34,21 +34,9 @@ if { $argc > 1 } {
 	set testfiles [lsort [glob $glob_pattern ] ]
 }
 
-
--- http://stackoverflow.com/questions/9709257/modelsim-message-viewer-empty
-
-set venv [env]
-echo $venv
-if { [string match *${tb}* $venv] } {
-	echo "is already loaded, skip starting simulation, but restart."
-	restart
-} else {
-	vsim -assertdebug -msgmode both -displaymsgmode both work.${tb}_tb
-}
-
 do util.do
 
-do $wave_path
+load_testbench ${tb}
 
 foreach file $testfiles {
   echo "Running test $file"

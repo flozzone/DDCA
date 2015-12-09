@@ -10,3 +10,10 @@
   => selbst bauen ( es gibt dafür auch schon a skript tools/build_binutils.sh
      - vorher braucht man natürlich die: build-essentials
      - am tilab server ist es wahrscheinlich schon installiert
+
+- QUICK START
+
+		VSIM> do level1.do
+
+	Runs the tests created within generate_test.py, which actually generates a sim/testbench/level1/test.tc.
+	There is a testcase for each clk cycle. The pipeline currently loads the imem.mif file in our src directory.
