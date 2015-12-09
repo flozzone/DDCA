@@ -64,7 +64,7 @@ class TestSuite:
 	
 
     def test(self, reset=True, s_busy=False, s_rddata=None, addr=None,
-            rd=False, wr=False, byteena=None, wrdata=None):
+            rd=False, wr=False, byteena="1111", wrdata=None):
         self.put(reset, "s_reset", 1)
         self.put(s_busy, "s_mem_in.busy", 1)
         self.put(s_rddata, "s_mem_in.rddata", TestSuite.DATA_WIDTH)
@@ -84,4 +84,5 @@ suite.gen_sig()
 
 # 2. clk
 suite.test(reset=True)
-suite.test(s_busy=True) 
+#suite.test(s_busy=True)
+
