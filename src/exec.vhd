@@ -55,7 +55,7 @@ signal int_forwardB         : fwd_type;
 signal int_cop0_rddata      : std_logic_vector(DATA_WIDTH-1 downto 0);
 signal int_mem_aluresult    : std_logic_vector(DATA_WIDTH-1 downto 0);
 signal int_wb_result        : std_logic_vector(DATA_WIDTH-1 downto 0);
-signal int_exc_ovf          : std_logic;
+signal int_exc_ovf          : std_logic := '0';
 
 begin  -- rtl
     alu_inst : entity alu
