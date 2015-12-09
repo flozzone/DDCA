@@ -147,9 +147,6 @@ begin  -- rtl
         int_alu_A <= int_op.readdata1;
         aluresult <= int_alu_R;
 
-        -- TODO added due to inferred latch
-        int_alu_B <= (others => 'U');
-
         if int_op.useimm = '0' and int_op.useamt = '0' then
             -- R-Format instructions
             int_alu_B <= int_op.readdata2;
@@ -163,6 +160,8 @@ begin  -- rtl
             int_alu_B <= int_op.imm;
         elsif int_op.cop0 = '1' then
             aluresult <= int_cop0_rddata;
+				else
+						int_alu_B <= (others => '0');
         end if;
         zero <= int_alu_Z;
             -- aluresult

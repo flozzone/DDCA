@@ -57,10 +57,6 @@ begin  -- rtl
     begin
         regwrite <= '0';
 
-		    -- TODO: added because of inferred latch
-		    result <= (others => 'U');
-		    rd_out <= (others => 'U');
-
 		    if int_op.regwrite = '1' then
 		        regwrite <= '1';
 		        rd_out <= int_rd_in;
@@ -69,6 +65,9 @@ begin  -- rtl
 		        elsif int_op.memtoreg = '1' then
 		            result <= int_memresult;
 		        end if;
+				else
+					result <= (others => '0');
+		    	rd_out <= (others => '0');
 		    end if;
 
     end process wb;
