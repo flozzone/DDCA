@@ -42,8 +42,8 @@ begin  -- rtl
     -- asynchronus stuff
     int_wr_zero    <= '1' when(wraddr = ZERO) else '0' ;
     int_regwrite   <= (reset) and (not stall)and (regwrite) and (not int_wr_zero);
-    output_rddata1 <= register_A(To_integer(unsigned(rdaddr1)));
-    output_rddata2 <= register_A(To_integer(unsigned(rdaddr2)));
+    output_rddata1 <= std_logic_vector(register_A(To_integer(unsigned(rdaddr1))));
+    output_rddata2 <= std_logic_vector(register_A(To_integer(unsigned(rdaddr2))));
 
     -- ###################### --
     -- process: registerwrite --

@@ -106,8 +106,8 @@ architecture rtl of decode is
     signal int_instr        : std_logic_vector(INSTR_WIDTH-1 downto 0);
 
     -- intern regfile signals
-    signal int_rdaddr1      : std_logic_vector(REG_BITS-1 downto 0);
-    signal int_rdaddr2      : std_logic_vector(REG_BITS-1 downto 0);
+    signal int_rdaddr1      : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
+    signal int_rdaddr2      : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
     signal int_rddata1      : std_logic_vector(DATA_WIDTH-1 downto 0);
     signal int_rddata2      : std_logic_vector(DATA_WIDTH-1 downto 0);
 

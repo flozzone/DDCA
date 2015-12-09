@@ -36,12 +36,12 @@ entity exec is
 end exec;
 architecture rtl of exec is
 
-signal int_alu_op : alu_op_type;
-signal int_alu_A : std_logic_vector(DATA_WIDTH-1 downto 0);
-signal int_alu_B : std_logic_vector(DATA_WIDTH-1 downto 0);
-signal int_alu_R : std_logic_vector(DATA_WIDTH-1 downto 0);
-signal int_alu_Z : std_logic;
-signal int_alu_V : std_logic;
+signal int_alu_op : alu_op_type := ALU_NOP;
+signal int_alu_A : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
+signal int_alu_B : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
+signal int_alu_R : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
+signal int_alu_Z : std_logic := '0';
+signal int_alu_V : std_logic := '0';
 
 signal int_pc_in            : std_logic_vector(PC_WIDTH-1 downto 0);
 signal int_op                : exec_op_type;
