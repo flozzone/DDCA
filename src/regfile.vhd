@@ -94,7 +94,10 @@ begin  -- rtl
             -- latch requested values
             -- writes are accesable in the next cycle,
             -- but the newest value should always be read
-            if (wraddr = rdaddr1) and (int_regwrite = '1') then
+            if rddata1 = ZERO then
+                rddata1             <= (others => '0');
+                latch_rddata1_next  <= (others => '0');
+            elsif (wraddr = rdaddr1) and (int_regwrite = '1') then
                 rddata1             <= wrdata;
                 latch_rddata1_next  <= wrdata;
             else
@@ -102,7 +105,10 @@ begin  -- rtl
                 latch_rddata1_next  <= output_rddata1;
             end if;
 
-            if (wraddr = rdaddr2) and (int_regwrite = '1') then
+            if rddata2 = ZERO then
+                rddata2             <= (others => '0');
+                latch_rddata2_next  <= (others => '0');
+            elsif (wraddr = rdaddr2) and (int_regwrite = '1') then
                 rddata2             <= wrdata;
                 latch_rddata2_next  <= wrdata;
             else
