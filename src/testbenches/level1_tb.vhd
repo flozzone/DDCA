@@ -31,7 +31,7 @@ architecture arch of level1_tb is
 
 
     signal int_clk_cnt     : integer := 0;
-  signal testfile : string(8 downto 1);
+    signal testfile : string(8 downto 1);
     type TEST_TYPE is (NO_TEST, TEST);
     signal has_data     : TEST_TYPE;
 
@@ -64,7 +64,7 @@ begin
 
     assert_proc : process(clk)
         variable rdline : line;
-        file vector_file : text open read_mode is "../sim/testbench/level1/test.tc";
+        file vector_file : text open read_mode is "../src/test.tc";
         variable bin : bit_vector(92 downto 0);
         variable vec : std_logic_vector(92 downto 0);
         variable clk_cnt : integer := 0;
@@ -92,8 +92,10 @@ begin
                 has_data <= TEST;
 
             else
-                has_data <= NO_TEST;
-                print(output, "############ EOF ##############");
+                if has_data = TEST then
+                    has_data <= NO_TEST;
+                    print(output, "######### EOF of testfile ########");
+                end if;
             end if;
         end if;
     end process assert_proc;

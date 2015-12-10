@@ -45,3 +45,27 @@ proc load_testbench {name} {
 		}
 	}
 }
+
+proc load_program {path} {
+	set prog_path "../src/imem.mif"
+
+	if {[file exists $path] == 0} {
+		error "program at $path does not exist"
+	}
+
+	if {[file exists ${prog_path}.orig] == 0} {
+		file copy $prog_path ${prog_path}.orig
+	}
+
+	file copy -force $path $prog_path
+}
+
+proc load_test {path} {
+	set test_path "../src/test.tc"
+
+	if {[file exists $path] == 0} {
+		error "test at $path does not exist"
+	}
+
+	file copy -force $path $test_path
+}
