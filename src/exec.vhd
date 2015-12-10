@@ -161,13 +161,13 @@ begin  -- rtl
         end if;
         zero <= int_alu_Z;
 
-		-- compute negative flag only when subtracting
+        -- compute negative flag only when subtracting
         if int_alu_op = ALU_SUB or int_alu_op = ALU_ADD then
             if signed(aluresult) < 0 then
                 neg <= '1';
             end if;
-		else
-			neg <= '0';
+        else
+            neg <= '0';
         end if;
 
         -- aluresult
@@ -177,11 +177,11 @@ begin  -- rtl
         -- assert overflow only when required by instruction
         if int_op.ovf = '1' then
             exc_ovf <= int_op.ovf;
-		else
-			exc_ovf <= '0';
+        else
+            exc_ovf <= '0';
         end if;
 
-		-- compute new pc for branching
+        -- compute new pc for branching
         if int_op.branch = '1' then
             assert false report "NOT IMPLEMENTED";
             --new_pc <= std_logic_vector(unsigned(int_pc_in) + unsigned(int_op.imm(new_pc'LENGTH downto 0)));
