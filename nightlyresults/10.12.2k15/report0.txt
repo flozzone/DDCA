@@ -1,0 +1,24 @@
+Test Level 0
+============
+Starting tests on alu
+# Failed 0/62 tests.
+# End time: 01:32:03 on Dec 10,2015, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 0
+Finished tests on alu
+Starting tests on jmpu
+# Failed 0/33 tests.
+# End time: 01:32:09 on Dec 10,2015, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0
+Finished tests on jmpu
+Starting tests on memu
+# Failed 0/63 tests.
+# End time: 01:32:16 on Dec 10,2015, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 0
+Finished tests on memu
+Starting tests on regfile
+# Failed test: stall=1 rdaddr1=00000 rdaddr2=00000 wraddr=10101 wrdata=01010101101010100101010110101010 regwrite=1, result rddata1=00000000000000000000000000000000 rddata2=00000000000000000000000000000000, expected rddata1=10101010010101011010101001010101 rddata2=00000000000000000000000000000000
+# Failed test: stall=1 rdaddr1=00000 rdaddr2=00000 wraddr=00000 wrdata=00010010001101000101011001111000 regwrite=1, result rddata1=00000000000000000000000000000000 rddata2=00000000000000000000000000000000, expected rddata1=10101010010101011010101001010101 rddata2=00000000000000000000000000000000
+# Failed 2/29 tests.
+# End time: 01:32:22 on Dec 10,2015, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0
+Finished tests on regfile
