@@ -183,8 +183,8 @@ begin  -- rtl
 
         -- compute new pc for branching
         if int_op.branch = '1' then
-            assert false report "NOT IMPLEMENTED";
-            --new_pc <= std_logic_vector(unsigned(int_pc_in) + unsigned(int_op.imm(new_pc'LENGTH downto 0)));
+            new_pc <= std_logic_vector(resize(signed(std_logic_vector(resize(unsigned(int_pc_in), DATA_WIDTH))) 
+                + to_integer(signed(int_op.imm)), PC_WIDTH));
         end if;
 
         -- TODO: ignore these signals for lab3

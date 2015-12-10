@@ -1,5 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 use work.op_pack.all;
 use work.core_pack.all;
@@ -9,7 +10,7 @@ entity exec_tb is
 end exec_tb;
 
 architecture arch of exec_tb is
-    constant CLK_PERIOD : time := 20 ns;
+    constant CLK_PERIOD : time := 2 ps;
 
     signal s_clk, s_reset     : std_logic;
     signal s_stall                 : std_logic;
@@ -51,6 +52,8 @@ architecture arch of exec_tb is
   signal testfile : string(8 downto 1);
 
 begin
+	s_reset <= '1';
+
     exec_inst : entity exec
     port map (
         clk => s_clk,
@@ -82,8 +85,22 @@ begin
         exc_ovf => r_exc_ovf
     );
 
+	clk_proc : process
+	begin
+	wait for CLK_PERIOD/2;
+	s_clk <= '1';
+	wait for CLK_PERIOD/2;
+	s_clk <= '0';
+	end process clk_proc;
+
     test : process
     begin
+		s_flush <= '0';
+		s_stall <= '0';
+		s_pc_in <= std_logic_vector(to_unsigned(5, PC_WIDTH));
+		s_op.imm <= std_logic_vector(to_signed(-2, DATA_WIDTH));
+		s_op.branch <= '1';
+
         wait for 1 ns;
 
         assert r_new_pc = a_new_pc report testfile & ": r_new_pc is not equal";
