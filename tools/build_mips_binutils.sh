@@ -22,8 +22,20 @@ pwd
 if [ ! -f $binutils_tar ]; then
   wget $binutils_src
 fi
-tar -xf $binutils_tar
+if ! tar -xf $binutils_tar; then
+  echo >&2 "Could not unpack binutils tarball."
+  exit 1
+fi
 mkdir -p build-binutils && cd build-binutils
 ../${binutils_tar%.tar.gz}/configure --target=$TARGET --prefix=$PREFIX
-make
-make install
+if ! make ; then
+  echo >&2 "Compilation failed."
+  exit 1
+fi
+
+if ! make install; then
+  echo >&2 "Installation failed."
+  exit 1
+fi
+
+echo "Successfully compiled and installed binutils to $PREFIX."
