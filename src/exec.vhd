@@ -79,37 +79,37 @@ begin  -- rtl
             int_op   <= EXEC_NOP;
             int_memop_in <= MEM_NOP;
             int_jmpop_in <= JMP_NOP;
-                        int_wbop_in <= WB_NOP;
-                        int_forwardA <= FWD_NONE;
-                        int_forwardB <= FWD_NONE;
-                        int_cop0_rddata <= (others => '0');
-                        int_mem_aluresult <= (others => '0');
-                        int_wb_result <= (others => '0');
+            int_wbop_in <= WB_NOP;
+            int_forwardA <= FWD_NONE;
+            int_forwardB <= FWD_NONE;
+            int_cop0_rddata <= (others => '0');
+            int_mem_aluresult <= (others => '0');
+            int_wb_result <= (others => '0');
         elsif rising_edge(clk) then
             if flush = '1' then
                 -- flush intern signals
                 int_pc_in      <= (others => '0');
-                    int_op   <= EXEC_NOP;
-                    int_memop_in <= MEM_NOP;
-                    int_jmpop_in <= JMP_NOP;
-                                int_wbop_in <= WB_NOP;
-                                int_forwardA <= FWD_NONE;
-                                int_forwardB <= FWD_NONE;
-                                int_cop0_rddata <= (others => '0');
-                                int_mem_aluresult <= (others => '0');
-                                int_wb_result <= (others => '0');
+                int_op   <= EXEC_NOP;
+                int_memop_in <= MEM_NOP;
+                int_jmpop_in <= JMP_NOP;
+                int_wbop_in <= WB_NOP;
+                int_forwardA <= FWD_NONE;
+                int_forwardB <= FWD_NONE;
+                int_cop0_rddata <= (others => '0');
+                int_mem_aluresult <= (others => '0');
+                int_wb_result <= (others => '0');
             elsif stall = '0' then
                 -- latch intern signals
                 int_pc_in      <= pc_in;
-                    int_op   <= op;
-                    int_memop_in <= memop_in;
-                    int_jmpop_in <= jmpop_in;
-                                int_wbop_in <= wbop_in;
-                                int_forwardA <= forwardA;
-                                int_forwardB <= forwardB;
-                                int_cop0_rddata <= cop0_rddata;
-                                int_mem_aluresult <= mem_aluresult;
-                                int_wb_result <= wb_result;
+                int_op   <= op;
+                int_memop_in <= memop_in;
+                   int_jmpop_in <= jmpop_in;
+                int_wbop_in <= wbop_in;
+                int_forwardA <= forwardA;
+                int_forwardB <= forwardB;
+                int_cop0_rddata <= cop0_rddata;
+                int_mem_aluresult <= mem_aluresult;
+                int_wb_result <= wb_result;
             end if;
         end if;
     end process input;
