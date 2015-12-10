@@ -94,7 +94,6 @@ begin
             else
                 has_data <= NO_TEST;
                 print(output, "############ EOF ##############");
-                assert false report "EOF of testfile reached" severity FAILURE;
             end if;
         end if;
     end process assert_proc;

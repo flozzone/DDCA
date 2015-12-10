@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+from collections import OrderedDict
+
 class TestSuite:
 
     DATA_WIDTH = 32
@@ -8,8 +10,8 @@ class TestSuite:
 
     def __init__(self, filename):
         self.fd = open(filename, "w")
-        self.cnt = 0
-        self.sig = list()
+        self.sig = OrderedDict()
+        self.total_width = 0
 
     def __del__(self):
         self.fd.close()
@@ -45,14 +47,12 @@ class TestSuite:
     def put(self, arg, name, l):
         self.fd.write(TestSuite.conv(arg, l))
 
-        if self.cnt is 0:
-            self.sig.append((name, l))
+    def printSignalAssignments(self):
+        tmp = self.total_width
 
-    def gen_sig(self):
-        tmp = 0
-        for (name, l) in suite.sig:
-            tmp += l
-        for (name, l) in suite.sig:
+        for list_name, signature in self.sig.iteritems():
+            name = signature['signal_name']
+            l = signature['length']
             if l is 1:
                 print("%s <= vec(%i);" % (name, tmp-1))
                 tmp -= 1
@@ -61,28 +61,71 @@ class TestSuite:
                 b = tmp-1-l
                 print("%s <= vec(%i downto %i);" % (name, a, b+1))
                 tmp -= l
-	
 
-    def test(self, reset=True, s_busy=False, s_rddata=None, addr=None,
-            rd=False, wr=False, byteena="1111", wrdata=None):
-        self.put(reset, "s_reset", 1)
-        self.put(s_busy, "s_mem_in.busy", 1)
-        self.put(s_rddata, "s_mem_in.rddata", TestSuite.DATA_WIDTH)
-        self.put(addr, "a_mem_out.address", TestSuite.ADDR_WIDTH)
-        self.put(rd, "a_mem_out.rd", 1)
-        self.put(wr, "a_mem_out.wr", 1)
-        self.put(byteena, "a_mem_out.byteena", 4)
-        self.put(wrdata, "a_mem_out.wrdata", TestSuite.DATA_WIDTH)
+    def addSignal(self, signal_name, length, **kwargs):
+
+        name = None
+        if "alias" in kwargs:
+            name = kwargs["alias"]
+        else:
+            name = signal_name
+
+        if name in self.sig:
+            raise "Signal %s already added" % name
+
+        default = kwargs["default"]
+
+        signature = dict()
+        signature['length'] = length
+        signature['signal_name'] = signal_name
+        signature['default'] = default
+
+        self.sig[name] = signature
+        self.total_width += length
+
+    def test(self, nr, **kwargs):
+
+        for name, signature in self.sig.iteritems():
+            if name in kwargs:
+                self.put(kwargs[name], signature['signal_name'], signature['length'])
+            else:
+                if signature['default'] is None:
+                    raise "No default value set for %s" % name
+                self.put(signature['default'], signature['signal_name'], signature['length'])
         self.fd.write("\n")
-        self.cnt += 1
 
 suite = TestSuite("test.tc")
 
-# 1. clk
-suite.test(reset=False)
-suite.gen_sig()
+suite.addSignal("s_reset", 1, alias="reset", default=True)
+suite.addSignal("s_mem_in.busy", 1, alias="busy", default=False)
+suite.addSignal("s_mem_in.rddata", TestSuite.DATA_WIDTH, alias="rddata", default=0)
+suite.addSignal("a_mem_out.address", TestSuite.ADDR_WIDTH, alias="addr", default=0)
+suite.addSignal("a_mem_out.rd", 1, alias="rd", default=False)
+suite.addSignal("a_mem_out.wr", 1, alias="wr", default=False)
+suite.addSignal("a_mem_out.byteena", 4, alias="byteena", default="1111")
+suite.addSignal("a_mem_out.wrdata", TestSuite.DATA_WIDTH, alias="wrdata", default=0)
 
-# 2. clk
-suite.test(reset=True)
-#suite.test(s_busy=True)
+suite.printSignalAssignments()
 
+# minimal.s
+#_start:
+#    nop
+#    lw $0,4($0)
+#    nop
+#    nop
+#    sw $0,8($0)
+#    nop
+#    nop
+#
+#    .end _start
+
+suite.test(1)
+suite.test(2)
+suite.test(3)
+suite.test(4)
+suite.test(5, rd=True, addr="000000000000000000100")
+suite.test(6)
+suite.test(7)
+suite.test(8, addr="000000000000000001000", byteena="1111", wrdata="00000000000000000000000000000000")
+suite.test(9)
+suite.test(10)
