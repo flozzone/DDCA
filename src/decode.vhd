@@ -257,6 +257,7 @@ begin  -- rtl
                             wb_op.memtoreg  <= '0'; --TODO: do not need
                             wb_op.regwrite  <= '1';
 
+
                         when FU_SRLV =>
                             -- Syntax: SRLV rd, rt, rs  Semantics: rd = rt0/ >> rs4:0
                             dbg_instr <= INSTR_SRLV;

@@ -127,10 +127,7 @@ begin  -- rtl
         memop_out <= int_memop_in;
         jmpop_out <= int_jmpop_in;
         wbop_out <= int_wbop_in;
-        exc_ovf <= '0';
         wrdata <= (others => '0');
-        zero <= '0';
-        neg <= '0';
         new_pc <= (others => '0');
 
         -- depends on instruction format
@@ -142,11 +139,10 @@ begin  -- rtl
             rd <= int_op.rt;
         end if;
 
-            -- ALU
+        -- ALU
         int_alu_op <= int_op.aluop;
         int_alu_A <= int_op.readdata1;
         aluresult <= int_alu_R;
-
         if int_op.useimm = '0' and int_op.useamt = '0' then
             -- R-Format instructions
             int_alu_B <= int_op.readdata2;
@@ -160,27 +156,38 @@ begin  -- rtl
             int_alu_B <= int_op.imm;
         elsif int_op.cop0 = '1' then
             aluresult <= int_cop0_rddata;
-                else
-                        int_alu_B <= (others => '0');
+        else
+            int_alu_B <= (others => '0');
         end if;
         zero <= int_alu_Z;
-            -- aluresult
-        -- * aluresult <= pc_in (adjusted!? with ALU, see op.link) for jal, jalr instr
-        -- * aluresult <= pc_in (adjusted!? with own adder, see op.link) for bltzal, bgtzal instr
-            -- assert overflow only when required by instruction
 
-        if int_op.ovf = '1' then
-            exc_ovf <= int_op.ovf;
+		-- compute negative flag only when subtracting
+        if int_alu_op = ALU_SUB or int_alu_op = ALU_ADD then
+            if signed(aluresult) < 0 then
+                neg <= '1';
+            end if;
+		else
+			neg <= '0';
         end if;
 
-            --TODO: how to compute negative flag?
-        --neg <= ?? (only with signed data)
+        -- aluresult
+        -- * aluresult <= pc_in (adjusted!? with ALU, see op.link) for jal, jalr instr
+        -- * aluresult <= pc_in (adjusted!? with own adder, see op.link) for bltzal, bgtzal instr
 
+        -- assert overflow only when required by instruction
+        if int_op.ovf = '1' then
+            exc_ovf <= int_op.ovf;
+		else
+			exc_ovf <= '0';
+        end if;
+
+		-- compute new pc for branching
         if int_op.branch = '1' then
             assert false report "NOT IMPLEMENTED";
             --new_pc <= std_logic_vector(unsigned(int_pc_in) + unsigned(int_op.imm(new_pc'LENGTH downto 0)));
         end if;
-            -- TODO: ignore these signals for lab3
+
+        -- TODO: ignore these signals for lab3
         -- forwardA
         -- forwardB
         -- mem_aluresult
