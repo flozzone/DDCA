@@ -47,7 +47,7 @@ begin  -- rtl
         end if;
     end process fetchinputs;
 
-    pc_out <= int_pc_next;
+    pc_out <= int_pc;
     imem_addr <= std_logic_vector(int_pc_next(PC_WIDTH-1 downto 2));
 
     -- ############### --
