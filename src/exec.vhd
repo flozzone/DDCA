@@ -126,8 +126,6 @@ begin  -- rtl
         memop_out <= int_memop_in;
         jmpop_out <= int_jmpop_in;
         wbop_out <= int_wbop_in;
-        wrdata <= int_wb_result;
-
 
         -- depends on instruction format
         if int_op.regdst = '0' then
@@ -176,6 +174,8 @@ begin  -- rtl
             new_pc <= std_logic_vector(unsigned(int_pc_in) + unsigned(int_op.imm(PC_WIDTH-1 downto 0))) ;
         end if;
 
+        -- pass on wrdata to mem
+        wrdata <= int_op.readdata2;        
         -- TODO: ignore these signals for lab3
         -- forwardA
         -- forwardB
