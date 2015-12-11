@@ -54,7 +54,6 @@ signal int_forwardA         : fwd_type;
 signal int_forwardB         : fwd_type;
 signal int_cop0_rddata      : std_logic_vector(DATA_WIDTH-1 downto 0);
 signal int_mem_aluresult    : std_logic_vector(DATA_WIDTH-1 downto 0);
-signal int_wb_result        : std_logic_vector(DATA_WIDTH-1 downto 0);
 signal int_exc_ovf          : std_logic := '0';
 
 begin  -- rtl
@@ -84,7 +83,6 @@ begin  -- rtl
             int_forwardB <= FWD_NONE;
             int_cop0_rddata <= (others => '0');
             int_mem_aluresult <= (others => '0');
-            int_wb_result <= (others => '0');
         elsif rising_edge(clk) then
             if flush = '1' then
                 -- flush intern signals
@@ -97,7 +95,6 @@ begin  -- rtl
                 int_forwardB <= FWD_NONE;
                 int_cop0_rddata <= (others => '0');
                 int_mem_aluresult <= (others => '0');
-                int_wb_result <= (others => '0');
             elsif stall = '0' then
                 -- latch intern signals
                 int_pc_in      <= pc_in;
@@ -109,14 +106,13 @@ begin  -- rtl
                 int_forwardB <= forwardB;
                 int_cop0_rddata <= cop0_rddata;
                 int_mem_aluresult <= mem_aluresult;
-                int_wb_result <= wb_result;
             end if;
         end if;
     end process input;
 
 
     multiplex : process(int_op, int_pc_in, int_memop_in, int_jmpop_in, int_wbop_in,
-            int_cop0_rddata, int_wb_result, int_alu_R, int_alu_Z, int_alu_V, aluresult)
+            int_cop0_rddata, int_alu_R, int_alu_Z, int_alu_V, aluresult)
     begin
 
         -- default values
