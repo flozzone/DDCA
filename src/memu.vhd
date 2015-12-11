@@ -109,7 +109,11 @@ begin  -- rtl
 
         tmp_XL := '0';
         tmp_XS := '0';
-        M.address <= A;
+        if op.memread = '0' and op.memwrite = '0' then
+            M.address <= (others => '0');
+        else
+            M.address <= A;
+        end if;
 
         -- compute byteena and wrdata
         case op.memtype is
