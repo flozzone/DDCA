@@ -18,7 +18,7 @@ entity exec is
         rd, rs, rt       : out std_logic_vector(REG_BITS-1 downto 0);
         aluresult        : out std_logic_vector(DATA_WIDTH-1 downto 0);
         wrdata           : out std_logic_vector(DATA_WIDTH-1 downto 0);
-        zero, neg         : out std_logic;
+        zero, neg        : out std_logic;
         new_pc           : out std_logic_vector(PC_WIDTH-1 downto 0);
         memop_in         : in  mem_op_type;
         memop_out        : out mem_op_type;
@@ -68,9 +68,9 @@ begin  -- rtl
         V => int_alu_V
     );
 
-      -- ##################### --
+    -- ############## --
     -- process: input --
-    -- ##################### --
+    -- ############## --
     input : process (clk, reset)
     begin
         if reset = '0' then
@@ -103,7 +103,7 @@ begin  -- rtl
                 int_pc_in      <= pc_in;
                 int_op   <= op;
                 int_memop_in <= memop_in;
-                   int_jmpop_in <= jmpop_in;
+                int_jmpop_in <= jmpop_in;
                 int_wbop_in <= wbop_in;
                 int_forwardA <= forwardA;
                 int_forwardB <= forwardB;
@@ -161,32 +161,20 @@ begin  -- rtl
         end if;
         zero <= int_alu_Z;
 
-        -- compute negative flag only when subtracting
-        if int_alu_op = ALU_SUB or int_alu_op = ALU_ADD then
-            if signed(aluresult) < 0 then
-                neg <= '1';
-            end if;
-        else
-            neg <= '0';
-        end if;
+        -- take negative flag from aluresult
+        neg  <= aluresult(DATA_WIDTH-1);
 
         -- aluresult
         -- * aluresult <= pc_in (adjusted!? with ALU, see op.link) for jal, jalr instr
         -- * aluresult <= pc_in (adjusted!? with own adder, see op.link) for bltzal, bgtzal instr
 
         -- assert overflow only when required by instruction
-        if int_op.ovf = '1' then
-            exc_ovf <= int_op.ovf;
-        else
-            exc_ovf <= '0';
-        end if;
+        exc_ovf <= int_alu_V and int_op.ovf;
 
         -- compute new pc for branching
+        new_pc <= int_alu_R(PC_WIDTH-1 downto 0); -- default
         if int_op.branch = '1' then
-            new_pc <= std_logic_vector(resize(signed(std_logic_vector(resize(unsigned(int_pc_in), DATA_WIDTH))) 
-                + to_integer(signed(int_op.imm)), PC_WIDTH));
-                else
-                        new_pc <= (others => '0');
+            new_pc <= std_logic_vector(unsigned(int_pc_in) + unsigned(int_op.imm(PC_WIDTH-1 downto 0))) ;
         end if;
 
         -- TODO: ignore these signals for lab3
