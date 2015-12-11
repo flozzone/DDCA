@@ -17,6 +17,8 @@ architecture arch of level1_tb is
     constant CLK_PERIOD : time := 2 ps;
     signal clk            : std_logic;
 
+        signal s_test_clk_cnt : integer range 0 to 300;
+
     signal s_reset         : std_logic := '0';
     signal s_mem_in      : mem_in_type := ('0', (others => '0'));
     signal s_intr         : std_logic_vector(INTR_COUNT-1 downto 0) := (others => '0');
@@ -103,14 +105,14 @@ begin
     test_proc : process
     begin
             wait for 3 ps;
-            if has_data = NO_TEST then
+            if has_data = TEST then
                 assert r_mem_out.address = a_mem_out.address report "clk "&str(int_clk_cnt)&": wrong mem_out.address (" & str(r_mem_out.address) & ") expected "& str(a_mem_out.address);
                 assert r_mem_out.rd = a_mem_out.rd report "clk "&str(int_clk_cnt)&": wrong mem_out.rd (" & chr(r_mem_out.rd) & ") expected "&chr(a_mem_out.rd);
                 assert r_mem_out.wr = a_mem_out.wr report "clk "&str(int_clk_cnt)&": wrong mem_out.wr (" & chr(r_mem_out.wr) & ") expected "&chr(a_mem_out.wr);
                 assert r_mem_out.byteena = a_mem_out.byteena report "clk "&str(int_clk_cnt)&": wrong mem_out.byteena ("&str(r_mem_out.byteena)&") expected "&str(a_mem_out.byteena);
                 assert r_mem_out.wrdata = a_mem_out.wrdata report "clk "&str(int_clk_cnt)&": wrong mem_out.wrdata (" & str(r_mem_out.wrdata) & ") expected "&str(a_mem_out.wrdata);
             else
-                --assert false report "EOF";
+                assert false report "EOF" severity FAILURE;
             end if;
             wait for 1 ps;
     end process test_proc;

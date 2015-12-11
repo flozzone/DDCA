@@ -1,0 +1,18 @@
+# Failed test: mem_out.rd asserted when expecting silence at test 1
+# Failed test: mem_out.wr asserted when expecting silence at test 1
+# Failed test: mem_out.rd asserted when expecting silence at test 2
+# Failed test: mem_out.wr asserted when expecting silence at test 2
+# Failed test: mem_out.rd asserted when expecting silence at test 3
+# Failed test: mem_out.wr asserted when expecting silence at test 3
+# Failed test: mem_out.rd asserted when expecting silence at test 4
+# Failed test: mem_out.wr asserted when expecting silence at test 4
+# Failed test: mem_out.rd/mem_out.wr wrong for read at test 5
+# Failed test: mem_out.address wrong at test 5, expected 000000000000000000100
+# Failed test: mem_out.rd asserted when expecting silence at test 6
+# Failed test: mem_out.wr asserted when expecting silence at test 6
+# Failed test: mem_out.rd asserted when expecting silence at test 7
+# Failed test: mem_out.wr asserted when expecting silence at test 7
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 8
+# Failed test: mem_out.address wrong at test 8, expected 000000000000000001000
+# Failed test: mem_out.byteena wrong at test 8, expected 1111
+# Failed test: mem_out.wrdata wrong at test 8, expected 00000000000000000000000000000000

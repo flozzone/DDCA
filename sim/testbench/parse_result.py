@@ -1,9 +1,6 @@
 #!/usr/bin/python
 
-
 import os, sys, re
-
-
 
 def clean_value(value):
     ret = value.strip().replace("-", "X")

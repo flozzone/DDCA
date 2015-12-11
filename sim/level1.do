@@ -16,4 +16,4 @@ set name $1
 load_program "../nightly/level1/asm/${name}.mif"
 load_test "testbench/level1/data/${name}.tc"
 
-run
+run -all

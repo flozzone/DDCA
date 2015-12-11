@@ -26,7 +26,8 @@ class TestSuite:
         if isinstance(arg, basestring):
             if len(arg) > l:
                 raise "String too long"
-            return arg
+            val = arg.replace("-", "X")
+            return val
 
         if isinstance(arg, (int, long)):
             return TestSuite.dec2bin(arg, l)
