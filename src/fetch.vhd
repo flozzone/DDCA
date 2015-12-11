@@ -20,12 +20,9 @@ end fetch;
 
 architecture rtl of fetch is
 
-signal current_pc         : std_logic_vector(PC_WIDTH-1 downto 0);
 signal imem_addr         : std_logic_vector (11 downto 0);
-
 signal int_pc            : std_logic_vector (PC_WIDTH-1 downto 0) := (others => '0');
 signal int_pc_next         : std_logic_vector (PC_WIDTH-1 downto 0) := (others => '0');
-
 
 begin  -- rtl
     imem : entity imem_altera
