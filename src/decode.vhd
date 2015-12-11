@@ -115,6 +115,7 @@ architecture rtl of decode is
     alias rs        : std_logic_vector(4 downto 0)  is int_instr(25 downto 21);
     alias rt        : std_logic_vector(4 downto 0)  is int_instr(20 downto 16);
     alias rd        : std_logic_vector(4 downto 0)  is int_instr(15 downto 11);
+    alias Ird       : std_logic_vector(4 downto 0)  is int_instr(20 downto 16);
     alias shamt     : std_logic_vector(4 downto 0)  is int_instr(10 downto 6);
     alias func      : std_logic_vector(5 downto 0)  is int_instr(5 downto 0);
     alias adrim     : std_logic_vector(15 downto 0) is int_instr(15 downto 0);
@@ -671,7 +672,7 @@ begin  -- rtl
 
                     -- set output values
                     exec_op.aluop   <= ALU_ADD;
-                    exec_op.rd      <= rd;
+                    exec_op.rd      <= Ird;
                     -- sign extend imm
                     exec_op.imm     <= (others => adrim(15));
                     exec_op.imm(15 downto 0) <= adrim(15 downto 0);
@@ -690,7 +691,7 @@ begin  -- rtl
 
                     -- set output values
                     exec_op.aluop   <= ALU_ADD;
-                    exec_op.rd      <= rd;
+                    exec_op.rd      <= Ird;
                     -- sign extend imm
                     exec_op.imm     <= (others => adrim(15));
                     exec_op.imm(15 downto 0) <= adrim(15 downto 0);
@@ -708,7 +709,7 @@ begin  -- rtl
 
                     -- set output values
                     exec_op.aluop   <= ALU_SLT;
-                    exec_op.rd      <= rd;
+                    exec_op.rd      <= Ird;
                     -- sign extend imm
                     exec_op.imm     <= (others => adrim(15));
                     exec_op.imm(15 downto 0) <= adrim(15 downto 0);
@@ -726,7 +727,7 @@ begin  -- rtl
 
                     -- set output values
                     exec_op.aluop   <= ALU_SLTU;
-                    exec_op.rd      <= rd;
+                    exec_op.rd      <= Ird;
                     -- zero extend imm
                     exec_op.imm     <= (others => '0'); --TODO not really needed
                     exec_op.imm(15 downto 0) <= adrim(15 downto 0);
@@ -744,7 +745,7 @@ begin  -- rtl
 
                     -- set output values
                     exec_op.aluop   <= ALU_AND;
-                    exec_op.rd      <= rd;
+                    exec_op.rd      <= Ird;
                     -- zero extend imm
                     exec_op.imm     <= (others => '0'); --TODO not really needed
                     exec_op.imm(15 downto 0) <= adrim(15 downto 0);
@@ -762,7 +763,7 @@ begin  -- rtl
 
                     -- set output values
                     exec_op.aluop   <= ALU_OR;
-                    exec_op.rd      <= rd;
+                    exec_op.rd      <= Ird;
                     -- zero extend imm
                     exec_op.imm     <= (others => '0'); --TODO not really needed
                     exec_op.imm(15 downto 0) <= adrim(15 downto 0);
@@ -780,7 +781,7 @@ begin  -- rtl
 
                     -- set output values
                     exec_op.aluop   <= ALU_XOR;
-                    exec_op.rd      <= rd;
+                    exec_op.rd      <= Ird;
                     -- zero extend imm
                     exec_op.imm     <= (others => '0'); --TODO not really needed
                     exec_op.imm(15 downto 0) <= adrim(15 downto 0);
@@ -795,7 +796,7 @@ begin  -- rtl
 
                     -- set output values
                     exec_op.aluop   <= ALU_LUI;
-                    exec_op.rd      <= rd;
+                    exec_op.rd      <= Ird;
                     -- zero extend imm
                     exec_op.imm     <= (others => '0'); --TODO not really needed
                     exec_op.imm(15 downto 0) <= adrim(15 downto 0);
@@ -832,7 +833,7 @@ begin  -- rtl
 
                     -- set output values
                     exec_op.aluop   <= ALU_ADD;
-                    exec_op.rd      <= rd;
+                    exec_op.rd      <= Ird;
                     -- sign extend imm
                     exec_op.imm     <= (others => adrim(15));
                     exec_op.imm(15 downto 0) <= adrim(15 downto 0);
@@ -853,7 +854,7 @@ begin  -- rtl
 
                     -- set output values
                     exec_op.aluop   <= ALU_ADD;
-                    exec_op.rd      <= rd;
+                    exec_op.rd      <= Ird;
                     -- sign extend imm
                     exec_op.imm     <= (others => adrim(15));
                     exec_op.imm(15 downto 0) <= adrim(15 downto 0);
@@ -874,7 +875,7 @@ begin  -- rtl
 
                     -- set output values
                     exec_op.aluop   <= ALU_ADD;
-                    exec_op.rd      <= rd;
+                    exec_op.rd      <= Ird;
                     -- sign extend imm
                     exec_op.imm     <= (others => adrim(15));
                     exec_op.imm(15 downto 0) <= adrim(15 downto 0);
@@ -895,7 +896,7 @@ begin  -- rtl
 
                     -- set output values
                     exec_op.aluop   <= ALU_ADD;
-                    exec_op.rd      <= rd;
+                    exec_op.rd      <= Ird;
                     -- sign extend imm
                     exec_op.imm     <= (others => adrim(15));
                     exec_op.imm(15 downto 0) <= adrim(15 downto 0);
@@ -916,7 +917,7 @@ begin  -- rtl
 
                     -- set output values
                     exec_op.aluop   <= ALU_ADD;
-                    exec_op.rd      <= rd;
+                    exec_op.rd      <= Ird;
                     -- sign extend imm
                     exec_op.imm     <= (others => adrim(15));
                     exec_op.imm(15 downto 0) <= adrim(15 downto 0);
@@ -939,7 +940,7 @@ begin  -- rtl
 
                     -- set output values
                     exec_op.aluop   <= ALU_ADD;
-                    exec_op.rd      <= rd;
+                    exec_op.rd      <= Ird;
                     -- sign extend imm
                     exec_op.imm     <= (others => adrim(15));
                     exec_op.imm(15 downto 0) <= adrim(15 downto 0);
@@ -959,7 +960,7 @@ begin  -- rtl
 
                     -- set output values
                     exec_op.aluop   <= ALU_ADD;
-                    exec_op.rd      <= rd;
+                    exec_op.rd      <= Ird;
                     -- sign extend imm
                     exec_op.imm     <= (others => adrim(15));
                     exec_op.imm(15 downto 0) <= adrim(15 downto 0);
@@ -978,7 +979,7 @@ begin  -- rtl
 
                     -- set output values
                     exec_op.aluop   <= ALU_ADD;
-                    exec_op.rd      <= rd;
+                    exec_op.rd      <= Ird;
                     -- sign extend imm
                     exec_op.imm     <= (others => adrim(15));
                     exec_op.imm(15 downto 0) <= adrim(15 downto 0);
