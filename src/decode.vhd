@@ -798,7 +798,7 @@ begin  -- rtl
                     exec_op.rd      <= rd;
                     -- zero extend imm
                     exec_op.imm     <= (others => '0'); --TODO not really needed
-                    exec_op.imm(31 downto 16) <= adrim(15 downto 0);
+                    exec_op.imm(15 downto 0) <= adrim(15 downto 0);
                     exec_op.useimm  <= '1';
 
                     wb_op.memtoreg  <= '0'; --TODO: do not need
