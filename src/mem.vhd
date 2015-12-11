@@ -63,8 +63,8 @@ begin  -- rtl
     port map (
         -- in
         op => int_jmp_op,
-        N => int_jmp_zero,
-        Z => int_jmp_neg,
+        N => int_jmp_neg,
+        Z => int_jmp_zero,
         --out
         J => int_jmp_J
     );
