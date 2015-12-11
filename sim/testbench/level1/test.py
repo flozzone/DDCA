@@ -6,10 +6,18 @@ class TestSuite:
     ADDR_WIDTH = 21
 
 
-    def __init__(self, filename):
+    def __init__(self, filename, **kwargs):
         self.fd = open(filename, "w")
         self.sig = OrderedDict()
         self.total_width = 0
+
+        self.rec_fd = None
+        if "record" in kwargs and kwargs["record"] is not None:
+            self.rec_fd = open(kwargs["record"], "w")
+
+            self.rec_fd.write("#!/usr/bin/python\n")
+            self.rec_fd.write("from test import TestSuite\n")
+            self.rec_fd.write("suite = TestSuite(\"%s\")\n" % filename)
 
     def __del__(self):
         self.fd.close()
@@ -25,7 +33,7 @@ class TestSuite:
     def conv(arg, l):
         if isinstance(arg, basestring):
             if len(arg) > l:
-                raise "String too long"
+                raise Exception("String too long (%s)" % arg)
             val = arg.replace("-", "X")
             return val
 
@@ -82,6 +90,17 @@ class TestSuite:
         self.sig[name] = signature
         self.total_width += length
 
+
+
+        if self.rec_fd:
+            if isinstance(default, basestring):
+                self.rec_fd.write('suite.addSignal("%s", %i, alias="%s", default="%s")\n' 
+                    % (signal_name, length, kwargs["alias"], default))
+            else:
+                self.rec_fd.write('suite.addSignal("%s", %i, alias="%s", default=%s)\n' 
+                    % (signal_name, length, kwargs["alias"], default))
+
+
     def test(self, nr, **kwargs):
 
         for name, signature in self.sig.iteritems():
@@ -92,3 +111,16 @@ class TestSuite:
                     raise "No default value set for %s" % name
                 self.put(signature['default'], signature['signal_name'], signature['length'])
         self.fd.write("\n")
+        if self.rec_fd:
+            args = ""
+            i=0
+            l=len(kwargs)
+            for key, value in kwargs.iteritems():
+                i+=1
+                if isinstance(value, basestring):
+                    args += "%s=\"%s\"" % (key, value)
+                else:
+                    args += "%s=%s" % (key, value)
+                if i is not l:
+                    args += ", "
+            self.rec_fd.write('suite.test(%i, %s)\n' % (int(nr), args))

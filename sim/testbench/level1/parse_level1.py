@@ -5,7 +5,7 @@ import os, sys, re
 from collections import OrderedDict
 from test import TestSuite
 
-def main(result_file, test_file):
+def main(result_file, test_file, rec_file=None):
 
     with open(result_file, "r") as f:
         lines = f.readlines()
@@ -27,18 +27,7 @@ def main(result_file, test_file):
 
             if max_nr < nr:
                 max_nr = nr
-                
             
-            #stimuli_dict = parse_patterns(testcase["stimuli"], stimuli_pattern)
-            #expect_dict = parse_patterns(testcase["expect"], expect_pattern)
-
-            #with open(test_file, "w") as f:
-            #    for key, value in stimuli_dict.iteritems():
-            #        f.write("force s_" + key + " " + value + "\n")
-            #    for key, value in expect_dict.iteritems():
-            #        f.write("force a_" + key + " " + value + "\n")
-        #print tests
-
         def parse_test(suite, nr, tests):
 
             if tests is None:
@@ -82,7 +71,7 @@ def main(result_file, test_file):
             print data
             suite.test(nr, **data)
 
-        suite = TestSuite(test_file)
+        suite = TestSuite(test_file, record=rec_file)
 
         suite.addSignal("s_reset", 1, alias="reset", default=True)
         suite.addSignal("s_mem_in.busy", 1, alias="busy", default=False)
@@ -104,9 +93,13 @@ def main(result_file, test_file):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
+    if len(sys.argv) < 3:
         print("usage: %s RESULT_FILE TEST_FILE" % sys.argv[0])
         sys.exit(1)
-    main(sys.argv[1], sys.argv[2])
+    rec = None
+    if len(sys.argv) is 4:
+        rec = sys.argv[3]
+
+    main(sys.argv[1], sys.argv[2], rec)
 
 
