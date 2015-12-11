@@ -34,7 +34,7 @@ class TestSuite:
         if isinstance(arg, basestring):
             if len(arg) > l:
                 raise Exception("String too long (%s)" % arg)
-            val = arg.replace("-", "X")
+            val = arg.replace("-", "-")
             return val
 
         if isinstance(arg, (int, long)):

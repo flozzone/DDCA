@@ -128,7 +128,7 @@ begin  -- rtl
             forwardB => forwardB, -- TODO
             cop0_rddata => cop0_rddata, -- TODO
             mem_aluresult => aluresult,
-            wb_result => tmp_wb_result, -- TODO !important
+            wb_result => dw_data,
 
         --out
             pc_out => em_pc,
@@ -143,7 +143,7 @@ begin  -- rtl
             memop_out => em_memop,
             jmpop_out => em_jmpop,
             wbop_out => em_wbop,
-            exc_ovf => tmp_exc_ovf -- TODO important?
+            exc_ovf => tmp_exc_ovf -- TODO
         );
 
         mem_inst : entity work.mem

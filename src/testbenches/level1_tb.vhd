@@ -67,7 +67,7 @@ begin
     assert_proc : process(clk)
         variable rdline : line;
         file vector_file : text open read_mode is "../src/test.tc";
-        variable bin : bit_vector(92 downto 0);
+        variable bin : string(93 downto 1);
         variable vec : std_logic_vector(92 downto 0);
         variable clk_cnt : integer := 0;
     begin
@@ -78,7 +78,7 @@ begin
                 --wait for 2 ps;
                 readline(vector_file, rdline);
                 read(rdline, bin);
-                vec := to_stdlogicvector(bin);
+                vec := to_std_logic_vector(bin);
 
                 print(output, "############ LINE: " & integer'IMAGE(clk_cnt) & " ##############");
 
@@ -106,11 +106,11 @@ begin
     begin
             wait for 3 ps;
             if has_data = TEST then
-                assert r_mem_out.address = a_mem_out.address report "clk "&str(int_clk_cnt)&": wrong mem_out.address (" & str(r_mem_out.address) & ") expected "& str(a_mem_out.address);
-                assert r_mem_out.rd = a_mem_out.rd report "clk "&str(int_clk_cnt)&": wrong mem_out.rd (" & chr(r_mem_out.rd) & ") expected "&chr(a_mem_out.rd);
-                assert r_mem_out.wr = a_mem_out.wr report "clk "&str(int_clk_cnt)&": wrong mem_out.wr (" & chr(r_mem_out.wr) & ") expected "&chr(a_mem_out.wr);
-                assert r_mem_out.byteena = a_mem_out.byteena report "clk "&str(int_clk_cnt)&": wrong mem_out.byteena ("&str(r_mem_out.byteena)&") expected "&str(a_mem_out.byteena);
-                assert r_mem_out.wrdata = a_mem_out.wrdata report "clk "&str(int_clk_cnt)&": wrong mem_out.wrdata (" & str(r_mem_out.wrdata) & ") expected "&str(a_mem_out.wrdata);
+                assert std_match(r_mem_out.address, a_mem_out.address) report "clk "&str(int_clk_cnt)&": wrong mem_out.address (" & str(r_mem_out.address) & ") expected "& str(a_mem_out.address);
+                assert std_match(r_mem_out.rd, a_mem_out.rd) report "clk "&str(int_clk_cnt)&": wrong mem_out.rd (" & chr(r_mem_out.rd) & ") expected "&chr(a_mem_out.rd);
+                assert std_match(r_mem_out.wr, a_mem_out.wr) report "clk "&str(int_clk_cnt)&": wrong mem_out.wr (" & chr(r_mem_out.wr) & ") expected "&chr(a_mem_out.wr);
+                assert std_match(r_mem_out.byteena, a_mem_out.byteena) report "clk "&str(int_clk_cnt)&": wrong mem_out.byteena ("&str(r_mem_out.byteena)&") expected "&str(a_mem_out.byteena);
+                assert std_match(r_mem_out.wrdata, a_mem_out.wrdata) report "clk "&str(int_clk_cnt)&": wrong mem_out.wrdata (" & str(r_mem_out.wrdata) & ") expected "&str(a_mem_out.wrdata);
             else
                 assert false report "EOF" severity FAILURE;
             end if;

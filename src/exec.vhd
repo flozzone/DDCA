@@ -127,8 +127,8 @@ begin  -- rtl
         memop_out <= int_memop_in;
         jmpop_out <= int_jmpop_in;
         wbop_out <= int_wbop_in;
-        wrdata <= (others => '0');
-        new_pc <= (others => '0');
+        wrdata <= int_wb_result;
+
 
         -- depends on instruction format
         if int_op.regdst = '0' then
@@ -185,6 +185,8 @@ begin  -- rtl
         if int_op.branch = '1' then
             new_pc <= std_logic_vector(resize(signed(std_logic_vector(resize(unsigned(int_pc_in), DATA_WIDTH))) 
                 + to_integer(signed(int_op.imm)), PC_WIDTH));
+                else
+                        new_pc <= (others => '0');
         end if;
 
         -- TODO: ignore these signals for lab3
