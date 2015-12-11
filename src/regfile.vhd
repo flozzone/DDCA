@@ -42,8 +42,8 @@ begin  -- rtl
     -- asynchronus stuff
     int_wr_zero    <= '1' when(wraddr = ZERO) else '0' ;
     int_regwrite   <= (reset) and (not stall)and (regwrite) and (not int_wr_zero);
-    output_rddata1 <= std_logic_vector(register_A(To_integer(unsigned(rdaddr1))));
-    output_rddata2 <= std_logic_vector(register_A(To_integer(unsigned(rdaddr2))));
+    output_rddata1 <= register_A(To_integer(unsigned(rdaddr1)));
+    output_rddata2 <= register_A(To_integer(unsigned(rdaddr2)));
 
     -- ###################### --
     -- process: registerwrite --
@@ -94,10 +94,7 @@ begin  -- rtl
             -- latch requested values
             -- writes are accesable in the next cycle,
             -- but the newest value should always be read
-            if rdaddr1 = ZERO then
-                rddata1             <= (others => '0');
-                latch_rddata1_next  <= (others => '0');
-            elsif (wraddr = rdaddr1) and (int_regwrite = '1') then
+            if (wraddr = rdaddr1) and (int_regwrite = '1') then
                 rddata1             <= wrdata;
                 latch_rddata1_next  <= wrdata;
             else
@@ -105,10 +102,7 @@ begin  -- rtl
                 latch_rddata1_next  <= output_rddata1;
             end if;
 
-            if rdaddr2 = ZERO then
-                rddata2             <= (others => '0');
-                latch_rddata2_next  <= (others => '0');
-            elsif (wraddr = rdaddr2) and (int_regwrite = '1') then
+            if (wraddr = rdaddr2) and (int_regwrite = '1') then
                 rddata2             <= wrdata;
                 latch_rddata2_next  <= wrdata;
             else
