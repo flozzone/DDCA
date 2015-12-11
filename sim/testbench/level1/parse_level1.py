@@ -46,9 +46,14 @@ def main(result_file, test_file, rec_file=None):
                 if "wrdata" in stimuli:
                     signal = "wrdata"
                 elif "wr" in stimuli and "rd" in stimuli:
-                    signal = "wr/rd"
-                    data["wr"] = True
-                    data["rd"] = True
+                    if "read" in reason:
+                        data["wr"] = False
+                        data["rd"] = True
+                    elif "write" in reason:
+                        data["wr"] = True
+                        data["rd"] = False
+                    else:
+                        raise Exception("Unrecognized case")
                     continue
                 elif "wr" in stimuli:
                     signal = "wr"

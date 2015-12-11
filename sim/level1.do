@@ -9,11 +9,13 @@ if { $argc == 0 } {
 	return
 }
 
-load_testbench level1
-
-set name $1
 
 load_program "../nightly/level1/asm/${name}.mif"
 load_test "testbench/level1/data/${name}.tc"
 
-run -all
+load_testbench level1
+
+set name $1
+
+
+after 1 run -all

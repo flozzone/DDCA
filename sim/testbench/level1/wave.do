@@ -6,19 +6,19 @@ add wave -noupdate /level1_tb/int_clk_cnt
 add wave -noupdate /level1_tb/s_reset
 add wave -noupdate -expand -group pipeline -expand /level1_tb/s_mem_in
 add wave -noupdate -expand -group pipeline /level1_tb/s_intr
-add wave -noupdate -expand -group pipeline /level1_tb/r_mem_out
-add wave -noupdate -expand -group pipeline /level1_tb/a_mem_out
+add wave -noupdate -expand -group pipeline -expand /level1_tb/r_mem_out
+add wave -noupdate -expand -group pipeline -expand /level1_tb/a_mem_out
 add wave -noupdate -expand -group fetch -group imem /level1_tb/pipeline_inst/fetch_inst/imem/address
 add wave -noupdate -expand -group fetch -group imem /level1_tb/pipeline_inst/fetch_inst/imem/clock
 add wave -noupdate -expand -group fetch -group imem /level1_tb/pipeline_inst/fetch_inst/imem/q
 add wave -noupdate -expand -group fetch -group imem /level1_tb/pipeline_inst/fetch_inst/imem/sub_wire0
 add wave -noupdate -expand -group fetch /level1_tb/pipeline_inst/fetch_inst/stall
 add wave -noupdate -expand -group fetch /level1_tb/pipeline_inst/fetch_inst/pcsrc
-add wave -noupdate -expand -group fetch /level1_tb/pipeline_inst/fetch_inst/pc_in
+add wave -noupdate -expand -group fetch -radix decimal /level1_tb/pipeline_inst/fetch_inst/pc_in
 add wave -noupdate -expand -group fetch -radix decimal /level1_tb/pipeline_inst/fetch_inst/pc_out
 add wave -noupdate -expand -group fetch /level1_tb/pipeline_inst/fetch_inst/instr
-add wave -noupdate -expand -group fetch /level1_tb/pipeline_inst/fetch_inst/int_pc
-add wave -noupdate -expand -group fetch /level1_tb/pipeline_inst/fetch_inst/int_pc_next
+add wave -noupdate -expand -group fetch -radix decimal /level1_tb/pipeline_inst/fetch_inst/int_pc
+add wave -noupdate -expand -group fetch -radix decimal /level1_tb/pipeline_inst/fetch_inst/int_pc_next
 add wave -noupdate -expand -group fetch /level1_tb/pipeline_inst/fetch_inst/imem_addr
 add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/pc_in
 add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/instr
@@ -126,7 +126,7 @@ add wave -noupdate -expand -group {write back} /level1_tb/pipeline_inst/wb_inst/
 add wave -noupdate -expand -group {write back} /level1_tb/pipeline_inst/wb_inst/result
 add wave -noupdate -expand -group {write back} /level1_tb/pipeline_inst/wb_inst/regwrite
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {7000 fs} 0} {{Cursor 2} {33982800 fs} 0}
+WaveRestoreCursors {{Cursor 1} {30600 fs} 0} {{Cursor 2} {33982800 fs} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 206
 configure wave -valuecolwidth 100
@@ -142,4 +142,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits us
 update
-WaveRestoreZoom {0 fs} {94100 fs}
+WaveRestoreZoom {10200 fs} {51 ps}
