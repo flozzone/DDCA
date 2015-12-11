@@ -476,7 +476,7 @@ begin  -- rtl
                     -- Format: I    Syntax: --  Semantics: Table 22
 
                     -- ############## start case rd ############## --
-                    case rd is
+                    case Ird is
                         when RD_BLTZ =>
                             -- Syntax: BLTZ rs, imm18   Semantics: if (rs±< 0) pc += imm±<< 2
                             dbg_instr <= INSTR_BLTZ;
