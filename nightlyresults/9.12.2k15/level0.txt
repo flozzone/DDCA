@@ -1,0 +1,22 @@
+Test Level 0
+============
+Starting tests on alu
+# Failed 0/62 tests.
+# End time: 01:31:05 on Dec 09,2015, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 0
+Finished tests on alu
+Starting tests on jmpu
+# Failed 0/33 tests.
+# End time: 01:31:11 on Dec 09,2015, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0
+Finished tests on jmpu
+Starting tests on memu
+# Failed 0/63 tests.
+# End time: 01:31:18 on Dec 09,2015, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0
+Finished tests on memu
+Starting tests on regfile
+# Failed 0/29 tests.
+# End time: 01:31:25 on Dec 09,2015, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0
+Finished tests on regfile
