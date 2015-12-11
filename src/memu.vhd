@@ -109,11 +109,9 @@ begin  -- rtl
 
         tmp_XL := '0';
         tmp_XS := '0';
-        if op.memread = '0' and op.memwrite = '0' then
-            M.address <= (others => '0');
-        else
-            M.address <= A;
-        end if;
+
+        -- address must be written with A always (nightly tests)
+        M.address <= A;
 
         -- compute byteena and wrdata
         case op.memtype is
