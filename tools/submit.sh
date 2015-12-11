@@ -13,6 +13,7 @@ group=$2
 level=$3
 
 remote_dir=$remote_root/$group/$level/src
+level_dir=$remote_root/$group/$level
 tarball=current_repo.tar.gz
 tmp_dir=`mktemp -d`
 
@@ -85,11 +86,19 @@ do_ssh $user "mkdir -p $remote_dir && chown :ddcagrp${group_nr} $remote_dir"
 
 rsync -lvrgODzc --delete \
   --include "*.vhd" \
-  --include "version.txt" \
   --exclude "*" \
   . $user@$tilab_host:$remote_dir
 
 do_ssh $user "chown -R :ddcagrp${group_nr} `dirname $remote_dir`"
+
+do_ssh $user "mkdir -p $level_dir && chown :ddcagrp${group_nr} $level_dir"
+
+rsync -lvrgODzc --delete \
+  --include "version.txt" \
+  --exclude "*" \
+  . $user@$tilab_host:$level_dir
+
+do_ssh $user "chown -R :ddcagrp${group_nr} `dirname $level_dir`"
 
 popd >/dev/null
 
