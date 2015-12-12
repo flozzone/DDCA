@@ -110,7 +110,7 @@ begin  -- rtl
 
 
     multiplex : process(int_op, int_pc_in, int_memop_in, int_jmpop_in, int_wbop_in,
-             int_alu_R, int_alu_Z, int_alu_V)
+             int_alu_R, int_alu_Z, int_alu_V, pc_in)
     begin
         -- default values - rs and rt are not used in exec
         rs <= (others => '0');
@@ -161,7 +161,7 @@ begin  -- rtl
         -- compute new pc for branching
         new_pc <= int_alu_R(PC_WIDTH-1 downto 0); -- default
         if int_op.branch = '1' then
-            new_pc <= std_logic_vector(unsigned(int_pc_in) + unsigned(int_op.imm(PC_WIDTH-1 downto 0))) ;
+            new_pc <= std_logic_vector(unsigned(pc_in) + unsigned(int_op.imm(PC_WIDTH-1 downto 0))) ;
         end if;
 
         -- pass on wrdata to mem
