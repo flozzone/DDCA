@@ -36,7 +36,6 @@ entity exec is
 end exec;
 architecture rtl of exec is
 
-signal int_alu_op : alu_op_type := ALU_NOP;
 signal int_alu_A : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
 signal int_alu_B : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
 signal int_alu_R : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
@@ -47,19 +46,18 @@ signal int_pc_in            : std_logic_vector(PC_WIDTH-1 downto 0);
 signal int_op                : exec_op_type;
 signal int_memop_in         : mem_op_type;
 signal int_jmpop_in         : jmp_op_type;
-signal int_jmpop_out        : jmp_op_type;
 signal int_wbop_in          : wb_op_type;
 signal int_wbop_out         : wb_op_type;
-signal int_forwardA         : fwd_type;
-signal int_forwardB         : fwd_type;
-signal int_cop0_rddata      : std_logic_vector(DATA_WIDTH-1 downto 0);
-signal int_mem_aluresult    : std_logic_vector(DATA_WIDTH-1 downto 0);
+--signal int_forwardA         : fwd_type;
+--signal int_forwardB         : fwd_type;
+--signal int_cop0_rddata      : std_logic_vector(DATA_WIDTH-1 downto 0);
+--signal int_mem_aluresult    : std_logic_vector(DATA_WIDTH-1 downto 0);
 signal int_exc_ovf          : std_logic := '0';
 
 begin  -- rtl
     alu_inst : entity alu
     port map (
-        op => int_alu_op,
+        op => int_op.aluop,
         A => int_alu_A,
         B => int_alu_B,
         R => int_alu_R,
@@ -79,10 +77,10 @@ begin  -- rtl
             int_memop_in <= MEM_NOP;
             int_jmpop_in <= JMP_NOP;
             int_wbop_in <= WB_NOP;
-            int_forwardA <= FWD_NONE;
-            int_forwardB <= FWD_NONE;
-            int_cop0_rddata <= (others => '0');
-            int_mem_aluresult <= (others => '0');
+            --int_forwardA <= FWD_NONE;
+            --int_forwardB <= FWD_NONE;
+            --int_cop0_rddata <= (others => '0');
+            --int_mem_aluresult <= (others => '0');
         elsif rising_edge(clk) then
             if flush = '1' then
                 -- flush intern signals
@@ -91,10 +89,10 @@ begin  -- rtl
                 int_memop_in <= MEM_NOP;
                 int_jmpop_in <= JMP_NOP;
                 int_wbop_in <= WB_NOP;
-                int_forwardA <= FWD_NONE;
-                int_forwardB <= FWD_NONE;
-                int_cop0_rddata <= (others => '0');
-                int_mem_aluresult <= (others => '0');
+                --int_forwardA <= FWD_NONE;
+                --int_forwardB <= FWD_NONE;
+                --int_cop0_rddata <= (others => '0');
+                --int_mem_aluresult <= (others => '0');
             elsif stall = '0' then
                 -- latch intern signals
                 int_pc_in      <= pc_in;
@@ -102,22 +100,21 @@ begin  -- rtl
                 int_memop_in <= memop_in;
                 int_jmpop_in <= jmpop_in;
                 int_wbop_in <= wbop_in;
-                int_forwardA <= forwardA;
-                int_forwardB <= forwardB;
-                int_cop0_rddata <= cop0_rddata;
-                int_mem_aluresult <= mem_aluresult;
+                --int_forwardA <= forwardA;
+                --int_forwardB <= forwardB;
+                --int_cop0_rddata <= cop0_rddata;
+                --int_mem_aluresult <= mem_aluresult;
             end if;
         end if;
     end process input;
 
 
     multiplex : process(int_op, int_pc_in, int_memop_in, int_jmpop_in, int_wbop_in,
-            int_cop0_rddata, int_alu_R, int_alu_Z, int_alu_V, aluresult)
+             int_alu_R, int_alu_Z, int_alu_V)
     begin
-
-        -- default values
-        rs <= int_op.rs;
-        rt <= int_op.rt;
+        -- default values - rs and rt are not used in exec
+        rs <= (others => '0');
+        rt <= (others => '0');
         pc_out <= int_pc_in;
         memop_out <= int_memop_in;
         jmpop_out <= int_jmpop_in;
@@ -133,7 +130,6 @@ begin  -- rtl
         end if;
 
         -- ALU
-        int_alu_op <= int_op.aluop;
         int_alu_A <= int_op.readdata1;
         aluresult <= int_alu_R;
         if int_op.useimm = '0' and int_op.useamt = '0' then
@@ -147,22 +143,20 @@ begin  -- rtl
             int_alu_A <= int_op.imm;
                 -- shamt will stay at op.imm[5:0]
             int_alu_B <= int_op.readdata2;
-        elsif int_op.cop0 = '1' then
-            aluresult <= int_cop0_rddata;
         else
-            int_alu_B <= (others => '0');
+            int_alu_B <= int_op.readdata2;
         end if;
+
+        -- set flags
         zero <= int_alu_Z;
-
-        -- take negative flag from aluresult
-        neg  <= aluresult(DATA_WIDTH-1);
-
-        -- aluresult
-        -- * aluresult <= pc_in (adjusted!? with ALU, see op.link) for jal, jalr instr
-        -- * aluresult <= pc_in (adjusted!? with own adder, see op.link) for bltzal, bgtzal instr
-
-        -- assert overflow only when required by instruction
+        neg  <= int_alu_R(DATA_WIDTH-1);
         exc_ovf <= int_alu_V and int_op.ovf;
+
+        -- adjust pc_in and write into aluresult
+        if int_op.link = '1' then
+            aluresult <= (others => '0');
+            aluresult(PC_WIDTH-1 downto 0) <= std_logic_vector(unsigned(int_pc_in) + 8);
+        end if;
 
         -- compute new pc for branching
         new_pc <= int_alu_R(PC_WIDTH-1 downto 0); -- default
@@ -171,12 +165,7 @@ begin  -- rtl
         end if;
 
         -- pass on wrdata to mem
-        wrdata <= int_op.readdata2;        
-        -- TODO: ignore these signals for lab3
-        -- forwardA
-        -- forwardB
-        -- mem_aluresult
-        -- wb_result
+        wrdata <= int_op.readdata2;
 
 end process multiplex;
 end rtl;
