@@ -72,9 +72,22 @@ architecture rtl of pipeline is
     signal exc_load, exc_store : std_logic;
 begin  -- rtl
 
-    flush <= '0';
-    stall <= '0';
-
+    piping : process (reset, mem_in.busy) 
+    begin
+        flush <= '0';
+        -- check reset
+        if reset = '0' then
+            stall <= '0';
+        else
+            --check if memory is busy
+            if mem_in.busy = '1' then
+                stall <= '1';
+            else
+                stall <= '0';
+            end if;
+        end if;
+    end process piping;
+    
     fetch_inst : entity work.fetch
         port map(
         -- in
