@@ -57,10 +57,10 @@ begin --rtl
                 end if;
 
             when ALU_SLL =>
-                R <= std_logic_vector(shift_left(Unsigned(B),to_integer(signed(A(DATA_WIDTH_BITS-1 downto 0)))));
+                R <= std_logic_vector(shift_left(Unsigned(B),to_integer(unsigned(A(DATA_WIDTH_BITS-1 downto 0)))));
 
             when ALU_SRL =>
-                R <= std_logic_vector(shift_right(Unsigned(B),to_integer(signed(A(DATA_WIDTH_BITS-1 downto 0)))));
+                R <= std_logic_vector(shift_right(Unsigned(B),to_integer(unsigned(A(DATA_WIDTH_BITS-1 downto 0)))));
 
             when ALU_SRA =>
                 R <= std_logic_vector(shift_right(Signed(B),to_integer(unsigned(A(DATA_WIDTH_BITS-1 downto 0)))));
