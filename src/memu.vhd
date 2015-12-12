@@ -106,6 +106,7 @@ begin  -- rtl
         if op.memwrite = '1' then
             M.wr <= '1';
         end if;
+        M.wrdata <= (others => '0');
 
         tmp_XL := '0';
         tmp_XS := '0';
