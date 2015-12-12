@@ -7,6 +7,7 @@ if { $argc == 0 } {
 	echo "Supported tests:"
 	echo "  - minimal"
 	echo "  - arith"
+	echo "  - memory"
 	return
 }
 set name $1
