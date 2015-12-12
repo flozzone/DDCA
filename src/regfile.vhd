@@ -76,10 +76,6 @@ begin  -- rtl
     -- ############### --
     output : process (reset, stall, rdaddr1, rdaddr2, wraddr, wrdata, int_regwrite, latch_rddata1, latch_rddata2, output_rddata1, output_rddata2)
     begin
-        -- TODO: added because of inferred latch
-        latch_rddata1_next <= (others => '0');
-        latch_rddata2_next <= (others => '0');
-
         if reset = '0' then
             -- reset outupt rddatas and latch_rddata_nexts
             rddata1 <= (others => '0');
