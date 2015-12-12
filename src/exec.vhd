@@ -144,9 +144,9 @@ begin  -- rtl
             int_alu_B <= int_op.imm;
         elsif int_op.useimm = '0' and int_op.useamt = '1' then
             --- shifts, SLL, SRL, SRA
-            int_alu_A <= int_op.readdata2;
+            int_alu_A <= int_op.imm;
                 -- shamt will stay at op.imm[5:0]
-            int_alu_B <= int_op.imm;
+            int_alu_B <= int_op.readdata2;
         elsif int_op.cop0 = '1' then
             aluresult <= int_cop0_rddata;
         else
