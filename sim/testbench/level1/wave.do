@@ -37,6 +37,7 @@ add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/ta
 add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/adrim
 add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/func
 add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/shamt
+add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/Ird
 add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/rd
 add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/rt
 add wave -noupdate -expand -group decode /level1_tb/pipeline_inst/decode_inst/rs
@@ -74,7 +75,6 @@ add wave -noupdate -expand -group exec -radix hexadecimal /level1_tb/pipeline_in
 add wave -noupdate -expand -group exec -radix hexadecimal /level1_tb/pipeline_inst/exec_inst/mem_aluresult
 add wave -noupdate -expand -group exec -radix hexadecimal /level1_tb/pipeline_inst/exec_inst/wb_result
 add wave -noupdate -expand -group exec /level1_tb/pipeline_inst/exec_inst/exc_ovf
-add wave -noupdate -expand -group exec /level1_tb/pipeline_inst/exec_inst/int_alu_op
 add wave -noupdate -expand -group exec -radix hexadecimal /level1_tb/pipeline_inst/exec_inst/int_alu_A
 add wave -noupdate -expand -group exec -radix hexadecimal /level1_tb/pipeline_inst/exec_inst/int_alu_B
 add wave -noupdate -expand -group exec -radix hexadecimal /level1_tb/pipeline_inst/exec_inst/int_alu_R
@@ -84,14 +84,8 @@ add wave -noupdate -expand -group exec /level1_tb/pipeline_inst/exec_inst/int_pc
 add wave -noupdate -expand -group exec /level1_tb/pipeline_inst/exec_inst/int_op
 add wave -noupdate -expand -group exec /level1_tb/pipeline_inst/exec_inst/int_memop_in
 add wave -noupdate -expand -group exec /level1_tb/pipeline_inst/exec_inst/int_jmpop_in
-add wave -noupdate -expand -group exec /level1_tb/pipeline_inst/exec_inst/int_jmpop_out
 add wave -noupdate -expand -group exec /level1_tb/pipeline_inst/exec_inst/int_wbop_in
 add wave -noupdate -expand -group exec /level1_tb/pipeline_inst/exec_inst/int_wbop_out
-add wave -noupdate -expand -group exec /level1_tb/pipeline_inst/exec_inst/int_forwardA
-add wave -noupdate -expand -group exec /level1_tb/pipeline_inst/exec_inst/int_forwardB
-add wave -noupdate -expand -group exec -radix hexadecimal /level1_tb/pipeline_inst/exec_inst/int_cop0_rddata
-add wave -noupdate -expand -group exec -radix hexadecimal /level1_tb/pipeline_inst/exec_inst/int_mem_aluresult
-add wave -noupdate -expand -group exec -radix hexadecimal /level1_tb/pipeline_inst/exec_inst/int_wb_result
 add wave -noupdate -expand -group exec /level1_tb/pipeline_inst/exec_inst/int_exc_ovf
 add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/clk
 add wave -noupdate -expand -group memory /level1_tb/pipeline_inst/mem_inst/reset
@@ -142,4 +136,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits us
 update
-WaveRestoreZoom {10200 fs} {32800 fs}
+WaveRestoreZoom {333600 fs} {356200 fs}
