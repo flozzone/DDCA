@@ -40,7 +40,9 @@ begin  -- rtl
         if reset = '0' then
             int_pc         <= (others => '0');
         elsif rising_edge(clk) then
-            int_pc         <= int_pc_next;
+            if stall = '0' then
+                int_pc     <= int_pc_next;
+            end if;
         end if;
     end process fetchinputs;
 
