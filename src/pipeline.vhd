@@ -117,11 +117,11 @@ begin  -- rtl
         --out
             pc_out => de_pc,
             exec_op => de_exec_op,
-            cop0_op => cop0_op, -- TODO
+            cop0_op => cop0_op, -- unused in lab3
             jmp_op => de_jmp_op,
             mem_op => de_mem_op,
             wb_op => de_wb_op,
-            exc_dec => exc_dec
+            exc_dec => exc_dec -- unused in lab3
         );
 
 
@@ -137,17 +137,17 @@ begin  -- rtl
             op => de_exec_op,
             pc_in => de_pc,
             wbop_in => de_wb_op,
-            forwardA => forwardA, -- TODO
-            forwardB => forwardB, -- TODO
-            cop0_rddata => cop0_rddata, -- TODO
-            mem_aluresult => aluresult,
+            forwardA => forwardA, -- unused
+            forwardB => forwardB, -- unused
+            cop0_rddata => cop0_rddata, -- unused
+            mem_aluresult => (others => '0'), -- unused
             wb_result => dw_data,
 
         --out
             pc_out => em_pc,
             rd => em_rd,
-            rs => rs, -- TODO
-            rt => rt, -- TODO
+            rs => rs, -- unused
+            rt => rt, -- unused
             aluresult => em_aluresult,
             wrdata => em_wrdata,
             zero => em_zero,
@@ -156,7 +156,7 @@ begin  -- rtl
             memop_out => em_memop,
             jmpop_out => em_jmpop,
             wbop_out => em_wbop,
-            exc_ovf => tmp_exc_ovf -- TODO
+            exc_ovf => tmp_exc_ovf -- unused in lab3
         );
 
         mem_inst : entity work.mem
@@ -187,8 +187,8 @@ begin  -- rtl
             new_pc_out => fm_new_pc,
             wbop_out => mw_wbop,
             mem_out => mem_out,
-            exc_load => exc_load, --TODO
-            exc_store  => exc_store --TODO
+            exc_load => exc_load, -- unused
+            exc_store  => exc_store -- unused
         );
         wb_inst : entity work.wb
         port map(
