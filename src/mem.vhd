@@ -48,7 +48,7 @@ signal int_wrdata        : std_logic_vector(DATA_WIDTH-1 downto 0);
 signal int_new_pc_in     : std_logic_vector(PC_WIDTH-1 downto 0);
 signal int_wbop_in       : wb_op_type;
 
-signal int_jmp_J, int_jmp_zero, int_jmp_neg : std_logic;
+signal int_jmp_zero, int_jmp_neg : std_logic;
 
 begin  -- rtl
 
