@@ -47,6 +47,7 @@ signal int_aluresult_in  : std_logic_vector(DATA_WIDTH-1 downto 0);
 signal int_wrdata        : std_logic_vector(DATA_WIDTH-1 downto 0);
 signal int_new_pc_in     : std_logic_vector(PC_WIDTH-1 downto 0);
 signal int_wbop_in       : wb_op_type;
+signal int_mem_data      : std_logic_vector(DATA_WIDTH-1 downto 0);
 
 signal int_jmp_zero, int_jmp_neg : std_logic;
 
@@ -68,7 +69,7 @@ begin  -- rtl
         op => int_mem_op,
         A => int_aluresult_in(ADDR_WIDTH-1 downto 0),
         W => int_wrdata,
-        D => mem_data,
+        D => int_mem_data,
         -- out
         M => mem_out,
         R => memresult,
@@ -89,6 +90,7 @@ begin  -- rtl
             int_jmp_neg <= '0';
             int_new_pc_in <= (others => '0');
             int_wbop_in <= WB_NOP;
+            int_mem_data <= (others => '0');
         elsif stall = '1' then
             int_mem_op.memread <= '0';
             int_mem_op.memwrite <= '0';
@@ -104,6 +106,7 @@ begin  -- rtl
                 int_jmp_neg <= '0';
                 int_new_pc_in <= (others => '0');
                 int_wbop_in <= WB_NOP;
+                int_mem_data <= (others => '0');
             else
                 int_mem_op <= mem_op;
                 int_jmp_op <= jmp_op;
@@ -115,6 +118,7 @@ begin  -- rtl
                 int_jmp_neg <= neg;
                 int_new_pc_in <= new_pc_in;
                 int_wbop_in <= wbop_in;
+                int_mem_data <= mem_data;
             end if;
         end if;
     end process input;

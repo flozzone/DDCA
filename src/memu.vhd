@@ -76,18 +76,20 @@ begin
 end byte_swap;
 
 procedure set_exception(memread : in std_logic;
-                                                         memwrite : in std_logic;
-                                                         XL : out std_logic;
-                                                         XS : out std_logic) is
+                        memwrite : in std_logic;
+                        XL : out std_logic;
+                        XS : out std_logic) is
 use ieee.std_logic_1164.all;
 begin
-    XL := '0';
-    XS := '0';
     if memread = '1' then
         XL := '1';
-    end if;
-    if memwrite = '1' then
+        XS := '0';
+    elsif memwrite = '1' then
+        XL := '0';
         XS := '1';
+    else
+        XL := '0';
+        XS := '0';
     end if;
 end procedure set_exception;
 
@@ -98,14 +100,9 @@ begin  -- rtl
     variable tmp_XL, tmp_XS : std_logic;
 
     begin
-        M.rd <= '0';
-        M.wr <= '0';
-        if op.memread = '1' then
-            M.rd <= '1';
-        end if;
-        if op.memwrite = '1' then
-            M.wr <= '1';
-        end if;
+        M.rd <= op.memread;
+        M.wr <= op.memwrite;
+
         M.wrdata <= (others => '0');
 
         tmp_XL := '0';
