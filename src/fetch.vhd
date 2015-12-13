@@ -38,7 +38,7 @@ begin  -- rtl
     fetchinputs : process (clk, reset)
     begin
         if reset = '0' then
-            int_pc         <= (others => '0');
+            int_pc         <= std_logic_vector(to_signed(-4, PC_WIDTH)) ;
         elsif rising_edge(clk) then
             if stall = '0' then
                 int_pc     <= int_pc_next;
