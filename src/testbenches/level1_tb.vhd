@@ -34,8 +34,8 @@ architecture arch of level1_tb is
 
     signal int_clk_cnt     : integer := 0;
     signal testfile : string(8 downto 1);
-    type TEST_TYPE is (NO_TEST, TEST);
-    signal has_data     : TEST_TYPE;
+    type TEST_TYPE is (NO_TEST, TEST, TEST_EOF);
+    signal has_data     : TEST_TYPE := NO_TEST;
 
 begin
 
@@ -50,9 +50,9 @@ begin
 
     sync_proc : process
     begin
-        clk <= '0';
-        wait for CLK_PERIOD;
         clk <= '1';
+        wait for CLK_PERIOD;
+        clk <= '0';
         wait for CLK_PERIOD;
     end process sync_proc;
 
@@ -72,7 +72,7 @@ begin
         variable clk_cnt : integer := 0;
     begin
         if rising_edge(clk) then
-            clk_cnt := clk_cnt + 1;
+            
             int_clk_cnt <= clk_cnt;
             if not endfile(vector_file) then
                 --wait for 2 ps;
@@ -95,25 +95,25 @@ begin
 
             else
                 if has_data = TEST then
-                    has_data <= NO_TEST;
+                    has_data <= TEST_EOF;
                     print(output, "######### EOF of testfile ########");
                 end if;
             end if;
+                        clk_cnt := clk_cnt + 1;
         end if;
     end process assert_proc;
 
     test_proc : process
     begin
-            wait for 3 ps;
-            if has_data = TEST then
+            wait until falling_edge(clk);
+                        if has_data = TEST_EOF then
+                                assert false report "EOF" severity FAILURE;
+                        elsif has_data = TEST then
                 assert std_match(r_mem_out.address, a_mem_out.address) report "clk "&str(int_clk_cnt)&": wrong mem_out.address (" & str(r_mem_out.address) & ") expected "& str(a_mem_out.address);
                 assert std_match(r_mem_out.rd, a_mem_out.rd) report "clk "&str(int_clk_cnt)&": wrong mem_out.rd (" & chr(r_mem_out.rd) & ") expected "&chr(a_mem_out.rd);
                 assert std_match(r_mem_out.wr, a_mem_out.wr) report "clk "&str(int_clk_cnt)&": wrong mem_out.wr (" & chr(r_mem_out.wr) & ") expected "&chr(a_mem_out.wr);
                 assert std_match(r_mem_out.byteena, a_mem_out.byteena) report "clk "&str(int_clk_cnt)&": wrong mem_out.byteena ("&str(r_mem_out.byteena)&") expected "&str(a_mem_out.byteena);
                 assert std_match(r_mem_out.wrdata, a_mem_out.wrdata) report "clk "&str(int_clk_cnt)&": wrong mem_out.wrdata (" & str(r_mem_out.wrdata) & ") expected "&str(a_mem_out.wrdata);
-            else
-                assert false report "EOF" severity FAILURE;
             end if;
-            wait for 1 ps;
     end process test_proc;
 end arch;
