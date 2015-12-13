@@ -6,8 +6,9 @@ use std.textio.all;
 use work.txt_util.all;
 use work.op_pack.all;
 use work.core_pack.all;
-
+use work.mimi;
 use work.pipeline;
+use work.ocram_altera;
 
 
 entity level1_tb is
@@ -17,7 +18,7 @@ architecture arch of level1_tb is
     constant CLK_PERIOD : time := 2 ps;
     signal clk            : std_logic;
 
-        signal s_test_clk_cnt : integer range 0 to 300;
+    signal s_test_clk_cnt : integer range 0 to 300;
 
     signal s_reset         : std_logic := '0';
     signal s_mem_in      : mem_in_type := ('0', (others => '0'));
@@ -34,8 +35,8 @@ architecture arch of level1_tb is
 
     signal int_clk_cnt     : integer := 0;
     signal testfile : string(8 downto 1);
-    type TEST_TYPE is (NO_TEST, TEST, TEST_EOF);
-    signal has_data     : TEST_TYPE := NO_TEST;
+    type TEST_TYPE is (NO_TEST, TEST);
+    signal has_data     : TEST_TYPE;
 
 begin
 
@@ -47,32 +48,34 @@ begin
         mem_out => r_mem_out,
         intr => s_intr
     );
+    
+    memory_inst : entity ocram_altera
+    port map (
+        clock => clk,
+        address => r_mem_out.address(11 downto 2),
+        byteena => r_mem_out.byteena,
+        data => r_mem_out.wrdata,
+        wren => r_mem_out.wr,
+        q => s_mem_in.rddata
+    );
 
     sync_proc : process
     begin
-        clk <= '1';
-        wait for CLK_PERIOD;
         clk <= '0';
         wait for CLK_PERIOD;
+        clk <= '1';
+        wait for CLK_PERIOD;
     end process sync_proc;
-
-    --init_proc : process(
-    --begin
-    --    reset <= '0';
-    --    wait for 2.5 ps;
-    --    reset <= '1';
-    --    wait until true;
-    --end process init_proc;
 
     assert_proc : process(clk)
         variable rdline : line;
         file vector_file : text open read_mode is "../src/test.tc";
         variable bin : string(93 downto 1);
         variable vec : std_logic_vector(92 downto 0);
-        variable clk_cnt : integer := 0;
+        variable clk_cnt : integer := -1;
     begin
         if rising_edge(clk) then
-            
+            clk_cnt := clk_cnt + 1;
             int_clk_cnt <= clk_cnt;
             if not endfile(vector_file) then
                 --wait for 2 ps;
@@ -83,8 +86,8 @@ begin
                 print(output, "############ LINE: " & integer'IMAGE(clk_cnt) & " ##############");
 
                 s_reset <= vec(92);
-                s_mem_in.busy <= vec(91);
-                s_mem_in.rddata <= vec(90 downto 59);
+                --s_mem_in.busy <= vec(91);
+                --s_mem_in.rddata <= vec(90 downto 59);
                 a_mem_out.address <= vec(58 downto 38);
                 a_mem_out.rd <= vec(37);
                 a_mem_out.wr <= vec(36);
@@ -95,25 +98,25 @@ begin
 
             else
                 if has_data = TEST then
-                    has_data <= TEST_EOF;
+                    has_data <= NO_TEST;
                     print(output, "######### EOF of testfile ########");
                 end if;
             end if;
-                        clk_cnt := clk_cnt + 1;
         end if;
     end process assert_proc;
 
     test_proc : process
     begin
-            wait until falling_edge(clk);
-                        if has_data = TEST_EOF then
-                                assert false report "EOF" severity FAILURE;
-                        elsif has_data = TEST then
+            wait for 3 ps;
+            if has_data = TEST then
                 assert std_match(r_mem_out.address, a_mem_out.address) report "clk "&str(int_clk_cnt)&": wrong mem_out.address (" & str(r_mem_out.address) & ") expected "& str(a_mem_out.address);
                 assert std_match(r_mem_out.rd, a_mem_out.rd) report "clk "&str(int_clk_cnt)&": wrong mem_out.rd (" & chr(r_mem_out.rd) & ") expected "&chr(a_mem_out.rd);
                 assert std_match(r_mem_out.wr, a_mem_out.wr) report "clk "&str(int_clk_cnt)&": wrong mem_out.wr (" & chr(r_mem_out.wr) & ") expected "&chr(a_mem_out.wr);
                 assert std_match(r_mem_out.byteena, a_mem_out.byteena) report "clk "&str(int_clk_cnt)&": wrong mem_out.byteena ("&str(r_mem_out.byteena)&") expected "&str(a_mem_out.byteena);
                 assert std_match(r_mem_out.wrdata, a_mem_out.wrdata) report "clk "&str(int_clk_cnt)&": wrong mem_out.wrdata (" & str(r_mem_out.wrdata) & ") expected "&str(a_mem_out.wrdata);
+            else
+                assert false report "EOF" severity FAILURE;
             end if;
+            wait for 1 ps;
     end process test_proc;
 end arch;
