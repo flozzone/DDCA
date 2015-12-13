@@ -69,11 +69,15 @@ def main(result_file, out_folder, stimuli_pattern, expect_pattern):
                 for key, value in stimuli_dict.iteritems():
                     f.write("force s_" + key + " " + value + "\n")
                 for key, value in expect_dict.iteritems():
-                    f.write("force a_" + key + " " + value + "\n")
+                    if "-" in value:
+                        f.write("force a_" + key + " \"" + value + "\"\n")
+                    else:
+                        f.write("force a_" + key + " " + value + "\n")
 
 if __name__ == "__main__":
     if len(sys.argv) != 5:
         print("usage: %s RESULT_FILE OUTPUT_FOLDER STIMULI_PATTERN EXPECT_PATTERN" % sys.argv[0])
         print("\nexample: ./parse_result.py memu/test_output.txt memu/data \"op.memread op.memwrite op.memtype A W D\" \"M.address M.rd M.wr M.byteena M.wrdata R XL XS\"")
+        print("./parse_result.py regfile/result.txt regfile/data \"stall rdaddr1 rdaddr2 wraddr wrdata regwrite\" \"rddata1 rddata2\"")
         sys.exit(1)
     main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])

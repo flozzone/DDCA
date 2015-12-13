@@ -56,7 +56,7 @@ begin
             when 'D'=>
                 tmp_word := data(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH);
             when 'X'=>
-                tmp_word := (others => 'X');
+                tmp_word := (others => '0');
             when '0'=>
                 tmp_word := (others => '0');
             when 'S'=>
