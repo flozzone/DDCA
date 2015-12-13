@@ -84,7 +84,7 @@ def main(result_file, test_file, rec_file=None):
         suite.addSignal("a_mem_out.address", TestSuite.ADDR_WIDTH, alias="addr", default="---------------------")
         suite.addSignal("a_mem_out.rd", 1, alias="rd", default=False)
         suite.addSignal("a_mem_out.wr", 1, alias="wr", default=False)
-        suite.addSignal("a_mem_out.byteena", 4, alias="byteena", default="1111")
+        suite.addSignal("a_mem_out.byteena", 4, alias="byteena", default="----")
         suite.addSignal("a_mem_out.wrdata", TestSuite.DATA_WIDTH, alias="wrdata", default="--------------------------------")
         
         for i in range(1, max_nr+1):
