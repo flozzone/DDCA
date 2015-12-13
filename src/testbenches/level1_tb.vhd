@@ -127,8 +127,6 @@ begin
                 print(output, "############ LINE: " & integer'IMAGE(tmp_clk_cnt) & " ##############");
 
                 s_reset <= vec(92);
-                --s_mem_in.busy <= vec(91);
-                --s_mem_in.rddata <= vec(90 downto 59);
                 a_mem_out.address <= vec(58 downto 38);
                 a_mem_out.rd <= vec(37);
                 a_mem_out.wr <= vec(36);
