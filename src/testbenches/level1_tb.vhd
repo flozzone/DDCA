@@ -33,10 +33,51 @@ architecture arch of level1_tb is
     signal int_a_mem_out : mem_out_type := ((others => '0'),'0','0', (others => '0'),(others => '0'));
 
 
-    signal int_clk_cnt     : integer := 0;
+    signal clk_cnt     : integer := 0;
     signal testfile : string(8 downto 1);
+    signal break_on_error : boolean := false;
+
     type TEST_TYPE is (NO_TEST, TEST);
     signal has_data     : TEST_TYPE;
+
+    signal fail_count : integer := 0;
+    signal total_count : integer := 0;
+
+    procedure check(
+        test_nr : in integer;
+        signal_name : in string;
+        result : in std_logic_vector;
+        expected : in std_logic_vector;
+                success : inout boolean;
+        boe : in boolean) is -- break on error
+    begin
+        if not std_match(result, expected) then
+            if boe = true then
+                  assert std_match(result, expected) report str(test_nr) & ": " & signal_name & " result: " & str(result) & " expected: " & str(expected) severity FAILURE;
+            else
+                assert std_match(result, expected) report str(test_nr) & ": " & signal_name & " result: " & str(result) & " expected: " & str(expected);
+                        end if;
+            success := false;
+        end if;
+    end check;
+
+    procedure check(
+        test_nr : in integer;
+        signal_name : in string;
+        result : in std_logic;
+        expected : in std_logic;
+                success : inout boolean;
+        boe : in boolean) is -- break on error
+    begin
+        if not std_match(result, expected) then
+            if boe = true then
+                  assert std_match(result, expected) report str(test_nr) & ": " & signal_name & " result: " & chr(result) & " expected: " & chr(expected) severity FAILURE;
+            else
+                assert std_match(result, expected) report str(test_nr) & ": " & signal_name & " result: " & chr(result) & " expected: " & chr(expected);
+                        end if;
+            success := false;
+        end if;
+    end check;
 
 begin
 
@@ -72,18 +113,18 @@ begin
         file vector_file : text open read_mode is "../src/test.tc";
         variable bin : string(93 downto 1);
         variable vec : std_logic_vector(92 downto 0);
-        variable clk_cnt : integer := -1;
+        variable tmp_clk_cnt : integer := -1;
     begin
         if rising_edge(clk) then
-            clk_cnt := clk_cnt + 1;
-            int_clk_cnt <= clk_cnt;
+            tmp_clk_cnt := tmp_clk_cnt + 1;
+            clk_cnt <= tmp_clk_cnt;
             if not endfile(vector_file) then
                 --wait for 2 ps;
                 readline(vector_file, rdline);
                 read(rdline, bin);
                 vec := to_std_logic_vector(bin);
 
-                print(output, "############ LINE: " & integer'IMAGE(clk_cnt) & " ##############");
+                print(output, "############ LINE: " & integer'IMAGE(tmp_clk_cnt) & " ##############");
 
                 s_reset <= vec(92);
                 --s_mem_in.busy <= vec(91);
@@ -100,20 +141,28 @@ begin
                 if has_data = TEST then
                     has_data <= NO_TEST;
                     print(output, "######### EOF of testfile ########");
+                                        print(output, str(fail_count) & "/" & str(total_count) & " tests failed.");
                 end if;
             end if;
         end if;
     end process assert_proc;
 
     test_proc : process
+        variable success : boolean;
     begin
             wait for 3 ps;
             if has_data = TEST then
-                assert std_match(r_mem_out.address, a_mem_out.address) report "clk "&str(int_clk_cnt)&": wrong mem_out.address (" & str(r_mem_out.address) & ") expected "& str(a_mem_out.address);
-                assert std_match(r_mem_out.rd, a_mem_out.rd) report "clk "&str(int_clk_cnt)&": wrong mem_out.rd (" & chr(r_mem_out.rd) & ") expected "&chr(a_mem_out.rd);
-                assert std_match(r_mem_out.wr, a_mem_out.wr) report "clk "&str(int_clk_cnt)&": wrong mem_out.wr (" & chr(r_mem_out.wr) & ") expected "&chr(a_mem_out.wr);
-                assert std_match(r_mem_out.byteena, a_mem_out.byteena) report "clk "&str(int_clk_cnt)&": wrong mem_out.byteena ("&str(r_mem_out.byteena)&") expected "&str(a_mem_out.byteena);
-                assert std_match(r_mem_out.wrdata, a_mem_out.wrdata) report "clk "&str(int_clk_cnt)&": wrong mem_out.wrdata (" & str(r_mem_out.wrdata) & ") expected "&str(a_mem_out.wrdata);
+                success := true;
+                check(clk_cnt, "mem_out.address", r_mem_out.address, a_mem_out.address, success, break_on_error);
+                check(clk_cnt, "mem_out.rd", r_mem_out.rd, a_mem_out.rd, success, break_on_error);
+                check(clk_cnt, "mem_out.wr", r_mem_out.wr, a_mem_out.wr, success, break_on_error);
+                                check(clk_cnt, "mem_out.byteena", r_mem_out.byteena, a_mem_out.byteena, success, break_on_error);
+                check(clk_cnt, "mem_out.wrdata", r_mem_out.wrdata, a_mem_out.wrdata, success, break_on_error);
+
+                total_count <= total_count + 1;
+                if success = false then
+                    fail_count <= fail_count + 1;
+                end if;
             else
                 assert false report "EOF" severity FAILURE;
             end if;
