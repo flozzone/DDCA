@@ -1,0 +1,108 @@
+master ffc4cbabebb8ca17713da5444f5e45fe0ab6d344
+Test Level 1
+============
+Starting pipeline compilation
+/home/ddcabot
+Finished pipeline compilation
+Starting tests on minimal
+# Failed 0/10 tests.
+# End time: 01:36:05 on Dec 14,2015, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 0, Suppressed Warnings: 57
+Finished tests on minimal
+Starting tests on arith
+# Failed 0/88 tests.
+# End time: 01:36:11 on Dec 14,2015, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0, Suppressed Warnings: 57
+Finished tests on arith
+Starting tests on memory
+# Failed test: mem_out.wrdata wrong at test 118, expected 11111111111111111011101010011000
+# Failed test: mem_out.wrdata wrong at test 122, expected 11111111111111111000100110101011
+# Failed test: mem_out.wrdata wrong at test 127, expected 00000000000000001011101010011000
+# Failed test: mem_out.wrdata wrong at test 131, expected 00000000000000001000100110101011
+# Failed test: mem_out.wrdata wrong at test 134, expected 11111111111111111111111110111010
+# Failed test: mem_out.wrdata wrong at test 136, expected 00000000000000000000000001100111
+# Failed test: mem_out.wrdata wrong at test 139, expected 00000000000000000000000001110110
+# Failed test: mem_out.wrdata wrong at test 143, expected 11111111111111111111111110101011
+# Failed test: mem_out.wrdata wrong at test 148, expected 00000000000000000000000010111010
+# Failed test: mem_out.wrdata wrong at test 152, expected 00000000000000000000000001100111
+# Failed test: mem_out.wrdata wrong at test 155, expected 00000000000000000000000001110110
+# Failed test: mem_out.wrdata wrong at test 157, expected 00000000000000000000000010101011
+# Failed 12/161 tests.
+# End time: 01:36:18 on Dec 14,2015, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 0, Suppressed Warnings: 57
+Finished tests on memory
+Starting tests on jump
+# Failed test: mem_out.wrdata wrong at test 71, expected 00000000000000000000000000000000
+# Failed test: mem_out.wr asserted when expecting silence at test 72
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 76
+# Failed test: mem_out.address wrong at test 76, expected 000000000000000100000
+# Failed test: mem_out.wr asserted when expecting silence at test 77
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 85
+# Failed test: mem_out.address wrong at test 85, expected 000000000000000011000
+# Failed test: mem_out.wr asserted when expecting silence at test 86
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 90
+# Failed test: mem_out.address wrong at test 90, expected 000000000000000011100
+# Failed test: mem_out.wr asserted when expecting silence at test 91
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 95
+# Failed test: mem_out.address wrong at test 95, expected 000000000000000100000
+# Failed test: mem_out.wr asserted when expecting silence at test 96
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 104
+# Failed test: mem_out.address wrong at test 104, expected 000000000000000011000
+# Failed test: mem_out.wr asserted when expecting silence at test 105
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 109
+# Failed test: mem_out.address wrong at test 109, expected 000000000000000011100
+# Failed test: mem_out.wr asserted when expecting silence at test 110
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 114
+# Failed test: mem_out.address wrong at test 114, expected 000000000000000100000
+# Failed test: mem_out.wr asserted when expecting silence at test 115
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 123
+# Failed test: mem_out.address wrong at test 123, expected 000000000000000100100
+# Failed test: mem_out.wr asserted when expecting silence at test 124
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 128
+# Failed test: mem_out.address wrong at test 128, expected 000000000000000101000
+# Failed test: mem_out.wr asserted when expecting silence at test 129
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 135
+# Failed test: mem_out.address wrong at test 135, expected 000000000000000101100
+# Failed test: mem_out.wr asserted when expecting silence at test 136
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 140
+# Failed test: mem_out.address wrong at test 140, expected 000000000000000101000
+# Failed test: mem_out.wr asserted when expecting silence at test 141
+# Failed test: mem_out.wr asserted when expecting silence at test 146
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 147
+# Failed test: mem_out.address wrong at test 147, expected 000000000000000110000
+# Failed test: mem_out.wr asserted when expecting silence at test 151
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 152
+# Failed test: mem_out.address wrong at test 152, expected 000000000000000110100
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 157
+# Failed test: mem_out.address wrong at test 157, expected 000000000000001000100
+# Failed test: mem_out.wr asserted when expecting silence at test 158
+# Failed test: mem_out.wr asserted when expecting silence at test 163
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 164
+# Failed test: mem_out.address wrong at test 164, expected 000000000000000111000
+# Failed test: mem_out.wr asserted when expecting silence at test 168
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 169
+# Failed test: mem_out.address wrong at test 169, expected 000000000000000111100
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 174
+# Failed test: mem_out.address wrong at test 174, expected 000000000000001000100
+# Failed test: mem_out.wr asserted when expecting silence at test 175
+# Failed test: mem_out.wr asserted when expecting silence at test 180
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 181
+# Failed test: mem_out.address wrong at test 181, expected 000000000000000110100
+# Failed test: mem_out.wr asserted when expecting silence at test 185
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 186
+# Failed test: mem_out.address wrong at test 186, expected 000000000000000111000
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 191
+# Failed test: mem_out.address wrong at test 191, expected 000000000000001000100
+# Failed test: mem_out.wr asserted when expecting silence at test 192
+# Failed test: mem_out.wr asserted when expecting silence at test 193
+# Failed test: mem_out.address wrong at test 198, expected 000000000000000111100
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 199
+# Failed test: mem_out.address wrong at test 199, expected 000000000000001000000
+# Failed test: mem_out.wr asserted when expecting silence at test 203
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 204
+# Failed test: mem_out.address wrong at test 204, expected 000000000000001000000
+# Failed test: mem_out.wr asserted when expecting silence at test 208
+# Failed 48/208 tests.
+# End time: 01:36:25 on Dec 14,2015, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 0, Suppressed Warnings: 57
+Finished tests on jump
