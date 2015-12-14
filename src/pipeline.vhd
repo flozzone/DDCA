@@ -141,7 +141,7 @@ begin  -- rtl
             forwardB => forwardB, -- unused
             cop0_rddata => cop0_rddata, -- unused
             mem_aluresult => (others => '0'), -- unused
-            wb_result => dw_data,
+            wb_result => (others => '0'), -- unused
 
         --out
             pc_out => em_pc,
