@@ -5,7 +5,7 @@
 # (including device programming or simulation files), and any 
 # associated documentation or information are expressly subject 
 # to the terms and conditions of the Altera Program License 
-# Subscription Agreement, the Altera Quartus II License Agreement,
+# Subscription Agreement, the Altera Quartus Prime License Agreement,
 # the Altera MegaCore Function License Agreement, or other 
 # applicable license agreement, including, without limitation, 
 # that your use is for the sole purpose of programming logic 
@@ -13,11 +13,11 @@
 # authorized distributors.  Please refer to the applicable 
 # agreement for further details.
 
-# Quartus II: Generate Tcl File for Project
+# Quartus Prime: Generate Tcl File for Project
 # File: DDCA-mimi.tcl
-# Generated on: Tue Dec  8 19:19:51 2015
+# Generated on: Mon Dec 14 18:54:25 2015
 
-# Load Quartus II Tcl Project package
+# Load Quartus Prime Tcl Project package
 package require ::quartus::project
 
 set need_to_close_project 0
@@ -46,7 +46,7 @@ if {$make_assignments} {
 	set_global_assignment -name TOP_LEVEL_ENTITY pipeline
 	set_global_assignment -name ORIGINAL_QUARTUS_VERSION 15.0.0
 	set_global_assignment -name PROJECT_CREATION_TIME_DATE "06:34:50  DEZEMBER 02, 2015"
-	set_global_assignment -name LAST_QUARTUS_VERSION 15.0.0
+	set_global_assignment -name LAST_QUARTUS_VERSION 15.1.0
 	set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 	set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 	set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
@@ -55,12 +55,6 @@ if {$make_assignments} {
 	set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (VHDL)"
 	set_global_assignment -name EDA_OUTPUT_DATA_FORMAT VHDL -section_id eda_simulation
 	set_global_assignment -name VHDL_FILE ../src/testbench_util/src/testbench_util_pkg.vhd
-	set_global_assignment -name VHDL_FILE ../src/testbenches/regfile_tb.vhd
-	set_global_assignment -name VHDL_FILE ../src/testbenches/pipeline_tb.vhd
-	set_global_assignment -name VHDL_FILE ../src/testbenches/memu_tb.vhd
-	set_global_assignment -name VHDL_FILE ../src/testbenches/fetch_tb.vhd
-	set_global_assignment -name VHDL_FILE ../src/testbenches/exec_tb.vhd
-	set_global_assignment -name VHDL_FILE ../src/testbenches/alu_tb.vhd
 	set_global_assignment -name VHDL_FILE ../src/synchronizer/src/sync_pkg.vhd
 	set_global_assignment -name VHDL_FILE ../src/synchronizer/src/sync_beh.vhd
 	set_global_assignment -name VHDL_FILE ../src/synchronizer/src/sync.vhd
