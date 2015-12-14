@@ -302,7 +302,7 @@ begin  -- rtl
 
                         when FU_JALR =>
                             -- Syntax: JALR rd, rs      Semantics: rd = pc+4; pc = rs
-                            dbg_instr <= INSTR_SLLV;
+                            dbg_instr <= INSTR_JALR;
 
                             -- read value from register
                             exec_op.readdata1 <= int_rddata1;
