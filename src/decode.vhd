@@ -645,7 +645,7 @@ begin  -- rtl
 
                     exec_op.branch  <= '1';
 
-                    jmp_op  <= JMP_BLTZ;
+                    jmp_op  <= JMP_BLEZ;
 
                 when OP_BGTZ =>
                     -- Format: I    Syntax:  BGTZ rs, imm18   Semantics: if (rs±> 0) pc += imm± << 2
