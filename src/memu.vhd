@@ -70,7 +70,7 @@ begin
             when others =>
                 assert false report "Unexpected pattern";
         end case;
-        ret := ret or ((3-i)*BYTE_WIDTH-1 downto 0 => '0') & tmp_word & (i*BYTE_WIDTH-1 downto 0 => '0');
+        ret((i+1)*BYTE_WIDTH-1 downto i*BYTE_WIDTH) := tmp_word;
     end loop;
     return ret;
 end byte_swap;
