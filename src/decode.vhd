@@ -314,6 +314,8 @@ begin  -- rtl
 
                             wb_op.memtoreg  <= '0'; --TODO: do not need
                             wb_op.regwrite  <= '1';
+                            
+                            jmp_op  <= JMP_JMP;
 
                         when FU_ADD =>
                             -- Syntax: ADD rd, rs, rt   Semantics: rd = rs + rt, overflow trap
