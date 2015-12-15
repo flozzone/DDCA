@@ -1,4 +1,4 @@
-PREFIX=/usr/mips
+PREFIX=/opt/ddca/mips
 
 CC=${PREFIX}/bin/mips-elf-gcc -mips1 -msoft-float
 LD=${PREFIX}/bin/mips-elf-ld -N -Ttext=0x40000000 --section-start .rodata=4
