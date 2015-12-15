@@ -1,0 +1,38 @@
+master 2e90bce13a09f8d02ee0d28c5835712abd1f2c3a
+Test Level 1
+============
+Starting pipeline compilation
+/home/ddcabot
+Finished pipeline compilation
+Starting tests on minimal
+# Failed 0/10 tests.
+# End time: 02:06:55 on Dec 15,2015, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 0, Suppressed Warnings: 57
+Finished tests on minimal
+Starting tests on arith
+# Failed 0/88 tests.
+# End time: 02:07:02 on Dec 15,2015, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 0, Suppressed Warnings: 57
+Finished tests on arith
+Starting tests on memory
+# Failed test: mem_out.wrdata wrong at test 118, expected 11111111111111111011101010011000
+# Failed test: mem_out.wrdata wrong at test 122, expected 11111111111111111000100110101011
+# Failed test: mem_out.wrdata wrong at test 127, expected 00000000000000001011101010011000
+# Failed test: mem_out.wrdata wrong at test 131, expected 00000000000000001000100110101011
+# Failed test: mem_out.wrdata wrong at test 134, expected 11111111111111111111111110111010
+# Failed test: mem_out.wrdata wrong at test 136, expected 00000000000000000000000001100111
+# Failed test: mem_out.wrdata wrong at test 139, expected 00000000000000000000000001110110
+# Failed test: mem_out.wrdata wrong at test 143, expected 11111111111111111111111110101011
+# Failed test: mem_out.wrdata wrong at test 148, expected 00000000000000000000000010111010
+# Failed test: mem_out.wrdata wrong at test 152, expected 00000000000000000000000001100111
+# Failed test: mem_out.wrdata wrong at test 155, expected 00000000000000000000000001110110
+# Failed test: mem_out.wrdata wrong at test 157, expected 00000000000000000000000010101011
+# Failed 12/161 tests.
+# End time: 02:07:08 on Dec 15,2015, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0, Suppressed Warnings: 57
+Finished tests on memory
+Starting tests on jump
+# Failed 0/208 tests.
+# End time: 02:07:15 on Dec 15,2015, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 0, Suppressed Warnings: 57
+Finished tests on jump
