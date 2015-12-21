@@ -53,9 +53,9 @@ architecture arch of level1_tb is
     begin
         if not std_match(result, expected) then
             if boe = true then
-                  assert std_match(result, expected) report str(test_nr) & ": " & signal_name & " result: " & str(result) & " expected: " & str(expected) severity FAILURE;
+                  assert std_match(result, expected) report str(test_nr) & ": " & signal_name & " result: " & hstr(result) & " expected: " & hstr(expected) severity FAILURE;
             else
-                assert std_match(result, expected) report str(test_nr) & ": " & signal_name & " result: " & str(result) & " expected: " & str(expected);
+                assert std_match(result, expected) report str(test_nr) & ": " & signal_name & " result: " & hstr(result) & " expected: " & hstr(expected);
             end if;
             success := false;
         end if;

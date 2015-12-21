@@ -48,6 +48,7 @@ signal int_wrdata        : std_logic_vector(DATA_WIDTH-1 downto 0);
 signal int_new_pc_in     : std_logic_vector(PC_WIDTH-1 downto 0);
 signal int_wbop_in       : wb_op_type;
 signal int_mem_data      : std_logic_vector(DATA_WIDTH-1 downto 0);
+signal ext_mem_data      : std_logic_vector(DATA_WIDTH-1 downto 0);
 
 signal int_jmp_zero, int_jmp_neg : std_logic;
 
@@ -69,7 +70,7 @@ begin  -- rtl
         op => int_mem_op,
         A => int_aluresult_in(ADDR_WIDTH-1 downto 0),
         W => int_wrdata,
-        D => int_mem_data,
+        D => ext_mem_data,
         -- out
         M => mem_out,
         R => memresult,
@@ -77,8 +78,9 @@ begin  -- rtl
         XS => exc_store
     );
 
-    input : process(clk, reset, stall)
+    input : process(clk, reset, stall, mem_data)
     begin
+        ext_mem_data <= mem_data;
         if reset = '0' then
             int_mem_op <= MEM_NOP;
             int_jmp_op <= JMP_NOP;
@@ -91,11 +93,12 @@ begin  -- rtl
             int_new_pc_in <= (others => '0');
             int_wbop_in <= WB_NOP;
             int_mem_data <= (others => '0');
-        elsif stall = '1' then
-            int_mem_op.memread <= '0';
-            int_mem_op.memwrite <= '0';
         elsif rising_edge(clk) then
-            if flush = '1' then
+            if stall = '1' then
+                int_mem_op.memread <= '0';
+                int_mem_op.memwrite <= '0';
+                ext_mem_data <= int_mem_data;
+            elsif flush = '1' then
                 int_mem_op <= MEM_NOP;
                 int_jmp_op <= JMP_NOP;
                 int_pc_in <= (others => '0');
