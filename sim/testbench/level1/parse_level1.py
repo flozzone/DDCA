@@ -80,6 +80,7 @@ def main(result_file, test_file, rec_file=None):
         suite.addSignal("s_enable_ocram", 1, alias="ocram", default=True)
         suite.addSignal("s_reset", 1, alias="reset", default=True)
         suite.addSignal("s_mem_in.rddata", TestSuite.DATA_WIDTH, alias="rddata", default=0)
+        suite.addSignal("s_mem_in.busy", 1, alias="busy", default=False)
         suite.addSignal("a_mem_out.address", TestSuite.ADDR_WIDTH, alias="addr", default="---------------------")
         suite.addSignal("a_mem_out.rd", 1, alias="rd", default=False)
         suite.addSignal("a_mem_out.wr", 1, alias="wr", default=False)
