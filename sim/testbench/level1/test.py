@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import binascii
 
 class TestSuite:
 
@@ -32,8 +33,13 @@ class TestSuite:
     @staticmethod
     def conv(arg, l):
         if isinstance(arg, basestring):
-            if len(arg) > l:
-                raise Exception("String too long (%s)" % arg)
+            val = arg
+            if arg.startswith("0x"):
+                num = int(arg, 16)
+                val = TestSuite.dec2bin(num, l)
+                return val
+            if len(val) is not l:
+                raise Exception("Wrong signal length %i (%s)" % (len(val), val))
             val = arg.replace("-", "-")
             return val
 

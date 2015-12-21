@@ -21,7 +21,9 @@ architecture arch of level1_tb is
     signal s_test_clk_cnt : integer range 0 to 300;
 
     signal s_reset         : std_logic := '0';
+    signal s_enable_ocram : std_logic;
     signal s_mem_in      : mem_in_type := ('0', (others => '0'));
+    signal mem_in      : mem_in_type;
     signal s_intr         : std_logic_vector(INTR_COUNT-1 downto 0) := (others => '0');
     signal r_mem_out     : mem_out_type := ((others => '0'),'0','0', (others => '0'),(others => '0'));
     signal a_mem_out     : mem_out_type := ((others => '0'),'0','0', (others => '0'),(others => '0'));
@@ -80,7 +82,7 @@ begin
     port map (
         clk => clk,
         reset => s_reset,
-        mem_in => s_mem_in,
+        mem_in => mem_in,
         mem_out => r_mem_out,
         intr => s_intr
     );
@@ -105,8 +107,12 @@ begin
 
     mem_proc : process(r_mem_out, ocram_rddata)
     begin
-        s_mem_in.busy <= r_mem_out.rd;
-        s_mem_in.rddata <= ocram_rddata;
+        if s_enable_ocram = '1' then
+            mem_in.busy <= r_mem_out.rd;
+            mem_in.rddata <= ocram_rddata;
+        else
+            mem_in.rddata <= s_mem_in.rddata;
+        end if;
     end process mem_proc;
 
     test_proc : process
@@ -119,17 +125,23 @@ begin
         wait until rising_edge(clk);
         clk_cnt <= clk_cnt + 1;
         if not endfile(vector_file) then
-            --wait for 2 ps;
+
             readline(vector_file, rdline);
             read(rdline, bin);
             vec := to_std_logic_vector(bin);
             print(output, "############ LINE: " & integer'IMAGE(clk_cnt) & " ##############");
-            s_reset <= vec(92);
+
+            -- TEST SIGNALS
+            s_enable_ocram <= vec(92);
+            s_reset <= vec(91);
+            s_mem_in.rddata <= vec(90 downto 59);
             a_mem_out.address <= vec(58 downto 38);
             a_mem_out.rd <= vec(37);
             a_mem_out.wr <= vec(36);
             a_mem_out.byteena <= vec(35 downto 32);
             a_mem_out.wrdata <= vec(31 downto 0);
+            -- END TEST SIGNALS
+
             has_data <= TEST;
          else
             if has_data = TEST then
@@ -147,7 +159,7 @@ begin
             check(clk_cnt, "mem_out.wr", r_mem_out.wr, a_mem_out.wr, success, break_on_error);
             check(clk_cnt, "mem_out.byteena", r_mem_out.byteena, a_mem_out.byteena, success, break_on_error);
             check(clk_cnt, "mem_out.wrdata", r_mem_out.wrdata, a_mem_out.wrdata, success, break_on_error);
-             total_count <= total_count + 1;
+            total_count <= total_count + 1;
             if success = false then
                 fail_count <= fail_count + 1;
             end if;
