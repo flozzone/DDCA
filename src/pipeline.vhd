@@ -9,7 +9,10 @@ entity pipeline is
         clk, reset : in     std_logic;
         mem_in     : in  mem_in_type;
         mem_out    : out mem_out_type;
-        intr       : in  std_logic_vector(INTR_COUNT-1 downto 0));
+        intr       : in  std_logic_vector(INTR_COUNT-1 downto 0);
+        dbg_d_instr : out INSTR_TYPE;
+        dbg_f_imem_addr : out std_logic_vector (11 downto 0)
+    );
 
 end pipeline;
 
@@ -98,7 +101,9 @@ begin  -- rtl
             pc_in => fm_new_pc,
         -- out
             pc_out => fd_pc,
-            instr => fd_instr
+            instr => fd_instr,
+        -- debug
+            dbg_imem_addr => dbg_f_imem_addr
         );
 
         decode_inst : entity work.decode
@@ -113,7 +118,6 @@ begin  -- rtl
             wraddr => dw_rd,
             wrdata => dw_data,
             regwrite => dw_regwrite,
-
         --out
             pc_out => de_pc,
             exec_op => de_exec_op,
@@ -121,7 +125,9 @@ begin  -- rtl
             jmp_op => de_jmp_op,
             mem_op => de_mem_op,
             wb_op => de_wb_op,
-            exc_dec => exc_dec -- unused in lab3
+            exc_dec => exc_dec, -- unused in lab3
+        -- debug
+            dbg_instr => dbg_d_instr
         );
 
 
