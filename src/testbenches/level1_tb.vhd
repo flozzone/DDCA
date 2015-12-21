@@ -15,7 +15,7 @@ entity level1_tb is
 end level1_tb;
 
 architecture arch of level1_tb is
-    constant CLK_PERIOD : time := 2 ps;
+    constant CLK_PERIOD : time := 20 ns;
     signal clk            : std_logic;
 
     signal s_test_clk_cnt : integer range 0 to 300;
@@ -48,7 +48,7 @@ architecture arch of level1_tb is
         signal_name : in string;
         result : in std_logic_vector;
         expected : in std_logic_vector;
-                success : inout boolean;
+        success : inout boolean;
         boe : in boolean) is -- break on error
     begin
         if not std_match(result, expected) then
@@ -56,7 +56,7 @@ architecture arch of level1_tb is
                   assert std_match(result, expected) report str(test_nr) & ": " & signal_name & " result: " & str(result) & " expected: " & str(expected) severity FAILURE;
             else
                 assert std_match(result, expected) report str(test_nr) & ": " & signal_name & " result: " & str(result) & " expected: " & str(expected);
-                        end if;
+            end if;
             success := false;
         end if;
     end check;
@@ -66,7 +66,7 @@ architecture arch of level1_tb is
         signal_name : in string;
         result : in std_logic;
         expected : in std_logic;
-                success : inout boolean;
+        success : inout boolean;
         boe : in boolean) is -- break on error
     begin
         if not std_match(result, expected) then
@@ -74,7 +74,7 @@ architecture arch of level1_tb is
                   assert std_match(result, expected) report str(test_nr) & ": " & signal_name & " result: " & chr(result) & " expected: " & chr(expected) severity FAILURE;
             else
                 assert std_match(result, expected) report str(test_nr) & ": " & signal_name & " result: " & chr(result) & " expected: " & chr(expected);
-                        end if;
+            end if;
             success := false;
         end if;
     end check;
@@ -96,17 +96,24 @@ begin
         address => r_mem_out.address(11 downto 2),
         byteena => r_mem_out.byteena,
         data => r_mem_out.wrdata,
-        wren => r_mem_out.wr,
-        q => s_mem_in.rddata
+        wren => ocram_wr,
+        q => ocram_rddata
     );
 
     sync_proc : process
     begin
         clk <= '0';
-        wait for CLK_PERIOD;
+        wait for CLK_PERIOD/2;
         clk <= '1';
-        wait for CLK_PERIOD;
+        wait for CLK_PERIOD/2;
     end process sync_proc;
+
+    mem_proc : process(r_mem_out, ocram_rddata)
+    begin
+        s_mem_in.busy <= r_mem_out.rd;
+        s_mem_in.rddata <= ocram_rddata;
+        ocram_wr <= r_mem_out.wr;
+    end process mem_proc;
 
     assert_proc : process(clk)
         variable rdline : line;
@@ -139,7 +146,7 @@ begin
                 if has_data = TEST then
                     has_data <= NO_TEST;
                     print(output, "######### EOF of testfile ########");
-                                        print(output, str(fail_count) & "/" & str(total_count) & " tests failed.");
+                    print(output, str(fail_count) & "/" & str(total_count) & " tests failed.");
                 end if;
             end if;
         end if;
@@ -148,13 +155,13 @@ begin
     test_proc : process
         variable success : boolean;
     begin
-            wait for 3 ps;
+            wait until falling_edge(clk);
             if has_data = TEST then
                 success := true;
                 check(clk_cnt, "mem_out.address", r_mem_out.address, a_mem_out.address, success, break_on_error);
                 check(clk_cnt, "mem_out.rd", r_mem_out.rd, a_mem_out.rd, success, break_on_error);
                 check(clk_cnt, "mem_out.wr", r_mem_out.wr, a_mem_out.wr, success, break_on_error);
-                                check(clk_cnt, "mem_out.byteena", r_mem_out.byteena, a_mem_out.byteena, success, break_on_error);
+                check(clk_cnt, "mem_out.byteena", r_mem_out.byteena, a_mem_out.byteena, success, break_on_error);
                 check(clk_cnt, "mem_out.wrdata", r_mem_out.wrdata, a_mem_out.wrdata, success, break_on_error);
 
                 total_count <= total_count + 1;
@@ -164,6 +171,5 @@ begin
             else
                 assert false report "EOF" severity FAILURE;
             end if;
-            wait for 1 ps;
     end process test_proc;
 end arch;
