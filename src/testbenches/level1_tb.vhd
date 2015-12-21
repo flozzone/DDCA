@@ -26,12 +26,7 @@ architecture arch of level1_tb is
     signal r_mem_out     : mem_out_type := ((others => '0'),'0','0', (others => '0'),(others => '0'));
     signal a_mem_out     : mem_out_type := ((others => '0'),'0','0', (others => '0'),(others => '0'));
 
-    signal int_s_reset     : std_logic;
-    signal int_s_mem_in : mem_in_type := ('0', (others => '0'));
-    signal int_s_intr     : std_logic_vector(INTR_COUNT-1 downto 0);
-    signal int_r_mem_out : mem_out_type := ((others => '0'),'0','0', (others => '0'),(others => '0'));
-    signal int_a_mem_out : mem_out_type := ((others => '0'),'0','0', (others => '0'),(others => '0'));
-
+    signal ocram_rddata : std_logic_vector(DATA_WIDTH-1 downto  0);
 
     signal clk_cnt     : integer := 0;
     signal testfile : string(8 downto 1);
@@ -53,7 +48,7 @@ architecture arch of level1_tb is
     begin
         if not std_match(result, expected) then
             if boe = true then
-                  assert std_match(result, expected) report str(test_nr) & ": " & signal_name & " result: " & hstr(result) & " expected: " & hstr(expected) severity FAILURE;
+                assert std_match(result, expected) report str(test_nr) & ": " & signal_name & " result: " & hstr(result) & " expected: " & hstr(expected) severity FAILURE;
             else
                 assert std_match(result, expected) report str(test_nr) & ": " & signal_name & " result: " & hstr(result) & " expected: " & hstr(expected);
             end if;
@@ -71,7 +66,7 @@ architecture arch of level1_tb is
     begin
         if not std_match(result, expected) then
             if boe = true then
-                  assert std_match(result, expected) report str(test_nr) & ": " & signal_name & " result: " & chr(result) & " expected: " & chr(expected) severity FAILURE;
+                assert std_match(result, expected) report str(test_nr) & ": " & signal_name & " result: " & chr(result) & " expected: " & chr(expected) severity FAILURE;
             else
                 assert std_match(result, expected) report str(test_nr) & ": " & signal_name & " result: " & chr(result) & " expected: " & chr(expected);
             end if;
@@ -96,7 +91,7 @@ begin
         address => r_mem_out.address(11 downto 2),
         byteena => r_mem_out.byteena,
         data => r_mem_out.wrdata,
-        wren => ocram_wr,
+        wren => r_mem_out.wr,
         q => ocram_rddata
     );
 
@@ -112,64 +107,52 @@ begin
     begin
         s_mem_in.busy <= r_mem_out.rd;
         s_mem_in.rddata <= ocram_rddata;
-        ocram_wr <= r_mem_out.wr;
     end process mem_proc;
 
-    assert_proc : process(clk)
+    test_proc : process
         variable rdline : line;
         file vector_file : text open read_mode is "../src/test.tc";
         variable bin : string(93 downto 1);
         variable vec : std_logic_vector(92 downto 0);
-        variable tmp_clk_cnt : integer := -1;
-    begin
-        if rising_edge(clk) then
-            tmp_clk_cnt := tmp_clk_cnt + 1;
-            clk_cnt <= tmp_clk_cnt;
-            if not endfile(vector_file) then
-                --wait for 2 ps;
-                readline(vector_file, rdline);
-                read(rdline, bin);
-                vec := to_std_logic_vector(bin);
-
-                print(output, "############ LINE: " & integer'IMAGE(tmp_clk_cnt) & " ##############");
-
-                s_reset <= vec(92);
-                a_mem_out.address <= vec(58 downto 38);
-                a_mem_out.rd <= vec(37);
-                a_mem_out.wr <= vec(36);
-                a_mem_out.byteena <= vec(35 downto 32);
-                a_mem_out.wrdata <= vec(31 downto 0);
-
-                has_data <= TEST;
-
-            else
-                if has_data = TEST then
-                    has_data <= NO_TEST;
-                    print(output, "######### EOF of testfile ########");
-                    print(output, str(fail_count) & "/" & str(total_count) & " tests failed.");
-                end if;
-            end if;
-        end if;
-    end process assert_proc;
-
-    test_proc : process
         variable success : boolean;
     begin
-            wait until falling_edge(clk);
+        wait until rising_edge(clk);
+        clk_cnt <= clk_cnt + 1;
+        if not endfile(vector_file) then
+            --wait for 2 ps;
+            readline(vector_file, rdline);
+            read(rdline, bin);
+            vec := to_std_logic_vector(bin);
+            print(output, "############ LINE: " & integer'IMAGE(clk_cnt) & " ##############");
+            s_reset <= vec(92);
+            a_mem_out.address <= vec(58 downto 38);
+            a_mem_out.rd <= vec(37);
+            a_mem_out.wr <= vec(36);
+            a_mem_out.byteena <= vec(35 downto 32);
+            a_mem_out.wrdata <= vec(31 downto 0);
+            has_data <= TEST;
+         else
             if has_data = TEST then
-                success := true;
-                check(clk_cnt, "mem_out.address", r_mem_out.address, a_mem_out.address, success, break_on_error);
-                check(clk_cnt, "mem_out.rd", r_mem_out.rd, a_mem_out.rd, success, break_on_error);
-                check(clk_cnt, "mem_out.wr", r_mem_out.wr, a_mem_out.wr, success, break_on_error);
-                check(clk_cnt, "mem_out.byteena", r_mem_out.byteena, a_mem_out.byteena, success, break_on_error);
-                check(clk_cnt, "mem_out.wrdata", r_mem_out.wrdata, a_mem_out.wrdata, success, break_on_error);
-
-                total_count <= total_count + 1;
-                if success = false then
-                    fail_count <= fail_count + 1;
-                end if;
-            else
-                assert false report "EOF" severity FAILURE;
+                has_data <= NO_TEST;
+                print(output, "######### EOF of testfile ########");
+                print(output, str(fail_count) & "/" & str(total_count) & " tests failed.");
             end if;
-    end process test_proc;
+        end if;
+
+        wait until falling_edge(clk);
+        if has_data = TEST then
+            success := true;
+            check(clk_cnt, "mem_out.address", r_mem_out.address, a_mem_out.address, success, break_on_error);
+            check(clk_cnt, "mem_out.rd", r_mem_out.rd, a_mem_out.rd, success, break_on_error);
+            check(clk_cnt, "mem_out.wr", r_mem_out.wr, a_mem_out.wr, success, break_on_error);
+            check(clk_cnt, "mem_out.byteena", r_mem_out.byteena, a_mem_out.byteena, success, break_on_error);
+            check(clk_cnt, "mem_out.wrdata", r_mem_out.wrdata, a_mem_out.wrdata, success, break_on_error);
+             total_count <= total_count + 1;
+            if success = false then
+                fail_count <= fail_count + 1;
+            end if;
+        else
+            assert false report "EOF" severity FAILURE;
+        end if;
+   end process test_proc;
 end arch;
