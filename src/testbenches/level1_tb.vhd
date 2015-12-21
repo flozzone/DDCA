@@ -30,12 +30,9 @@ architecture arch of level1_tb is
 
     signal ocram_rddata : std_logic_vector(DATA_WIDTH-1 downto  0);
 
-    signal clk_cnt     : integer := 0;
+    signal clk_cnt     : integer := -1;
     signal testfile : string(8 downto 1);
     signal break_on_error : boolean := false;
-
-    type TEST_TYPE is (NO_TEST, TEST);
-    signal has_data     : TEST_TYPE;
 
     signal fail_count : integer := 0;
     signal total_count : integer := 0;
@@ -108,39 +105,42 @@ begin
         clk <= '0';
         wait for CLK_PERIOD/2;
         clk <= '1';
+        clk_cnt <= clk_cnt + 1;
         wait for CLK_PERIOD/2;
     end process sync_proc;
 
-    mem_proc : process(r_mem_out, ocram_rddata)
+    mem_proc : process(r_mem_out, ocram_rddata, s_mem_in, clk)
     begin
         if s_enable_ocram = '1' then
             mem_in.busy <= r_mem_out.rd;
             mem_in.rddata <= ocram_rddata;
         else
             mem_in.rddata <= s_mem_in.rddata;
+            mem_in.busy <= s_mem_in.busy;
         end if;
     end process mem_proc;
 
     test_proc : process
         variable rdline : line;
-        file vector_file : text open read_mode is "../src/test.tc";
-        variable bin : string(93 downto 1);
-        variable vec : std_logic_vector(92 downto 0);
+        file fd : text open read_mode is "../src/test.tc";
+        variable bin_line : string(94 downto 1);
+        variable vec : std_logic_vector(93 downto 0);
         variable success : boolean;
     begin
-        wait until rising_edge(clk);
-        clk_cnt <= clk_cnt + 1;
-        if not endfile(vector_file) then
+        if not endfile(fd) then
+            wait until rising_edge(clk);
 
-            readline(vector_file, rdline);
-            read(rdline, bin);
-            vec := to_std_logic_vector(bin);
-            print(output, "############ LINE: " & integer'IMAGE(clk_cnt) & " ##############");
+            print(output, "############ LINE: " & str(clk_cnt) & " ##############");
+
+            readline(fd, rdline);
+            read(rdline, bin_line);
+            vec := to_std_logic_vector(bin_line);
 
             -- TEST SIGNALS
-            s_enable_ocram <= vec(92);
-            s_reset <= vec(91);
-            s_mem_in.rddata <= vec(90 downto 59);
+            s_enable_ocram <= vec(93);
+            s_reset <= vec(92);
+            s_mem_in.rddata <= vec(91 downto 60);
+            s_mem_in.busy <= vec(59);
             a_mem_out.address <= vec(58 downto 38);
             a_mem_out.rd <= vec(37);
             a_mem_out.wr <= vec(36);
@@ -148,17 +148,8 @@ begin
             a_mem_out.wrdata <= vec(31 downto 0);
             -- END TEST SIGNALS
 
-            has_data <= TEST;
-         else
-            if has_data = TEST then
-                has_data <= NO_TEST;
-                print(output, "######### EOF of testfile ########");
-                print(output, str(fail_count) & "/" & str(total_count) & " tests failed.");
-            end if;
-        end if;
+            wait until falling_edge(clk);
 
-        wait until falling_edge(clk);
-        if has_data = TEST then
             success := true;
             check(clk_cnt, "mem_out.address", r_mem_out.address, a_mem_out.address, success, break_on_error);
             check(clk_cnt, "mem_out.rd", r_mem_out.rd, a_mem_out.rd, success, break_on_error);
@@ -170,7 +161,9 @@ begin
                 fail_count <= fail_count + 1;
             end if;
         else
-            assert false report "EOF" severity FAILURE;
+            print(output, "######### EOF of testfile ########");
+            print(output, str(fail_count) & "/" & str(total_count) & " tests failed.");
+            assert False report "EOF" severity FAILURE;
         end if;
    end process test_proc;
 end arch;

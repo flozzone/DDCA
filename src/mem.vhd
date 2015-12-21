@@ -97,7 +97,7 @@ begin  -- rtl
             if stall = '1' then
                 int_mem_op.memread <= '0';
                 int_mem_op.memwrite <= '0';
-                ext_mem_data <= int_mem_data;
+                --ext_mem_data <= mem_data;
             elsif flush = '1' then
                 int_mem_op <= MEM_NOP;
                 int_jmp_op <= JMP_NOP;
@@ -110,6 +110,7 @@ begin  -- rtl
                 int_new_pc_in <= (others => '0');
                 int_wbop_in <= WB_NOP;
                 int_mem_data <= (others => '0');
+                ext_mem_data <= (others => '0');
             else
                 int_mem_op <= mem_op;
                 int_jmp_op <= jmp_op;
@@ -122,6 +123,7 @@ begin  -- rtl
                 int_new_pc_in <= new_pc_in;
                 int_wbop_in <= wbop_in;
                 int_mem_data <= mem_data;
+                ext_mem_data <= mem_data;
             end if;
         end if;
     end process input;

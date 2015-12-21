@@ -1,0 +1,12 @@
+# Failed test: mem_out.wrdata wrong at test 118, expected 11111111111111111011101010011000, FFFFBA98, *
+# Failed test: mem_out.wrdata wrong at test 122, expected 11111111111111111000100110101011, FFFF89AB
+# Failed test: mem_out.wrdata wrong at test 127, expected 00000000000000001011101010011000, 0000BA98, *
+# Failed test: mem_out.wrdata wrong at test 131, expected 00000000000000001000100110101011, 000089AB
+# Failed test: mem_out.wrdata wrong at test 134, expected 11111111111111111111111110111010, FFFFFFBA, *
+# Failed test: mem_out.wrdata wrong at test 136, expected 00000000000000000000000001100111, 00000067
+# Failed test: mem_out.wrdata wrong at test 139, expected 00000000000000000000000001110110, 00000076, *
+# Failed test: mem_out.wrdata wrong at test 143, expected 11111111111111111111111110101011, FFFFFFAB
+# Failed test: mem_out.wrdata wrong at test 148, expected 00000000000000000000000010111010, 000000BA, *
+# Failed test: mem_out.wrdata wrong at test 152, expected 00000000000000000000000001100111, 00000067
+# Failed test: mem_out.wrdata wrong at test 155, expected 00000000000000000000000001110110, 00000076, *
+# Failed test: mem_out.wrdata wrong at test 157, expected 00000000000000000000000010101011, 000000AB
