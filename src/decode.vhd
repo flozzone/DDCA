@@ -23,9 +23,7 @@ entity decode is
         jmp_op     : out jmp_op_type;
         mem_op     : out mem_op_type;
         wb_op      : out wb_op_type;
-        exc_dec    : out std_logic;
-        dbg_instr  : out INSTR_TYPE
-    );
+        exc_dec    : out std_logic);
 
 end decode;
 
@@ -33,7 +31,15 @@ architecture rtl of decode is
 
     constant INSTR_ZERO : std_logic_vector (INSTR_WIDTH-1 downto 0) := (others => '0');
 
-    
+    type INSTR_TYPE is (INSTR_NOP, INSTR_J, INSTR_JAL, INSTR_BEQ, INSTR_BNE, INSTR_BLEZ, INSTR_BGTZ,
+                        INSTR_ADDI, INSTR_ADDIU, INSTR_SLTI, INSTR_SLTIU, INSTR_ANDI,
+                        INSTR_ORI, INSTR_XORI, INSTR_LUI, INSTR_LB, INSTR_LH, INSTR_LW,
+                        INSTR_LBU, INSTR_LHU, INSTR_SB, INSTR_SH, INSTR_SW, INSTR_SLL,
+                        INSTR_SRL, INSTR_SRA, INSTR_SLLV, INSTR_SRLV, INSTR_SRAV,
+                        INSTR_JR, INSTR_JALR, INSTR_ADD, INSTR_ADDU, INSTR_SUB, INSTR_SUBU,
+                        INSTR_AND, INSTR_OR, INSTR_XOR, INSTR_NOR, INSTR_SLT, INSTR_SLTU,
+                        INSTR_BLTZ, INSTR_BGEZ, INSTR_BLTZAL, INSTR_BGEZAL, INSTR_MFC0, INSTR_MTC0);
+
     -- instruction codes
     constant OP_SPECIAL : std_logic_vector(5 downto 0) := "000000";
     constant OP_REGIMM  : std_logic_vector(5 downto 0) := "000001";
@@ -114,6 +120,8 @@ architecture rtl of decode is
     alias func      : std_logic_vector(5 downto 0)  is int_instr(5 downto 0);
     alias adrim     : std_logic_vector(15 downto 0) is int_instr(15 downto 0);
     alias taradr    : std_logic_vector(25 downto 0) is int_instr(25 downto 0);
+
+    signal dbg_instr : INSTR_TYPE;
 
 begin  -- rtl
 

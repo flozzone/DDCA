@@ -37,9 +37,6 @@ architecture arch of level1_tb is
     signal fail_count : integer := 0;
     signal total_count : integer := 0;
 
-    signal dbg_d_instr : INSTR_TYPE;
-    signal dbg_f_imem_addr : std_logic_vector (11 downto 0);
-
     procedure check(
         test_nr : in integer;
         signal_name : in string;
@@ -84,10 +81,7 @@ begin
         reset => s_reset,
         mem_in => mem_in,
         mem_out => r_mem_out,
-        intr => s_intr,
-    -- debug
-        dbg_d_instr => dbg_d_instr,
-        dbg_f_imem_addr => dbg_f_imem_addr
+        intr => s_intr
     );
     
     memory_inst : entity ocram_altera

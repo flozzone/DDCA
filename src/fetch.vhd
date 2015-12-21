@@ -14,9 +14,7 @@ entity fetch is
         pcsrc       : in     std_logic;
         pc_in       : in     std_logic_vector(PC_WIDTH-1 downto 0);
         pc_out       : out std_logic_vector(PC_WIDTH-1 downto 0);
-        instr       : out std_logic_vector(INSTR_WIDTH-1 downto 0);
-        dbg_imem_addr : out std_logic_vector (11 downto 0)
-);
+        instr       : out std_logic_vector(INSTR_WIDTH-1 downto 0));
 
 end fetch;
 
@@ -27,8 +25,6 @@ signal int_pc            : std_logic_vector (PC_WIDTH-1 downto 0) := (others => 
 signal int_pc_next         : std_logic_vector (PC_WIDTH-1 downto 0) := (others => '0');
 
 begin  -- rtl
-    dbg_imem_addr <= imem_addr;
-
     imem : entity imem_altera
     port map (
         address => imem_addr,
