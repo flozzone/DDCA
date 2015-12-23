@@ -131,20 +131,15 @@ begin  -- rtl
 
         -- ALU
         int_alu_A <= int_op.readdata1;
+        int_alu_B <= int_op.readdata2;
         aluresult <= int_alu_R;
-        if int_op.useimm = '0' and int_op.useamt = '0' then
-            -- R-Format instructions
-            int_alu_B <= int_op.readdata2;
-        elsif int_op.useimm = '1' and int_op.useamt = '0' then
+        if int_op.useimm = '1' then
             -- all I-Format instructions
             int_alu_B <= int_op.imm;
-        elsif int_op.useimm = '0' and int_op.useamt = '1' then
+        elsif int_op.useamt = '1' then
             --- shifts, SLL, SRL, SRA
             int_alu_A <= int_op.imm;
-                -- shamt will stay at op.imm[5:0]
-            int_alu_B <= int_op.readdata2;
-        else
-            int_alu_B <= int_op.readdata2;
+            -- shamt will stay at op.imm[5:0]
         end if;
 
         -- set flags
