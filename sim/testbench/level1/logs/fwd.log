@@ -1,0 +1,14 @@
+# Failed test: mem_out.wrdata wrong at test 11, expected 00000000000000000000000010101010
+# Failed test: mem_out.wrdata wrong at test 12, expected 00000000000000000000000010101010
+# Failed test: mem_out.wrdata wrong at test 21, expected 11111111111111111111111100110100
+# Failed test: mem_out.wrdata wrong at test 22, expected 11111111111111111111111100110100
+# Failed test: mem_out.wrdata wrong at test 30, expected 00010010001101000101011001111000
+# Failed test: mem_out.wrdata wrong at test 38, expected 00010010001101000101011001111001
+# Failed test: mem_out.address wrong at test 42, expected 000000000000010000100
+# Failed test: mem_out.address wrong at test 43, expected 000000000000010001000
+# Failed test: mem_out.wrdata wrong at test 46, expected 00000000000000000001001000110100
+# Failed test: mem_out.wrdata wrong at test 47, expected 00000000000000000001001000110100
+# Failed test: mem_out.address wrong at test 50, expected 000000000000010000100
+# Failed test: mem_out.address wrong at test 51, expected 000000000000010001000
+# Failed test: mem_out.wrdata wrong at test 79, expected 00000000000000000000000000000100
+# Failed test: mem_out.wrdata wrong at test 115, expected 00000000000000000000000000000000
