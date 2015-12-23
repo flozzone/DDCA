@@ -6,7 +6,7 @@ binutils_src="http://ftp.gnu.org/gnu/binutils/$binutils_tar"
 
 WDIR=/tmp
 TARGET=mips-elf
-PREFIX=/usr/mips
+PREFIX=/opt/ddca/mips
 
 if [[ $EUID -ne 0  ]]; then
   echo >&2 "This script need to be run as root because it installs into ${PREFIX}."
