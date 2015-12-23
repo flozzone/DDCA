@@ -1,5 +1,5 @@
 proc num_to_vect {num len} {
-	return [format "%llb" $num]
+    return [format "%llb" $num]
 }
 
 proc dec2bin {i {width {}}} {
@@ -29,43 +29,71 @@ proc dec2bin {i {width {}}} {
 
 # http://stackoverflow.com/questions/9709257/modelsim-message-viewer-empty
 proc load_testbench {name} {
-	set venv [env]
-	echo $venv
-	if { [string match *${name}* $venv] } {
-		echo "is already loaded, skip starting simulation, but restart."
-		restart
-	} else {
-		vsim -t 100fs -assertdebug -msgmode both -displaymsgmode both work.${name}_tb
+    set venv [env]
+    echo $venv
+    if { [string match *${name}* $venv] } {
+        echo "is already loaded, skip starting simulation, but restart."
+        restart
+    } else {
+        vsim -t 100fs -assertdebug -msgmode both -displaymsgmode both work.${name}_tb
 
-		set wave_path "testbench/${name}/wave.do"
-		if { [file exists $wave_path] == 1} {
-			do $wave_path
-		} else {
-			echo "Wave file not found."
-		}
-	}
+        set wave_path "testbench/${name}/wave.do"
+        if { [file exists $wave_path] == 1} {
+            do $wave_path
+        } else {
+            echo "Wave file not found."
+        }
+    }
 }
 
-proc load_program {path} {
-	set prog_path "../src/imem.mif"
+proc backup {path} {
+    if {[file exists ${path}.orig] == 0} {
+        file copy $path ${path}.orig
+    }
+}
 
-	if {[file exists $path] == 0} {
-		error "program at $path does not exist"
-	}
+proc restore {path} {
+    if {[file exists ${path}.orig] == 0} {
+        error "Backup file $orig does not exist"
+    }
+    file copy -force ${path}.orig $path
+}
 
-	if {[file exists ${prog_path}.orig] == 0} {
-		file copy $prog_path ${prog_path}.orig
-	}
+proc load_program {prog_root name} {
+    set src_simple "${prog_root}/${name}.mif"
+    set src_imem "${prog_root}/${name}.imem.mif"
+    set src_dmem "${prog_root}/${name}.dmem.mif"
 
-	file copy -force $path $prog_path
+    set dst_imem "../src/imem.mif"
+    set dst_dmem "../src/dmem.mif"
+
+    backup $dst_imem
+    backup $dst_dmem
+
+    if {[file exists $src_simple] == 0} {
+        if {[file exists $src_imem] == 0} {
+            error "Nor $src_simpl, nor $src_imem exist"
+        }
+        if {[file exists $src_dmem] == 0} {
+            error "Nor $src_simpl, nor $src_dmem exist"
+        }
+
+        file copy -force $src_imem $dst_imem
+        file copy -force $src_dmem $dst_dmem
+    } else {
+        file copy -force $src_simple $dst_imem
+        restore $dst_dmem
+    }
+
+    after 1
 }
 
 proc load_test {path} {
-	set test_path "../src/test.tc"
+    set test_path "../src/test.tc"
 
-	if {[file exists $path] == 0} {
-		error "test at $path does not exist"
-	}
+    if {[file exists $path] == 0} {
+        error "test at $path does not exist"
+    }
 
-	file copy -force $path $test_path
+    file copy -force $path $test_path
 }

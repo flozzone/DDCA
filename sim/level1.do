@@ -1,23 +1,24 @@
 do util.do
 
-if { $argc == 0 } {
-	echo "testbench parameter missing"
-	echo "usage: do level1.do TEST_NAME"
-	echo ""
-	echo "Supported tests:"
-	echo "  - minimal"
-	echo "  - arith"
-	echo "  - memory"
-	return
+set tests_avail [list minimal arith memory jump fwd ctrl]
+
+if { $argc == 1 && $1 == "-help" } {
+    echo "testbench parameter missing"
+    echo "usage: do level1.do TEST_NAME"
+    echo ""
+    echo "Supported tests: ${tests_avail}"
+    return
 }
-set name $1
 
-load_program "../nightly/level1/asm/${name}.mif"
-load_test "testbench/level1/data/${name}.tc"
+if { $argc == 1 } {
+    set tests_avail $1
+}
 
-load_testbench level1
+foreach test $tests_avail {
+    load_test "testbench/level1/data/${test}.tc"
+    load_program "testbench/level1/program" ${test}
 
+    load_testbench level1
 
-
-
-after 1 run -all
+    run -all
+}

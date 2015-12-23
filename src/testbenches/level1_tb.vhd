@@ -34,9 +34,6 @@ architecture arch of level1_tb is
     signal testfile : string(8 downto 1);
     signal break_on_error : boolean := false;
 
-    signal fail_count : integer := 0;
-    signal total_count : integer := 0;
-
     procedure check(
         test_nr : in integer;
         signal_name : in string;
@@ -120,11 +117,13 @@ begin
         variable bin_line : string(94 downto 1);
         variable vec : std_logic_vector(93 downto 0);
         variable success : boolean;
+        variable fail_count : integer := 0;
+        variable total_count : integer := 0;
     begin
         if not endfile(fd) then
             wait until rising_edge(clk);
 
-            print(output, "############ LINE: " & str(clk_cnt) & " ##############");
+            --print(output, "############ LINE: " & str(clk_cnt) & " ##############");
 
             readline(fd, rdline);
             read(rdline, bin_line);
@@ -150,13 +149,14 @@ begin
             check(clk_cnt, "mem_out.wr", r_mem_out.wr, a_mem_out.wr, success, break_on_error);
             check(clk_cnt, "mem_out.byteena", r_mem_out.byteena, a_mem_out.byteena, success, break_on_error);
             check(clk_cnt, "mem_out.wrdata", r_mem_out.wrdata, a_mem_out.wrdata, success, break_on_error);
-            total_count <= total_count + 1;
+            total_count := total_count + 1;
             if success = false then
-                fail_count <= fail_count + 1;
+                fail_count := fail_count + 1;
             end if;
         else
             print(output, "######### EOF of testfile ########");
             print(output, str(fail_count) & "/" & str(total_count) & " tests failed.");
+
             assert False report "EOF" severity FAILURE;
         end if;
    end process test_proc;
