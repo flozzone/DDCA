@@ -23,91 +23,53 @@ if [ -z `echo $level | egrep "^level[0123]$"` ]; then
   exit 1
 fi
 
-#if ! do_ssh $user "ls &>/dev/null"; then
-#  echo >&2 -e "User $user is not authorized.\n"
-#  echo >&2 -e "Add your public key to the users authorized_keys file:\n"
-#  echo >&2 -e "\t'ssh-copy-id -i ~/.ssh/id_rsa.pub $user@$tilab_host'\n"
-#  echo >&2 -e "or if not available:\n"
-#  echo >&2 -e "\t'cat ~/.ssh/id_rsa.pub| ssh $user@$tilab_host \"cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys\"'\n"
-#  echo >&2 -e "If you don't have a public key, generate it \n\n\t'ssh-keygen -t rsa'."
-#  exit 1
-#fi
-
 status=`git status --porcelain`
 if [ -n "$status" ]; then
-  echo >&2 "Working directory is not clean, uncommited files will not be submitted"
-
-  read -p "Are you sure you want continue? [y|n]" -n 1 -r
-  echo    # (optional) move to a new line
-  if [[ $REPLY =~ ^[Yy]$  ]]
-  then
-    # do dangerous stuff
-    echo "Continue with dirty working directory."
-  else
-    echo >&2 "Aborting"
-    return 1
-  fi
-
+  echo -e >&2 "${red}Working directory is not clean, uncommited files will not be submitted${normal}"
 fi
 
 # create archive
 echo "Creating archive of branch $_GIT_BRANCH at revision $_GIT_REV"
 pushd $_GIT_WORK_TREE >/dev/null
-git archive $_GIT_REV $_GIT_WORK_TREE/src | tar -x -C $tmp_dir
-popd >/dev/null
+if ! git archive $_GIT_REV $_GIT_WORK_TREE/src | tar -x -C $tmp_dir; then
+    echo >&2 "Could not create an archive of current branch."
+    exit 1   
+fi
 
-pushd $tmp_dir/src >/dev/null
-
-
-echo ""
-
-#ret=`do_ssh $user "ls -A1 $remote_dir 2>/dev/null| wc -l"`
-#if [ $ret -ne 0 ]; then
-#  echo "Remote directory $remote_dir exists and is not empty."
-#  echo "Remote dir will be synced to current repo contents, other files will be deleted"
-#
-#  read -p "Are you sure you want continue? [y|n]" -n 1 -r
-#  echo    # (optional) move to a new line
-#  if [[ $REPLY =~ ^[Yy]$  ]]
-#  then
-#    echo ""
-#  else
-#    echo "Aborting."
-#    exit 0
-#  fi
-#
-#fi
-
-echo "Updating ..."
-pushd $tmp_dir/src >/dev/null
+# create version file
+pushd $tmp_dir >/dev/null
 echo "$_GIT_BRANCH $_GIT_REV" > version.txt
 
-do_ssh $user "mkdir -p $remote_dir && chown :ddcagrp${group_nr} $remote_dir"
+# create remote directory and set group
+if ! do_ssh $user "mkdir -p $remote_dir && chgrp ${group} $level_dir"; then
+    echo >&2 "Could not create remote directory $remote_dir"
+    exit 1
+fi
 
-rsync -lvrgODzc --delete \
-  --include "*.vhd" \
-  --exclude "*" \
-  . $user@$tilab_host:$remote_dir
+# Note:
+#  --groupmap "*:${group}" option is not supported by remote rsync
+# because at the time of writing this, remote rsync version
+# is 3.0.9 and --groupmap feature has been included starting
+# with version 3.1.0
+if ! rsync -vlrODzc --delete \
+          --include "src/*.vhd" \
+          --include "version.txt" \
+          --exclude "src/*/" \
+          --exclude ".gitignore" \
+          . $user@$tilab_host:$level_dir ; then
+    echo >&2 "Could not transmit all files successfully."
+fi
 
-do_ssh $user "chown -R :ddcagrp${group_nr} `dirname $remote_dir`"
-
-do_ssh $user "mkdir -p $level_dir && chown :ddcagrp${group_nr} $level_dir"
-
-rsync -lvrgODzc --delete \
-  --include "version.txt" \
-  --exclude "*" \
-  . $user@$tilab_host:$level_dir
-
-do_ssh $user "chown -R :ddcagrp${group_nr} `dirname $level_dir`"
+if ! do_ssh $user "chgrp -R -f ddcagrp${group_nr} `dirname $remote_dir`" ; then
+    echo >&2 "Could not change group of uploaded files."
+fi
 
 popd >/dev/null
 
 rm -rf $tmp_dir
 
-echo -e "\nFiles successfully updated to $user@$tilab_host:$remote_dir"
-
 echo ""
-echo "Sending slack notification"
-curl --data "$user has submitted $_GIT_BRANCH ($_GIT_REV) to $level." "https://${slack_host}/services/hooks/slackbot?token=${slack_token}&channel=%23${slack_channel}"
+echo -n "Sending slack notification ... "
+echo $(curl --silent --data "$user has submitted $_GIT_BRANCH ($_GIT_REV) to $level." "https://${slack_host}/services/hooks/slackbot?token=${slack_token}&channel=%23${slack_channel}")
 
 popd >/dev/null
