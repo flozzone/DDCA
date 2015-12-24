@@ -1,6 +1,102 @@
+# Failed test: mem_out.rd asserted when expecting silence at test 1
+# Failed test: mem_out.wr asserted when expecting silence at test 1
+# Failed test: mem_out.rd asserted when expecting silence at test 2
+# Failed test: mem_out.wr asserted when expecting silence at test 2
+# Failed test: mem_out.rd asserted when expecting silence at test 3
+# Failed test: mem_out.wr asserted when expecting silence at test 3
+# Failed test: mem_out.rd asserted when expecting silence at test 4
+# Failed test: mem_out.wr asserted when expecting silence at test 4
+# Failed test: mem_out.rd asserted when expecting silence at test 5
+# Failed test: mem_out.wr asserted when expecting silence at test 5
+# Failed test: mem_out.rd asserted when expecting silence at test 6
+# Failed test: mem_out.wr asserted when expecting silence at test 6
+# Failed test: mem_out.rd asserted when expecting silence at test 7
+# Failed test: mem_out.wr asserted when expecting silence at test 7
+# Failed test: mem_out.rd asserted when expecting silence at test 8
+# Failed test: mem_out.wr asserted when expecting silence at test 8
+# Failed test: mem_out.rd asserted when expecting silence at test 9
+# Failed test: mem_out.wr asserted when expecting silence at test 9
+# Failed test: mem_out.rd asserted when expecting silence at test 10
+# Failed test: mem_out.wr asserted when expecting silence at test 10
+# Failed test: mem_out.rd asserted when expecting silence at test 11
+# Failed test: mem_out.wr asserted when expecting silence at test 11
+# Failed test: mem_out.rd asserted when expecting silence at test 12
+# Failed test: mem_out.wr asserted when expecting silence at test 12
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 13
+# Failed test: mem_out.address wrong at test 13, expected 000000000000000000100
+# Failed test: mem_out.byteena wrong at test 13, expected 1111
+# Failed test: mem_out.wrdata wrong at test 13, expected 00000000000000000000000000000001
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 14
+# Failed test: mem_out.address wrong at test 14, expected 000000000000000001000
+# Failed test: mem_out.byteena wrong at test 14, expected 1111
+# Failed test: mem_out.wrdata wrong at test 14, expected 00000000000000000000000000000001
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 15
+# Failed test: mem_out.address wrong at test 15, expected 000000000000000001100
+# Failed test: mem_out.byteena wrong at test 15, expected 1111
+# Failed test: mem_out.wrdata wrong at test 15, expected 00000000000000000000000000000001
+# Failed test: mem_out.rd asserted when expecting silence at test 16
+# Failed test: mem_out.wr asserted when expecting silence at test 16
+# Failed test: mem_out.rd asserted when expecting silence at test 17
+# Failed test: mem_out.wr asserted when expecting silence at test 17
+# Failed test: mem_out.rd asserted when expecting silence at test 18
+# Failed test: mem_out.wr asserted when expecting silence at test 18
+# Failed test: mem_out.rd asserted when expecting silence at test 19
+# Failed test: mem_out.wr asserted when expecting silence at test 19
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 20
+# Failed test: mem_out.address wrong at test 20, expected 000000000000000000100
+# Failed test: mem_out.byteena wrong at test 20, expected 1111
+# Failed test: mem_out.wrdata wrong at test 20, expected 00000000000000000000000000000010
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 21
+# Failed test: mem_out.address wrong at test 21, expected 000000000000000001000
+# Failed test: mem_out.byteena wrong at test 21, expected 1111
 # Failed test: mem_out.wrdata wrong at test 21, expected 00000000000000000000000000000001
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 22
+# Failed test: mem_out.address wrong at test 22, expected 000000000000000001100
+# Failed test: mem_out.byteena wrong at test 22, expected 1111
 # Failed test: mem_out.wrdata wrong at test 22, expected 00000000000000000000000000000001
+# Failed test: mem_out.rd asserted when expecting silence at test 23
+# Failed test: mem_out.wr asserted when expecting silence at test 23
+# Failed test: mem_out.rd asserted when expecting silence at test 24
+# Failed test: mem_out.wr asserted when expecting silence at test 24
+# Failed test: mem_out.rd asserted when expecting silence at test 25
+# Failed test: mem_out.wr asserted when expecting silence at test 25
+# Failed test: mem_out.rd asserted when expecting silence at test 26
+# Failed test: mem_out.wr asserted when expecting silence at test 26
+# Failed test: mem_out.rd asserted when expecting silence at test 27
+# Failed test: mem_out.wr asserted when expecting silence at test 27
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 28
+# Failed test: mem_out.address wrong at test 28, expected 000000000000000000100
+# Failed test: mem_out.byteena wrong at test 28, expected 1111
+# Failed test: mem_out.wrdata wrong at test 28, expected 00000000000000000000000000000011
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 29
+# Failed test: mem_out.address wrong at test 29, expected 000000000000000001000
+# Failed test: mem_out.byteena wrong at test 29, expected 1111
 # Failed test: mem_out.wrdata wrong at test 29, expected 00000000000000000000000000000001
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 30
+# Failed test: mem_out.address wrong at test 30, expected 000000000000000001100
+# Failed test: mem_out.byteena wrong at test 30, expected 1111
 # Failed test: mem_out.wrdata wrong at test 30, expected 00000000000000000000000000000001
+# Failed test: mem_out.rd asserted when expecting silence at test 31
+# Failed test: mem_out.wr asserted when expecting silence at test 31
+# Failed test: mem_out.rd asserted when expecting silence at test 32
+# Failed test: mem_out.wr asserted when expecting silence at test 32
+# Failed test: mem_out.rd asserted when expecting silence at test 33
+# Failed test: mem_out.wr asserted when expecting silence at test 33
+# Failed test: mem_out.rd asserted when expecting silence at test 34
+# Failed test: mem_out.wr asserted when expecting silence at test 34
+# Failed test: mem_out.rd asserted when expecting silence at test 35
+# Failed test: mem_out.wr asserted when expecting silence at test 35
+# Failed test: mem_out.rd asserted when expecting silence at test 36
+# Failed test: mem_out.wr asserted when expecting silence at test 36
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 37
+# Failed test: mem_out.address wrong at test 37, expected 000000000000000000100
+# Failed test: mem_out.byteena wrong at test 37, expected 1111
+# Failed test: mem_out.wrdata wrong at test 37, expected 00000000000000000000000000000100
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 38
+# Failed test: mem_out.address wrong at test 38, expected 000000000000000001000
+# Failed test: mem_out.byteena wrong at test 38, expected 1111
 # Failed test: mem_out.wrdata wrong at test 38, expected 00000000000000000000000000000001
+# Failed test: mem_out.wr/mem_out.rd wrong for write at test 39
+# Failed test: mem_out.address wrong at test 39, expected 000000000000000001100
+# Failed test: mem_out.byteena wrong at test 39, expected 1111
 # Failed test: mem_out.wrdata wrong at test 39, expected 00000000000000000000000000000001
