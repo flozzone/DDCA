@@ -149,7 +149,10 @@ begin
             check(clk_cnt, "mem_out.wr", r_mem_out.wr, a_mem_out.wr, success, break_on_error);
             check(clk_cnt, "mem_out.byteena", r_mem_out.byteena, a_mem_out.byteena, success, break_on_error);
             check(clk_cnt, "mem_out.wrdata", r_mem_out.wrdata, a_mem_out.wrdata, success, break_on_error);
-            total_count := total_count + 1;
+
+            if not endfile(fd) then
+                total_count := total_count + 1;
+            end if;
             if success = false then
                 fail_count := fail_count + 1;
             end if;

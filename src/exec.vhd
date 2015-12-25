@@ -43,15 +43,14 @@ signal int_alu_Z : std_logic := '0';
 signal int_alu_V : std_logic := '0';
 
 signal int_pc_in            : std_logic_vector(PC_WIDTH-1 downto 0);
-signal int_op                : exec_op_type;
+signal int_op               : exec_op_type;
 signal int_memop_in         : mem_op_type;
 signal int_jmpop_in         : jmp_op_type;
 signal int_wbop_in          : wb_op_type;
 signal int_wbop_out         : wb_op_type;
---signal int_forwardA         : fwd_type;
---signal int_forwardB         : fwd_type;
+signal int_forwardA         : fwd_type;
+signal int_forwardB         : fwd_type;
 --signal int_cop0_rddata      : std_logic_vector(DATA_WIDTH-1 downto 0);
---signal int_mem_aluresult    : std_logic_vector(DATA_WIDTH-1 downto 0);
 signal int_exc_ovf          : std_logic := '0';
 
 begin  -- rtl
@@ -77,10 +76,9 @@ begin  -- rtl
             int_memop_in <= MEM_NOP;
             int_jmpop_in <= JMP_NOP;
             int_wbop_in <= WB_NOP;
-            --int_forwardA <= FWD_NONE;
-            --int_forwardB <= FWD_NONE;
+            int_forwardA <= FWD_NONE;
+            int_forwardB <= FWD_NONE;
             --int_cop0_rddata <= (others => '0');
-            --int_mem_aluresult <= (others => '0');
         elsif rising_edge(clk) then
             if flush = '1' then
                 -- flush intern signals
@@ -89,10 +87,9 @@ begin  -- rtl
                 int_memop_in <= MEM_NOP;
                 int_jmpop_in <= JMP_NOP;
                 int_wbop_in <= WB_NOP;
-                --int_forwardA <= FWD_NONE;
-                --int_forwardB <= FWD_NONE;
+                int_forwardA <= FWD_NONE;
+                int_forwardB <= FWD_NONE;
                 --int_cop0_rddata <= (others => '0');
-                --int_mem_aluresult <= (others => '0');
             elsif stall = '0' then
                 -- latch intern signals
                 int_pc_in      <= pc_in;
@@ -100,21 +97,20 @@ begin  -- rtl
                 int_memop_in <= memop_in;
                 int_jmpop_in <= jmpop_in;
                 int_wbop_in <= wbop_in;
-                --int_forwardA <= forwardA;
-                --int_forwardB <= forwardB;
+                int_forwardA <= forwardA;
+                int_forwardB <= forwardB;
                 --int_cop0_rddata <= cop0_rddata;
-                --int_mem_aluresult <= mem_aluresult;
             end if;
         end if;
     end process input;
 
+    -- directly latch rs and rt, used by fwd 
+    rs <= op.rs;
+    rt <= op.rt;
 
     multiplex : process(int_op, int_pc_in, int_memop_in, int_jmpop_in, int_wbop_in,
-             int_alu_R, int_alu_Z, int_alu_V, pc_in)
+             int_alu_R, pc_in)
     begin
-        -- default values - rs and rt are not used in exec
-        rs <= (others => '0');
-        rt <= (others => '0');
         pc_out <= int_pc_in;
         memop_out <= int_memop_in;
         jmpop_out <= int_jmpop_in;
@@ -130,8 +126,28 @@ begin  -- rtl
         end if;
 
         -- ALU
-        int_alu_A <= int_op.readdata1;
-        int_alu_B <= int_op.readdata2;
+
+        if int_forwardA = FWD_ALU then
+            int_alu_A <= mem_aluresult;
+        elsif int_forwardA = FWD_WB then
+            int_alu_A <= wb_result;
+        else
+            int_alu_A <= int_op.readdata1;
+        end if;
+
+        if int_forwardB = FWD_ALU then
+            int_alu_B <= mem_aluresult;
+            wrdata <= mem_aluresult;
+        elsif int_forwardB = FWD_WB then
+            int_alu_B <= wb_result;
+            wrdata <= wb_result;
+        else
+            int_alu_B <= int_op.readdata2;
+
+            -- pass on wrdata to mem, for register to memory operation
+            wrdata <= int_op.readdata2;
+        end if;
+
         aluresult <= int_alu_R;
         if int_op.useimm = '1' then
             -- all I-Format instructions
@@ -158,9 +174,6 @@ begin  -- rtl
         if int_op.branch = '1' then
             new_pc <= std_logic_vector(unsigned(pc_in) + unsigned(int_op.imm(PC_WIDTH-1 downto 0))) ;
         end if;
-
-        -- pass on wrdata to mem
-        wrdata <= int_op.readdata2;
 
 end process multiplex;
 end rtl;

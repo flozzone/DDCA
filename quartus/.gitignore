@@ -2,6 +2,7 @@ db
 *.qsf
 *.qpf
 *.qws
+*.qdf
 incremental_db
 output_files
 simulation

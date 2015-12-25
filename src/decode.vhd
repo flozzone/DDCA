@@ -186,12 +186,17 @@ begin  -- rtl
 
         if not (int_instr = INSTR_ZERO) then
             -- ############## start case opcode ############## --
+
+            exec_op.rs <= rs;
+
             case opcode is
                 when OP_SPECIAL =>
                     -- Format: R    Syntax: --  Semantics:  Table 21
                     --TODO: move wb_op here, isntead of inside case
                     --wb_op.memtoreg  <= '0'; --TODO: do not need
                     --wb_op.regwrite  <= '1';
+
+                    exec_op.rt <= rt;
 
                     -- ############## start case func ############## --
                     case func is
@@ -206,6 +211,7 @@ begin  -- rtl
                             exec_op.aluop   <= ALU_SLL;
                             exec_op.imm(REG_BITS-1 downto 0) <= shamt;
                             exec_op.rd      <= rd;
+                            exec_op.rs      <= (others => '0');
                             exec_op.useamt  <= '1';
 
                             wb_op.memtoreg  <= '0'; --TODO: do not need
@@ -222,6 +228,7 @@ begin  -- rtl
                             exec_op.aluop   <= ALU_SRL;
                             exec_op.imm(REG_BITS-1 downto 0) <= shamt;
                             exec_op.rd      <= rd;
+                            exec_op.rs      <= (others => '0');
                             exec_op.useamt  <= '1';
 
                             wb_op.memtoreg  <= '0'; --TODO: do not need
@@ -238,6 +245,7 @@ begin  -- rtl
                             exec_op.aluop <= ALU_SRA;
                             exec_op.imm(REG_BITS-1 downto 0) <= shamt;
                             exec_op.rd      <= rd;
+                            exec_op.rs      <= (others => '0');
                             exec_op.useamt  <= '1';
 
                             wb_op.memtoreg  <= '0'; --TODO: do not need
@@ -573,6 +581,7 @@ begin  -- rtl
                     -- set output values
                     exec_op.aluop   <= ALU_NOP;
                     exec_op.readdata1(PC_WIDTH+1 downto 2) <= taradr(PC_WIDTH-1 downto 0);
+                    exec_op.rs <= (others => '0');
 
                     jmp_op  <= JMP_JMP;
 
@@ -585,6 +594,7 @@ begin  -- rtl
                     exec_op.readdata1(PC_WIDTH+1 downto 2) <= taradr(PC_WIDTH-1 downto 0);
                     exec_op.rd      <= std_logic_vector(to_unsigned(31, REG_BITS));
                     exec_op.link    <= '1';
+                    exec_op.rs <= (others => '0');
 
                     wb_op.memtoreg  <= '0'; --TODO: do not need
                     wb_op.regwrite  <= '1';
@@ -981,7 +991,7 @@ begin  -- rtl
 
                     -- set output values
                     exec_op.aluop   <= ALU_ADD;
-                    exec_op.rd      <= Ird;
+                    exec_op.rt      <= Ird;  -- write to rt to make forwarding work correctly
                     -- sign extend imm
                     exec_op.imm     <= (others => adrim(15));
                     exec_op.imm(15 downto 0) <= adrim(15 downto 0);

@@ -87,6 +87,18 @@ begin  -- rtl
             end if;
         end if;
     end process piping;
+
+    fwd_inst : entity work.fwd
+        port map (
+        -- in
+            decode_rs => rs,
+            decode_rt => rt,
+            alu_rd => em_rd,
+            wb_rd => mw_rd,
+        -- out
+            forwardA => forwardA,
+            forwardB => forwardB
+        );
     
     fetch_inst : entity work.fetch
         port map(
@@ -137,11 +149,11 @@ begin  -- rtl
             op => de_exec_op,
             pc_in => de_pc,
             wbop_in => de_wb_op,
-            forwardA => forwardA, -- unused
-            forwardB => forwardB, -- unused
+            forwardA => forwardA,
+            forwardB => forwardB,
             cop0_rddata => cop0_rddata, -- unused
-            mem_aluresult => (others => '0'), -- unused
-            wb_result => (others => '0'), -- unused
+            mem_aluresult => aluresult,
+            wb_result => dw_data,
 
         --out
             pc_out => em_pc,
