@@ -33,6 +33,8 @@ architecture arch of level1_tb is
     signal clk_cnt     : integer := -1;
     signal testfile : string(8 downto 1);
     signal break_on_error : boolean := false;
+    signal fail_count : integer := 0;
+    signal total_count : integer := 0;
 
     procedure check(
         test_nr : in integer;
@@ -117,8 +119,6 @@ begin
         variable bin_line : string(94 downto 1);
         variable vec : std_logic_vector(93 downto 0);
         variable success : boolean;
-        variable fail_count : integer := 0;
-        variable total_count : integer := 0;
     begin
         if not endfile(fd) then
             wait until rising_edge(clk);
@@ -150,11 +150,9 @@ begin
             check(clk_cnt, "mem_out.byteena", r_mem_out.byteena, a_mem_out.byteena, success, break_on_error);
             check(clk_cnt, "mem_out.wrdata", r_mem_out.wrdata, a_mem_out.wrdata, success, break_on_error);
 
-            if not endfile(fd) then
-                total_count := total_count + 1;
-            end if;
+            total_count <= total_count + 1;
             if success = false then
-                fail_count := fail_count + 1;
+                fail_count <= fail_count + 1;
             end if;
         else
             print(output, "######### EOF of testfile ########");
