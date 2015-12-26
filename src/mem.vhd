@@ -78,7 +78,7 @@ begin  -- rtl
         XS => exc_store
     );
 
-    input : process(clk, reset, stall, mem_data)
+    input : process(clk, reset)
     begin
         ext_mem_data <= mem_data;
         if reset = '0' then
@@ -97,7 +97,6 @@ begin  -- rtl
             if stall = '1' then
                 int_mem_op.memread <= '0';
                 int_mem_op.memwrite <= '0';
-                --ext_mem_data <= mem_data;
             elsif flush = '1' then
                 int_mem_op <= MEM_NOP;
                 int_jmp_op <= JMP_NOP;

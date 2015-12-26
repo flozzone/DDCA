@@ -20,16 +20,13 @@ end fwd;
 
 architecture rtl of fwd is
 
-    signal int_decode_rs : std_logic_vector(REG_BITS-1 downto 0);
-    signal int_decode_rt : std_logic_vector(REG_BITS-1 downto 0);
-    signal int_alu_rd : std_logic_vector(REG_BITS-1 downto 0);
-    signal int_wb_rd : std_logic_vector(REG_BITS-1 downto 0);
+    constant ZERO : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 
 begin  -- rtl
     fwd_proc : process(decode_rs, decode_rt, alu_rd, wb_rd)
     begin
         forwardA <= FWD_NONE;
-        if decode_rs /= (REG_BITS-1 downto 0 => '0') then
+        if decode_rs /= ZERO then
             if decode_rs = alu_rd then
                 forwardA <= FWD_ALU;
             elsif decode_rs = wb_rd then
@@ -37,7 +34,7 @@ begin  -- rtl
             end if;
         end if;
         forwardB <= FWD_NONE;
-        if decode_rt /= (REG_BITS-1 downto 0 => '0') then
+        if decode_rt /= ZERO then
             if decode_rt = alu_rd then
                 forwardB <= FWD_ALU;
             elsif decode_rt = wb_rd then
