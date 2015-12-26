@@ -952,7 +952,7 @@ begin  -- rtl
 
                     -- set output values
                     exec_op.aluop   <= ALU_ADD;
-                    exec_op.rd      <= Ird;
+                    exec_op.rt      <= Ird;  -- write to rt to make forwarding work correctly
                     -- sign extend imm
                     exec_op.imm     <= (others => adrim(15));
                     exec_op.imm(15 downto 0) <= adrim(15 downto 0);
@@ -972,7 +972,7 @@ begin  -- rtl
 
                     -- set output values
                     exec_op.aluop   <= ALU_ADD;
-                    exec_op.rd      <= Ird;
+                    exec_op.rt      <= Ird;  -- write to rt to make forwarding work correctly
                     -- sign extend imm
                     exec_op.imm     <= (others => adrim(15));
                     exec_op.imm(15 downto 0) <= adrim(15 downto 0);
