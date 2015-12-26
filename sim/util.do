@@ -33,7 +33,7 @@ proc load_testbench {name} {
     echo $venv
     if { [string match *${name}* $venv] } {
         echo "is already loaded, skip starting simulation, but restart."
-        restart
+        restart -force
     } else {
         vsim -t 100fs -assertdebug -msgmode both -displaymsgmode both work.${name}_tb
 
