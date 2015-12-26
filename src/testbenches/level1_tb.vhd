@@ -102,7 +102,7 @@ begin
         wait for CLK_PERIOD/2;
     end process sync_proc;
 
-    mem_proc : process(r_mem_out, ocram_rddata, s_mem_in, clk)
+    mem_proc : process(r_mem_out, ocram_rddata, s_mem_in, clk, s_enable_ocram)
     begin
         if s_enable_ocram = '1' then
             mem_in.busy <= r_mem_out.rd;
@@ -122,8 +122,6 @@ begin
     begin
         if not endfile(fd) then
             wait until rising_edge(clk);
-
-            --print(output, "############ LINE: " & str(clk_cnt) & " ##############");
 
             readline(fd, rdline);
             read(rdline, bin_line);
@@ -155,6 +153,11 @@ begin
                 fail_count <= fail_count + 1;
             end if;
         else
+            -- wait for whole clock cycle before aborting, otherwise last
+            -- fail_count and total_count increments don't have affects.
+            wait until rising_edge(clk);
+            wait until falling_edge(clk);
+
             print(output, "######### EOF of testfile ########");
             print(output, str(fail_count) & "/" & str(total_count) & " tests failed.");
 

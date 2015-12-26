@@ -77,7 +77,7 @@ def main(result_file, test_file, rec_file=None):
             suite.test(nr, **data)
 
         suite = TestSuite(test_file, record=rec_file)
-        suite.addSignal("s_enable_ocram", 1, alias="ocram", default=True)
+        suite.addSignal("s_enable_ocram", 1, alias="ocram", default=False)
         suite.addSignal("s_reset", 1, alias="reset", default=True)
         suite.addSignal("s_mem_in.rddata", TestSuite.DATA_WIDTH, alias="rddata", default=0)
         suite.addSignal("s_mem_in.busy", 1, alias="busy", default=False)
