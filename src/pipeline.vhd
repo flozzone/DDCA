@@ -16,7 +16,10 @@ end pipeline;
 architecture rtl of pipeline is
 
     signal stall            : std_logic;
-    signal flush            : std_logic;
+    signal flush_decode            : std_logic;
+    signal flush_exec            : std_logic;
+    signal flush_mem            : std_logic;
+    signal flush_wb            : std_logic;
 
     -- fetch - decode
     signal fd_pc                : std_logic_vector(PC_WIDTH-1 downto 0);
@@ -67,6 +70,9 @@ architecture rtl of pipeline is
     signal forwardA            : fwd_type;
     signal forwardB            : fwd_type;
 
+    signal ctrl_pcsrc : std_logic;
+    signal ctrl_pc : std_logic_vector(PC_WIDTH-1 downto 0);
+
     signal tmp_wb_result : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
     signal tmp_exc_ovf : std_logic;
     signal exc_load, exc_store : std_logic;
@@ -74,7 +80,6 @@ begin  -- rtl
 
     piping : process (reset, mem_in.busy) 
     begin
-        flush <= '0';
         -- check reset
         if reset = '0' then
             stall <= '0';
@@ -87,6 +92,22 @@ begin  -- rtl
             end if;
         end if;
     end process piping;
+
+    ctrl_inst : entity work.ctrl
+        port map (
+        --in
+            clk => clk,
+            reset => reset,
+            pc_in => fm_new_pc,
+            pcsrc_in => fm_pcsrc,
+        --out
+            pc_out => ctrl_pc,
+            pcsrc_out => ctrl_pcsrc,
+            flush_decode => flush_decode,
+            flush_exec => flush_exec,
+            flush_mem => flush_mem,
+            flush_wb => flush_wb
+        );
 
     fwd_inst : entity work.fwd
         port map (
@@ -106,8 +127,8 @@ begin  -- rtl
             clk => clk,
             reset => reset,
             stall => stall,
-            pcsrc => fm_pcsrc,
-            pc_in => fm_new_pc,
+            pcsrc => ctrl_pcsrc,
+            pc_in => ctrl_pc,
         -- out
             pc_out => fd_pc,
             instr => fd_instr
@@ -119,7 +140,7 @@ begin  -- rtl
             clk => clk,
             reset => reset,
             stall => stall,
-            flush => flush,
+            flush => flush_decode,
             pc_in => fd_pc,
             instr => fd_instr,
             wraddr => dw_rd,
@@ -143,7 +164,7 @@ begin  -- rtl
             clk => clk,
             reset => reset,
             stall => stall,
-            flush => flush,
+            flush => flush_exec,
             memop_in => de_mem_op,
             jmpop_in => de_jmp_op,
             op => de_exec_op,
@@ -177,7 +198,7 @@ begin  -- rtl
             clk => clk,
             reset => reset,
             stall => stall,
-            flush => flush,
+            flush => flush_mem,
             mem_op => em_memop,
             jmp_op => em_jmpop,
             pc_in => em_pc,
@@ -208,7 +229,7 @@ begin  -- rtl
             clk => clk,
             reset => reset,
             stall => stall,
-            flush => flush,
+            flush => flush_wb,
             op => mw_wbop,
             rd_in => mw_rd,
             aluresult => aluresult,

@@ -143,7 +143,7 @@ begin  -- rtl
     -- ##################### --
     -- process: decode_input --
     -- ##################### --
-    decode_input : process (clk, reset)
+    decode_input : process (clk, reset, flush)
     begin
         if reset = '0' then
             -- reset intern signals
@@ -151,14 +151,14 @@ begin  -- rtl
             int_instr   <= (others => '0');
             int_rdaddr1 <= (others => '0');
             int_rdaddr2 <= (others => '0');
-        elsif rising_edge(clk) then
-            if flush = '1' then
+        elsif flush = '1' then
                 -- flush intern signals
                 int_pc      <= (others => '0');
                 int_instr   <= (others => '0');
                 int_rdaddr1 <= (others => '0');
                 int_rdaddr2 <= (others => '0');
-            elsif stall = '0' then
+        elsif rising_edge(clk) then
+            if stall = '0' then
                 -- latch intern signals
                 int_pc      <= pc_in;
                 int_instr   <= instr;
@@ -616,6 +616,9 @@ begin  -- rtl
                     exec_op.imm(1 downto 0)  <= "00";
                     exec_op.imm(17 downto 2) <= adrim(15 downto 0);
 
+                    -- for forwarding rd in (rs == rd)
+                    exec_op.rt <= rt;
+
                     exec_op.branch  <= '1';
 
                     jmp_op  <= JMP_BEQ;
@@ -634,6 +637,9 @@ begin  -- rtl
                     exec_op.imm     <= (others => adrim(15));
                     exec_op.imm(1 downto 0)  <= "00";
                     exec_op.imm(17 downto 2) <= adrim(15 downto 0);
+
+                    -- for forwarding rd in (rs != rd)
+                    exec_op.rt <= rt;
 
                     exec_op.branch  <= '1';
 
