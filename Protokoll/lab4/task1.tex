@@ -1,0 +1,23 @@
+
+\begin{figure}[ht!]
+  \centering
+  \framebox[\linewidth]{
+    \rotatebox{30}{Insert your figure here.} 
+  }
+  %\includegraphics[width=1.0\linewidth]{your filename here}
+  \caption{Simulation screenshot for Listing~\ref{lst:asmfwd}.}
+  \label{fig:sim1}
+\end{figure}
+
+Make sure that at least the following signals are visible in
+Figure~\ref{fig:sim1}: the program counter in the fetch stage, the
+instruction being fetched, and the signals \texttt{wraddr},
+\texttt{wrdata}, and \texttt{regwrite} of the register file.
+
+\begin{lstlisting}[language=,mathescape=false,float=ht,caption={Assembler example with forwarding},label=lst:asmfwd]
+        addi $1, $0, 7
+        addi $2, $0, 5
+        and $1, $2, $1
+        nop
+        nop
+\end{lstlisting}

@@ -1,0 +1,143 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Jakob Lechner
+% Department of Computer Engineering (182/2)
+% Vienna University of Technology
+% ti.tuwien.ac.at
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% packages
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage[latin1]{inputenc}
+\usepackage{listings}
+\usepackage{booktabs}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% some size definitions and counter settings
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\oddsidemargin 0.5cm
+\evensidemargin 0.5cm
+\topmargin 0pt
+\headsep 10pt
+\textheight 22.5cm
+\textwidth 15.1cm
+
+\renewcommand{\floatpagefraction}{0.9}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\topfraction}{1.0}
+\renewcommand{\bottomfraction}{1.0}
+
+\setcounter{totalnumber}{3}
+\setcounter{bottomnumber}{3}
+\setcounter{topnumber}{3}
+
+\setlength{\unitlength}{1mm}
+\setlength{\parindent}{6mm}
+\setlength{\parskip}{12pt plus2pt minus2pt}
+
+\newenvironment{qa}{
+  \begin{list}{}{\leftmargin=0em}
+}{
+  \end{list}
+}
+
+\newcommand\question[1]{\item{{\bf Question:} #1}}
+\newcommand\answer[1]{\item{{\bf Answer:} #1}}
+
+\lstnewenvironment{icode}[1][]
+{
+  \vskip 3mm
+  \lstset{#1,captionpos=b,basicstyle=\scriptsize,numbers=left,numberstyle=\tiny,stepnumber=1,
+    framexleftmargin=8mm,xleftmargin=8mm,frame=tb}}
+{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% define variables used on titlepage
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\setcounter{footnote}{0} 
+
+% initialize variables
+\newcommand{\varHeadline}{Digital Design LU}            
+\newcommand{\varSubtitle}{Protocol}
+\newcommand{\varExercise}{}
+\newcommand{\varAuthors}{}
+\newcommand{\varGroupno}{0}
+
+\newcommand{\headline}[1]{\renewcommand{\varHeadline}{#1}}
+\newcommand{\subtitle}[1]{\renewcommand{\varSubtitle}{#1}}
+\newcommand{\exercise}[1]{\renewcommand{\varExercise}{#1}}
+\newcommand{\authors}[1]{\renewcommand{\varAuthors}{#1}}
+\newcommand{\groupno}[1]{\renewcommand{\varGroupno}{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% titlepage
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\maketitle{
+\begin{titlepage}
+
+% enlarge page
+\setlength{\topmargin}{0pt}
+\setlength{\headheight}{0pt}
+\setlength{\headsep}{0pt}
+\setlength{\footskip}{0pt}
+
+\let\footnotesize\small \let\footnoterule\relax \setcounter{page}{1}
+\null
+\vfill
+\large
+\vskip -4 cm 
+
+\begin{center}
+% heading
+{\LARGE\bf \varHeadline \par} \vskip 2cm
+
+\vskip 1cm
+
+% title
+{\Huge\bf\underline \varSubtitle \par} 
+\vskip 1cm
+{\Huge\bf\underline \varExercise \par} 
+
+%{\Large \bf \@aufgabe \par}
+\vskip 4cm
+
+\begin{flushright}
+Group \varGroupno \par
+% authors
+\varAuthors
+
+\vskip 1cm
+Vienna, \today{}
+\end{flushright}
+\end{center} \par
+\vskip 1.5cm 
+
+\end{titlepage}
+
+\setcounter{footnote}{0} 
+\let\thanks\relax
+} % \def\maketitle
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
