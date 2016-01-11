@@ -179,8 +179,8 @@ begin  -- rtl
         --out
             pc_out => em_pc,
             rd => em_rd,
-            rs => rs, -- unused
-            rt => rt, -- unused
+            rs => rs,
+            rt => rt,
             aluresult => em_aluresult,
             wrdata => em_wrdata,
             zero => em_zero,
@@ -238,6 +238,6 @@ begin  -- rtl
         --out
             rd_out => dw_rd,
             result => dw_data,
-            regwrite =>    dw_regwrite
+            regwrite => dw_regwrite
         );
 end rtl;

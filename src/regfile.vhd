@@ -9,8 +9,10 @@ entity regfile is
     port (
         clk, reset       : in  std_logic;
         stall            : in  std_logic;
-        rdaddr1, rdaddr2 : in  std_logic_vector(REG_BITS-1 downto 0);
-        rddata1, rddata2 : out std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
+        rdaddr1 : in  std_logic_vector(REG_BITS-1 downto 0);
+        rdaddr2 : in  std_logic_vector(REG_BITS-1 downto 0);
+        rddata1 : out std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
+        rddata2 : out std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
         wraddr           : in  std_logic_vector(REG_BITS-1 downto 0);
         wrdata           : in  std_logic_vector(DATA_WIDTH-1 downto 0);
         regwrite         : in  std_logic);
@@ -93,20 +95,15 @@ begin  -- rtl
             if (wraddr = rdaddr1) and (int_regwrite = '1') then
                 rddata1             <= wrdata;
                 latch_rddata1_next  <= wrdata;
-            else
-                rddata1             <= output_rddata1;
-                latch_rddata1_next  <= output_rddata1;
-            end if;
-
-            if (wraddr = rdaddr2) and (int_regwrite = '1') then
+            elsif (wraddr = rdaddr2) and (int_regwrite = '1') then
                 rddata2             <= wrdata;
                 latch_rddata2_next  <= wrdata;
             else
+                rddata1             <= output_rddata1;
+                latch_rddata1_next  <= output_rddata1;
                 rddata2             <= output_rddata2;
                 latch_rddata2_next  <= output_rddata2;
             end if;
-
-        end if; -- clk edge
-
+        end if;
     end process output;
 end rtl;

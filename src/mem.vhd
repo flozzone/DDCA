@@ -47,8 +47,7 @@ signal int_aluresult_in  : std_logic_vector(DATA_WIDTH-1 downto 0);
 signal int_wrdata        : std_logic_vector(DATA_WIDTH-1 downto 0);
 signal int_new_pc_in     : std_logic_vector(PC_WIDTH-1 downto 0);
 signal int_wbop_in       : wb_op_type;
-signal int_mem_data      : std_logic_vector(DATA_WIDTH-1 downto 0);
-signal ext_mem_data      : std_logic_vector(DATA_WIDTH-1 downto 0);
+signal int_memu_addr     : std_logic_vector(ADDR_WIDTH-1 downto 0);
 
 signal int_jmp_zero, int_jmp_neg : std_logic;
 
@@ -68,9 +67,9 @@ begin  -- rtl
     port map (
         -- in
         op => int_mem_op,
-        A => int_aluresult_in(ADDR_WIDTH-1 downto 0),
+        A => int_memu_addr,
         W => int_wrdata,
-        D => ext_mem_data,
+        D => mem_data,
         -- out
         M => mem_out,
         R => memresult,
@@ -78,9 +77,8 @@ begin  -- rtl
         XS => exc_store
     );
 
-    input : process(clk, reset)
+    input : process(reset, clk)
     begin
-        ext_mem_data <= mem_data;
         if reset = '0' then
             int_mem_op <= MEM_NOP;
             int_jmp_op <= JMP_NOP;
@@ -92,7 +90,6 @@ begin  -- rtl
             int_jmp_neg <= '0';
             int_new_pc_in <= (others => '0');
             int_wbop_in <= WB_NOP;
-            int_mem_data <= (others => '0');
         elsif rising_edge(clk) then
             if stall = '1' then
                 int_mem_op.memread <= '0';
@@ -108,8 +105,6 @@ begin  -- rtl
                 int_jmp_neg <= '0';
                 int_new_pc_in <= (others => '0');
                 int_wbop_in <= WB_NOP;
-                int_mem_data <= (others => '0');
-                ext_mem_data <= (others => '0');
             else
                 int_mem_op <= mem_op;
                 int_jmp_op <= jmp_op;
@@ -121,13 +116,11 @@ begin  -- rtl
                 int_jmp_neg <= neg;
                 int_new_pc_in <= new_pc_in;
                 int_wbop_in <= wbop_in;
-                int_mem_data <= mem_data;
-                ext_mem_data <= mem_data;
             end if;
         end if;
     end process input;
 
-    mem_proc : process(int_pc_in, int_rd_in, int_aluresult_in, int_new_pc_in, int_wbop_in)
+    mem_proc : process(int_pc_in, int_rd_in, int_aluresult_in, int_new_pc_in, int_wbop_in, int_mem_op)
     begin
         -- pass unchanged signals
         pc_out <= int_pc_in;
@@ -135,5 +128,11 @@ begin  -- rtl
         aluresult_out <= int_aluresult_in;
         new_pc_out <= int_new_pc_in;
         wbop_out <= int_wbop_in;
+
+        -- memory addresses are computed by ALU if required
+        --int_memu_addr <= (others => '0');
+        --if int_mem_op.memread = '1' or int_mem_op.memwrite = '1' then
+            int_memu_addr <= int_aluresult_in(ADDR_WIDTH-1 downto 0);
+        --end if;
     end process mem_proc;
 end rtl;

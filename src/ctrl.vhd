@@ -29,7 +29,7 @@ begin  -- rtl
     pcsrc_out <= pcsrc_in;
     pc_out <= pc_in;
 
-    branch_proc : process(pc_in, pcsrc_in)
+    branch_proc : process(pcsrc_in)
     begin
         flush_decode <= '0';
         flush_exec <= '0';
