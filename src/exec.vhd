@@ -172,7 +172,7 @@ begin  -- rtl
         -- compute new pc for branching
         new_pc <= int_alu_R(PC_WIDTH-1 downto 0); -- default
         if int_op.branch = '1' then
-            new_pc <= std_logic_vector(unsigned(pc_in) + unsigned(int_op.imm(PC_WIDTH-1 downto 0))) ;
+            new_pc <= std_logic_vector(unsigned(int_pc_in) + unsigned(int_op.imm(PC_WIDTH-1 downto 0))) ;
         end if;
 
 end process multiplex;
