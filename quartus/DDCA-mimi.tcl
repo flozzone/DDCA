@@ -5,7 +5,7 @@
 # (including device programming or simulation files), and any 
 # associated documentation or information are expressly subject 
 # to the terms and conditions of the Altera Program License 
-# Subscription Agreement, the Altera Quartus Prime License Agreement,
+# Subscription Agreement, the Altera Quartus II License Agreement,
 # the Altera MegaCore Function License Agreement, or other 
 # applicable license agreement, including, without limitation, 
 # that your use is for the sole purpose of programming logic 
@@ -13,11 +13,11 @@
 # authorized distributors.  Please refer to the applicable 
 # agreement for further details.
 
-# Quartus Prime: Generate Tcl File for Project
+# Quartus II: Generate Tcl File for Project
 # File: DDCA-mimi.tcl
-# Generated on: Mon Dec 14 18:54:25 2015
+# Generated on: Wed Jan 13 19:17:14 2016
 
-# Load Quartus Prime Tcl Project package
+# Load Quartus II Tcl Project package
 package require ::quartus::project
 
 set need_to_close_project 0
@@ -43,10 +43,10 @@ if {[is_project_open]} {
 if {$make_assignments} {
 	set_global_assignment -name FAMILY "Cyclone IV E"
 	set_global_assignment -name DEVICE EP4CE115F29C7
-	set_global_assignment -name TOP_LEVEL_ENTITY pipeline
+	set_global_assignment -name TOP_LEVEL_ENTITY mimi
 	set_global_assignment -name ORIGINAL_QUARTUS_VERSION 15.0.0
 	set_global_assignment -name PROJECT_CREATION_TIME_DATE "06:34:50  DEZEMBER 02, 2015"
-	set_global_assignment -name LAST_QUARTUS_VERSION 15.1.0
+	set_global_assignment -name LAST_QUARTUS_VERSION 15.0.0
 	set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 	set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 	set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
@@ -96,9 +96,26 @@ if {$make_assignments} {
 	set_global_assignment -name VHDL_FILE ../src/alu.vhd
 	set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 	set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+	set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "2.5 V"
 	set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 	set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 	set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+	set_location_assignment PIN_Y2 -to clk_pin
+	set_location_assignment PIN_G12 -to rx
+	set_location_assignment PIN_G9 -to tx
+	set_location_assignment PIN_M23 -to reset_pin
+	set_location_assignment PIN_M21 -to intr_pin[0]
+	set_location_assignment PIN_N21 -to intr_pin[1]
+	set_location_assignment PIN_R24 -to intr_pin[2]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to clk_pin
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to intr_pin[2]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to intr_pin[1]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to intr_pin[0]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to reset_pin
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to rx
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to tx
+	set_location_assignment PIN_AB22 -to db_clk
+	set_location_assignment PIN_AC15 -to db_tx
 	set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 
 	# Commit assignments
