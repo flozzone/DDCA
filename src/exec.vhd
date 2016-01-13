@@ -166,7 +166,7 @@ begin  -- rtl
         -- adjust pc_in and write into aluresult
         if int_op.link = '1' then
             aluresult <= (others => '0');
-            aluresult(PC_WIDTH-1 downto 0) <= std_logic_vector(unsigned(int_pc_in));
+            aluresult(PC_WIDTH-1 downto 0) <= std_logic_vector(unsigned(pc_in));
         end if;
 
         -- compute new pc for branching
