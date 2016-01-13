@@ -140,30 +140,27 @@ begin  -- rtl
         regwrite    => regwrite         -- in
     );
 
+        int_rdaddr1 <= instr(25 downto 21); -- rs
+        int_rdaddr2 <= instr(20 downto 16); -- rt / rd
+
     -- ##################### --
     -- process: decode_input --
     -- ##################### --
-    decode_input : process (clk, reset, flush)
+    decode_input : process (clk, reset, flush, instr)
     begin
-        if reset = '0' then
+        if reset = '0' or flush = '1'then
             -- reset intern signals
             int_pc      <= (others => '0');
             int_instr   <= (others => '0');
-            int_rdaddr1 <= (others => '0');
-            int_rdaddr2 <= (others => '0');
-        elsif flush = '1' then
-                -- flush intern signals
-                int_pc      <= (others => '0');
-                int_instr   <= (others => '0');
-                int_rdaddr1 <= (others => '0');
-                int_rdaddr2 <= (others => '0');
+       --     int_rdaddr1 <= (others => '0');
+       --     int_rdaddr2 <= (others => '0');
         elsif rising_edge(clk) then
             if stall = '0' then
                 -- latch intern signals
                 int_pc      <= pc_in;
                 int_instr   <= instr;
-                int_rdaddr1 <= instr(25 downto 21); -- rs
-                int_rdaddr2 <= instr(20 downto 16); -- rt / rd
+       --         int_rdaddr1 <= instr(25 downto 21); -- rs
+       --         int_rdaddr2 <= instr(20 downto 16); -- rt / rd
             end if;
         end if;
     end process decode_input;
