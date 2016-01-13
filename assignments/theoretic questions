@@ -1,0 +1,139 @@
+2.1 ALU
+
+A general comparison between two values for less-than/greater-than requires a subtraction and an appropriate
+evaluation of the most significant bits of the result. How many logic elements does the critical path for a
+comparison of two n-bit values contain asymptotically (i.e., O(n 2 ), O(n), O(log n), . . . )? What about comparing
+for equality/inequality? Why is a comparison for less-than-zero cheap when using a two’s complement
+representation?
+
+Answer:
+
+
+
+Comparison for less than zero is cheap in two's complement because you only have to check the first bit of the binary form.
+<fill in >
+
+
+-----------------------------------------------------------------------------------
+
+2.2 Jump Unit
+
+Table 6 does not contain operations for all boolean combinations of N and Z . Would an operation for N and Z
+make sense? If so, what would be the high-level comparison? If not, explain why.
+
+Answer:
+<fill in >
+
+
+-----------------------------------------------------------------------------------
+
+2.3 Memory Unit
+
+The memory unit uses big-endian addressing, where the most significant byte of a word is stored at the lowest
+address. After storing the word 0x12345678 at address 4, what value should be returned when loading a byte
+from address 5? Which value should be returned for the half-word at address 6?
+
+Answer:
+Stored in Memory:
+|4 | 5| 6| 7|
+|87|65|43|21|
+
+Byte Adress 5: 65
+Halfword Adress 6: 4321
+
+
+-----------------------------------------------------------------------------------
+2.4 Regfile
+
+Given memory blocks with one write- and one read-port, how can a memory with one write- and two read-ports
+be implemented efficiently? What is the overhead, compared to a memory with one write- and one read-port?
+
+Answer:
+<fill in >
+
+
+-----------------------------------------------------------------------------------
+
+3.1 Fetch
+
+Sketch a fetch stage with variable-length instructions, where the value for the next program counter depends
+on the instruction that is currently fetched. Which sub-components would be on the critical path in such a
+fetch stage?
+
+Answer:
+<fill in >
+
+
+-----------------------------------------------------------------------------------
+
+3.2 Decode
+
+Explain why it is beneficial to have source registers in the same position for all instruction formats, and why
+this is less of an issue for destination registers.
+
+Answer:
+<fill in >
+
+
+-----------------------------------------------------------------------------------
+
+3.3 Execute
+
+Explain why it is beneficial to multiplex the operands for a single adder over using several adders and multiplex
+their results. Does the benefit concern rather the performance or the size of the resulting hardware?
+
+Answer:
+<fill in >
+
+
+-----------------------------------------------------------------------------------
+
+3.6 Pipeline
+
+Listing 1 contains seven nop -instructions. How many of these instructions can be removed by reordering
+instructions, without changing the semantics of the program?
+
+Listing 1: Assembler example without forwarding
+
+	addi $1, $0, 0
+	nop
+	nop
+loop:
+	addi $1, $1, 1
+	nop
+	nop
+	sw $1, 16($0)
+	j loop
+	nop
+	nop
+	nop
+
+Answer:
+<fill in >
+
+
+-----------------------------------------------------------------------------------
+
+4.1 Forwarding
+
+Explain why forwarding to an instruction immediately after a memory load is infeasible. Where would the
+critical path be if one would try to forward the result of a memory load to the ALU?
+
+Answer:
+<fill in >
+
+
+-----------------------------------------------------------------------------------
+
+4.2 Branch Hazards
+
+A branch delay slot is a means to keep the hardware simple while reducing the cost of branches, but may
+increase the code size. How much is the code size increased with one-cycle branch delay slots, if 15% of
+the instructions are branches, and 30% of the branch delay slots can be filled by the compiler with useful
+instructions?
+
+Answer:
+<fill in >
+
+
+-----------------------------------------------------------------------------------
