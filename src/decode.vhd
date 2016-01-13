@@ -106,8 +106,6 @@ architecture rtl of decode is
     signal int_instr        : std_logic_vector(INSTR_WIDTH-1 downto 0);
 
     -- intern regfile signals
-    signal int_rdaddr1      : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
-    signal int_rdaddr2      : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
     signal int_rddata1      : std_logic_vector(DATA_WIDTH-1 downto 0);
     signal int_rddata2      : std_logic_vector(DATA_WIDTH-1 downto 0);
 
@@ -131,17 +129,14 @@ begin  -- rtl
         clk         => clk,
         reset       => reset,
         stall       => stall,           -- in
-        rdaddr1     => int_rdaddr1,     -- in
-        rdaddr2     => int_rdaddr2,     -- in
+        rdaddr1     => instr(25 downto 21),     -- in
+        rdaddr2     => instr(20 downto 16),     -- in
         rddata1     => int_rddata1,     -- out
         rddata2     => int_rddata2,     -- out
         wraddr      => wraddr,          -- in
         wrdata      => wrdata,          -- in
         regwrite    => regwrite         -- in
     );
-
-        int_rdaddr1 <= instr(25 downto 21); -- rs
-        int_rdaddr2 <= instr(20 downto 16); -- rt / rd
 
     -- ##################### --
     -- process: decode_input --
@@ -152,15 +147,11 @@ begin  -- rtl
             -- reset intern signals
             int_pc      <= (others => '0');
             int_instr   <= (others => '0');
-       --     int_rdaddr1 <= (others => '0');
-       --     int_rdaddr2 <= (others => '0');
         elsif rising_edge(clk) then
             if stall = '0' then
                 -- latch intern signals
                 int_pc      <= pc_in;
                 int_instr   <= instr;
-       --         int_rdaddr1 <= instr(25 downto 21); -- rs
-       --         int_rdaddr2 <= instr(20 downto 16); -- rt / rd
             end if;
         end if;
     end process decode_input;
