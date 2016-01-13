@@ -21,7 +21,7 @@ end fetch;
 architecture rtl of fetch is
 
 --signal imem_addr         : std_logic_vector (11 downto 0);
-signal int_pc            : std_logic_vector (PC_WIDTH-1 downto 0) := (others => '0');
+signal int_pc            : std_logic_vector (PC_WIDTH-1 downto 0) := std_logic_vector(to_signed(-4, PC_WIDTH));
 signal int_pc_next         : std_logic_vector (PC_WIDTH-1 downto 0) := (others => '0');
 signal int_instr            : std_logic_vector(INSTR_WIDTH-1 downto 0);
 
@@ -62,7 +62,7 @@ begin  -- rtl
      sync : process (clk, reset)
      begin
         if reset = '0' then 
-            int_pc <= std_logic_vector(to_signed(-4, PC_WIDTH)) ;
+            int_pc <= std_logic_vector(to_signed(-4, PC_WIDTH));
         elsif rising_edge(clk) then
             int_pc <= int_pc_next;
         end if;

@@ -18,7 +18,8 @@ entity exec is
         rd, rs, rt       : out std_logic_vector(REG_BITS-1 downto 0);
         aluresult        : out std_logic_vector(DATA_WIDTH-1 downto 0);
         wrdata           : out std_logic_vector(DATA_WIDTH-1 downto 0);
-        zero, neg        : out std_logic;
+        zero             : out std_logic := '0';
+        neg              : out std_logic := '0';
         new_pc           : out std_logic_vector(PC_WIDTH-1 downto 0);
         memop_in         : in  mem_op_type;
         memop_out        : out mem_op_type;
