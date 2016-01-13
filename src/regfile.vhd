@@ -41,12 +41,12 @@ begin  -- rtl
             latch_rdaddr1 <= (others => '0');
             latch_rdaddr2 <= (others => '0');
         elsif rising_edge(clk) and stall = '0' then
-				latch_rdaddr1 <= rdaddr1;
-				latch_rdaddr2 <= rdaddr2;
+                latch_rdaddr1 <= rdaddr1;
+                latch_rdaddr2 <= rdaddr2;
 
-				if regwrite = '1' and unsigned(wraddr) > 0 then
-					register_A(To_integer(unsigned(wraddr))) <= wrdata;
-				end if;
+                if regwrite = '1' and unsigned(wraddr) > 0 then
+                    register_A(To_integer(unsigned(wraddr))) <= wrdata;
+                end if;
         end if;
     end process latchinputs;
 
