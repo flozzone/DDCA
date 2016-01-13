@@ -146,7 +146,7 @@ begin  -- rtl
     -- ##################### --
     -- process: decode_input --
     -- ##################### --
-    decode_input : process (clk, reset, flush, instr)
+    decode_input : process (clk, reset, flush)
     begin
         if reset = '0' or flush = '1'then
             -- reset intern signals

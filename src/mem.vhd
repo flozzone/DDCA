@@ -120,7 +120,7 @@ begin  -- rtl
         end if;
     end process input;
 
-    mem_proc : process(int_pc_in, int_rd_in, int_aluresult_in, int_new_pc_in, int_wbop_in, int_mem_op)
+    mem_proc : process(int_pc_in, int_rd_in, int_aluresult_in, int_new_pc_in, int_wbop_in)
     begin
         -- pass unchanged signals
         pc_out <= int_pc_in;

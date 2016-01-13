@@ -109,7 +109,7 @@ begin  -- rtl
     rt <= op.rt;
 
     multiplex : process(int_op, int_pc_in, int_memop_in, int_jmpop_in, int_wbop_in,
-             int_alu_R, int_alu_Z, int_alu_V, pc_in, int_forwardA, int_forwardB, mem_aluresult, wb_result)
+             int_alu_R, int_alu_Z, int_alu_V, int_forwardA, int_forwardB, mem_aluresult, wb_result)
     begin
         pc_out <= int_pc_in;
         memop_out <= int_memop_in;
