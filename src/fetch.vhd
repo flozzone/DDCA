@@ -34,7 +34,7 @@ begin  -- rtl
     );
 
      -- todo process calc pc, flush, sync
-     pc : process (stall, reset, pcsrc) 
+     pc : process (stall, reset, pcsrc, int_pc, pc_in) 
      begin
         int_pc_next <= int_pc;
         pc_out <= int_pc;
@@ -50,7 +50,7 @@ begin  -- rtl
      end process pc;
      
      
-     flush : process (pcsrc)
+     flush : process (pcsrc, int_instr)
      begin
         if pcsrc = '1' then
             instr <= (others => '0');

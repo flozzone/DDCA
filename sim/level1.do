@@ -18,6 +18,8 @@ set summary [list]
 set total_count 0
 set total_failed 0
 
+onbreak { resume }
+
 foreach test $tests_avail {
     load_test "testbench/level1/data/${test}.tc"
     load_program "testbench/level1/program" ${test}
