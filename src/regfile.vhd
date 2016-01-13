@@ -27,37 +27,10 @@ architecture rtl of regfile is
     constant ZERO:  std_logic_vector (REG_BITS-1 downto 0) := (others => '0');
 
     -- latch signal
-    signal latch_rddata1        : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
-    signal latch_rddata1_next   : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
-    signal latch_rddata2        : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
-    signal latch_rddata2_next   : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
-
-    -- internal signals for outputs
-    signal output_rddata1       : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
-    signal output_rddata2       : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
-
-    -- internal signals
-    signal int_regwrite         : std_logic := '0';
-    signal int_wr_zero          : std_logic := '0';
+    signal latch_rdaddr1        : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
+    signal latch_rdaddr2        : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 
 begin  -- rtl
-    -- asynchronus stuff
-    int_wr_zero    <= '1' when(wraddr = ZERO) else '0' ;
-    int_regwrite   <= (reset) and (not stall)and (regwrite) and (not int_wr_zero);
-    output_rddata1 <= register_A(To_integer(unsigned(rdaddr1)));
-    output_rddata2 <= register_A(To_integer(unsigned(rdaddr2)));
-
-    -- ###################### --
-    -- process: registerwrite --
-    -- ###################### --
-    registerwrite : process (clk)
-    begin
-        if rising_edge(clk) then
-            if int_regwrite = '1' then
-                register_A(To_integer(unsigned(wraddr))) <= wrdata;
-            end if;
-        end if;
-    end process registerwrite;
 
     -- #################### --
     -- process: latchinputs --
@@ -65,45 +38,33 @@ begin  -- rtl
     latchinputs : process (clk, reset)
     begin
         if reset = '0' then
-            latch_rddata1 <= (others => '0');
-            latch_rddata2 <= (others => '0');
-        elsif rising_edge(clk) then
-            latch_rddata1 <= latch_rddata1_next;
-            latch_rddata2 <= latch_rddata2_next;
+            latch_rdaddr1 <= (others => '0');
+            latch_rdaddr2 <= (others => '0');
+        elsif rising_edge(clk) and stall = '0' then
+				latch_rdaddr1 <= rdaddr1;
+				latch_rdaddr2 <= rdaddr2;
+
+				if regwrite = '1' and unsigned(wraddr) > 0 then
+					register_A(To_integer(unsigned(wraddr))) <= wrdata;
+				end if;
         end if;
     end process latchinputs;
 
     -- ############### --
     -- process: output --
     -- ############### --
-    output : process (reset, stall, rdaddr1, rdaddr2, wraddr, wrdata, int_regwrite, latch_rddata1, latch_rddata2, output_rddata1, output_rddata2)
+    output : process (latch_rdaddr1, latch_rdaddr2, wrdata, wraddr, regwrite, stall)
     begin
-        if reset = '0' then
-            -- reset outupt rddatas and latch_rddata_nexts
-            rddata1 <= (others => '0');
-            rddata2 <= (others => '0');
-            latch_rddata1_next <= (others => '0');
-            latch_rddata2_next <= (others => '0');
-        elsif stall = '1' then
-            -- output previous latched rddatas
-            rddata1 <= latch_rddata1;
-            rddata2 <= latch_rddata2;
-        else
-            -- latch requested values
-            -- writes are accesable in the next cycle,
-            -- but the newest value should always be read
-            if (wraddr = rdaddr1) and (int_regwrite = '1') then
-                rddata1             <= wrdata;
-                latch_rddata1_next  <= wrdata;
-            elsif (wraddr = rdaddr2) and (int_regwrite = '1') then
-                rddata2             <= wrdata;
-                latch_rddata2_next  <= wrdata;
-            else
-                rddata1             <= output_rddata1;
-                latch_rddata1_next  <= output_rddata1;
-                rddata2             <= output_rddata2;
-                latch_rddata2_next  <= output_rddata2;
-            end if;
+        -- set outputs
+        rddata1 <= register_A(To_integer(unsigned(latch_rdaddr1)));
+        rddata2 <= register_A(To_integer(unsigned(latch_rdaddr2)));
+
+        if latch_rdaddr1 = wraddr and stall = '0' and regwrite = '1' and unsigned(wraddr) > 0 then
+            rddata1 <= wrdata;
+        end if;
+
+        if latch_rdaddr2 = wraddr and stall = '0' and regwrite = '1' and unsigned(wraddr) > 0 then
+            rddata2 <= wrdata;
         end if;
     end process output;
 end rtl;
