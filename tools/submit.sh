@@ -41,10 +41,7 @@ pushd $tmp_dir >/dev/null
 echo "$_GIT_BRANCH $_GIT_REV" > version.txt
 
 # create remote directory and set group
-if ! do_ssh $user "mkdir -p $remote_dir && chgrp ${group} $level_dir"; then
-    echo >&2 "Could not create remote directory $remote_dir"
-    exit 1
-fi
+do_ssh $user "mkdir -p $remote_dir && chgrp ${group} $level_dir" &>/dev/null
 
 # Note:
 #  --groupmap "*:${group}" option is not supported by remote rsync
