@@ -13,14 +13,23 @@ all: lib helloworld md5 decexc aluexc memexc intrs
 helloworld: helloworld.imem.mif helloworld.dmem.mif
 helloworld.elf: helloworld.o
 	${LD} -o $@ crt0.o $^ -L. -lc
+install-helloworld:
+	cp helloworld.imem.mif ../../../src/imem.mif
+	cp helloworld.dmem.mif ../../../src/dmem.mif
 
 md5: md5.imem.mif md5.dmem.mif
 md5.elf: md5.o md5main.o
 	${LD} -o $@ crt0.o $^ -L. -lc
+install-md5:
+	cp md5.imem.mif ../../../src/imem.mif
+	cp md5.dmem.mif ../../../src/dmem.mif
 
 decexc: decexc.imem.mif decexc.dmem.mif
 decexc.elf: decexc.o
 	${LD} -o $@ crt0.o $^ -L. -lc
+install-decexc:
+	cp decexc.imem.mif ../../../src/imem.mif
+	cp decexc.dmem.mif ../../../src/dmem.mif
 
 aluexc: aluexc.imem.mif aluexc.dmem.mif
 aluexc.elf: aluexc.o
