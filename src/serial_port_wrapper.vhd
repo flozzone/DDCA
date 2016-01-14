@@ -81,7 +81,7 @@ begin  -- behavior
         end if;
     end process write;
 
-    read: process (address, rd, rd_address, rx_data, rx_data_empty, rx_data_full, tx_free)
+    read: process (address, rd, rd_address, rx_data, rx_data_empty, rx_data_full)
     begin  -- process read
         if address(0) = '1' then
             rx_rd <= rd;

@@ -22,9 +22,11 @@ onbreak { resume }
 
 foreach test $tests_avail {
     load_test "testbench/level1/data/${test}.tc"
-    load_program "testbench/level1/program" ${test}
-
     load_testbench level1
+
+		if { [load_program ${test}] == 0 } {
+				force sim:/level1_tb/no_test true
+		}
 
     run -all
 

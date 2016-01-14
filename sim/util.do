@@ -59,7 +59,8 @@ proc restore {path} {
     file copy -force ${path}.orig $path
 }
 
-proc load_program {prog_root name} {
+proc load_program {name} {
+        set prog_root "testbench/level1/program"
     set src_simple "${prog_root}/${name}.mif"
     set src_imem "${prog_root}/${name}.imem.mif"
     set src_dmem "${prog_root}/${name}.dmem.mif"
@@ -78,9 +79,12 @@ proc load_program {prog_root name} {
             error "Nor $src_simpl, nor $src_dmem exist"
         }
 
+        echo "loading $src_imem"
         file copy -force $src_imem $dst_imem
+        echo "loading $src_dmem"
         file copy -force $src_dmem $dst_dmem
     } else {
+        echo "loaging $src_simple"
         file copy -force $src_simple $dst_imem
         restore $dst_dmem
     }
@@ -92,8 +96,10 @@ proc load_test {path} {
     set test_path "../src/test.tc"
 
     if {[file exists $path] == 0} {
-        error "test at $path does not exist"
+        echo "test at $path does not exist"
+                return 0
     }
 
     file copy -force $path $test_path
+        return 1
 }

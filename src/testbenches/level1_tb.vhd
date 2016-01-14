@@ -35,6 +35,7 @@ architecture arch of level1_tb is
     signal break_on_error : boolean := false;
     signal fail_count : integer := 0;
     signal total_count : integer := 0;
+        signal no_test : boolean := false;
 
     procedure check(
         test_nr : in integer;
@@ -93,14 +94,14 @@ begin
         q => ocram_rddata
     );
 
-    sync_proc : process
+    clk_proc : process
     begin
         clk <= '0';
         wait for CLK_PERIOD/2;
         clk <= '1';
         clk_cnt <= clk_cnt + 1;
         wait for CLK_PERIOD/2;
-    end process sync_proc;
+    end process clk_proc;
 
     mem_proc : process(r_mem_out, ocram_rddata, s_mem_in, clk, s_enable_ocram)
     begin
@@ -120,48 +121,50 @@ begin
         variable vec : std_logic_vector(93 downto 0);
         variable success : boolean;
     begin
-        if not endfile(fd) then
-            wait until rising_edge(clk);
-
-            readline(fd, rdline);
-            read(rdline, bin_line);
-            vec := to_std_logic_vector(bin_line);
-
-            -- TEST SIGNALS
-            s_enable_ocram <= vec(93);
-            s_reset <= vec(92);
-            s_mem_in.rddata <= vec(91 downto 60);
-            s_mem_in.busy <= vec(59);
-            a_mem_out.address <= vec(58 downto 38);
-            a_mem_out.rd <= vec(37);
-            a_mem_out.wr <= vec(36);
-            a_mem_out.byteena <= vec(35 downto 32);
-            a_mem_out.wrdata <= vec(31 downto 0);
-            -- END TEST SIGNALS
-
-            wait until falling_edge(clk);
-
-            success := true;
-            check(clk_cnt, "mem_out.address", r_mem_out.address, a_mem_out.address, success, break_on_error);
-            check(clk_cnt, "mem_out.rd", r_mem_out.rd, a_mem_out.rd, success, break_on_error);
-            check(clk_cnt, "mem_out.wr", r_mem_out.wr, a_mem_out.wr, success, break_on_error);
-            check(clk_cnt, "mem_out.byteena", r_mem_out.byteena, a_mem_out.byteena, success, break_on_error);
-            check(clk_cnt, "mem_out.wrdata", r_mem_out.wrdata, a_mem_out.wrdata, success, break_on_error);
-
-            total_count <= total_count + 1;
-            if success = false then
-                fail_count <= fail_count + 1;
-            end if;
-        else
-            -- wait for whole clock cycle before aborting, otherwise last
-            -- fail_count and total_count increments don't have affects.
-            wait until rising_edge(clk);
-            wait until falling_edge(clk);
-
-            print(output, "######### EOF of testfile ########");
-            print(output, str(fail_count) & "/" & str(total_count) & " tests failed.");
-
-            assert False report "EOF" severity FAILURE;
-        end if;
+                if no_test = false then
+                if not endfile(fd) then
+                    wait until rising_edge(clk);
+        
+                    readline(fd, rdline);
+                    read(rdline, bin_line);
+                    vec := to_std_logic_vector(bin_line);
+        
+                    -- TEST SIGNALS
+                    s_enable_ocram <= vec(93);
+                    s_reset <= vec(92);
+                    s_mem_in.rddata <= vec(91 downto 60);
+                    s_mem_in.busy <= vec(59);
+                    a_mem_out.address <= vec(58 downto 38);
+                    a_mem_out.rd <= vec(37);
+                    a_mem_out.wr <= vec(36);
+                    a_mem_out.byteena <= vec(35 downto 32);
+                    a_mem_out.wrdata <= vec(31 downto 0);
+                    -- END TEST SIGNALS
+        
+                    wait until falling_edge(clk);
+        
+                    success := true;
+                    check(clk_cnt, "mem_out.address", r_mem_out.address, a_mem_out.address, success, break_on_error);
+                    check(clk_cnt, "mem_out.rd", r_mem_out.rd, a_mem_out.rd, success, break_on_error);
+                    check(clk_cnt, "mem_out.wr", r_mem_out.wr, a_mem_out.wr, success, break_on_error);
+                    check(clk_cnt, "mem_out.byteena", r_mem_out.byteena, a_mem_out.byteena, success, break_on_error);
+                    check(clk_cnt, "mem_out.wrdata", r_mem_out.wrdata, a_mem_out.wrdata, success, break_on_error);
+        
+                    total_count <= total_count + 1;
+                    if success = false then
+                        fail_count <= fail_count + 1;
+                    end if;
+                else
+                    -- wait for whole clock cycle before aborting, otherwise last
+                    -- fail_count and total_count increments don't have affects.
+                    wait until rising_edge(clk);
+                    wait until falling_edge(clk);
+        
+                    print(output, "######### EOF of testfile ########");
+                    print(output, str(fail_count) & "/" & str(total_count) & " tests failed.");
+        
+                    assert False report "EOF" severity FAILURE;
+                end if;
+                end if;
    end process test_proc;
 end arch;
