@@ -35,7 +35,7 @@ begin  -- rtl
     -- #################### --
     -- process: latchinputs --
     -- #################### --
-    latchinputs : process (clk, reset)
+    latchinputs : process (clk, reset, stall)
     begin
         if reset = '0' then
             latch_rdaddr1 <= (others => '0');
@@ -53,7 +53,7 @@ begin  -- rtl
     -- ############### --
     -- process: output --
     -- ############### --
-    output : process (latch_rdaddr1, latch_rdaddr2, wrdata, wraddr, regwrite, stall, register_A)
+    output : process (latch_rdaddr1, latch_rdaddr2, wrdata, wraddr, regwrite, stall, register_A, rdaddr1, rdaddr2)
     begin
         -- set outputs
         rddata1 <= register_A(To_integer(unsigned(latch_rdaddr1)));
