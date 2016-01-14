@@ -53,17 +53,17 @@ begin  -- rtl
     -- ############### --
     -- process: output --
     -- ############### --
-    output : process (latch_rdaddr1, latch_rdaddr2, wrdata, wraddr, regwrite, stall, register_A, rdaddr1, rdaddr2)
+    output : process (latch_rdaddr1, latch_rdaddr2, wrdata, wraddr, regwrite, stall, register_A)
     begin
         -- set outputs
         rddata1 <= register_A(To_integer(unsigned(latch_rdaddr1)));
         rddata2 <= register_A(To_integer(unsigned(latch_rdaddr2)));
 
-        if rdaddr1 = wraddr and stall = '0' and regwrite = '1' and unsigned(wraddr) > 0 then
+        if latch_rdaddr1 = wraddr and stall = '0' and regwrite = '1' and unsigned(wraddr) > 0 then
             rddata1 <= wrdata;
         end if;
 
-        if rdaddr2 = wraddr and stall = '0' and regwrite = '1' and unsigned(wraddr) > 0 then
+        if latch_rdaddr2 = wraddr and stall = '0' and regwrite = '1' and unsigned(wraddr) > 0 then
             rddata2 <= wrdata;
         end if;
     end process output;
