@@ -28,7 +28,7 @@ if ! tar -xf $binutils_tar; then
 fi
 mkdir -p build-binutils && cd build-binutils
 ../${binutils_tar%.tar.gz}/configure --target=$TARGET --prefix=$PREFIX
-if ! make ; then
+if ! make $MAKE_FLAGS ; then
   echo >&2 "Compilation failed."
   exit 1
 fi

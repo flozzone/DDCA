@@ -14,7 +14,6 @@ configure_flags="--target=$TARGET --prefix=$PREFIX \
   --disable-libmudflap --disable-libgomp \
   --disable-libssp --disable-libquadmath \
   --disable-libatomic"
-make_flags="-j4"
 
 if [[ $EUID -ne 0  ]]; then
   echo >&2 "This script need to be run as root because it installs into ${PREFIX}."
@@ -38,7 +37,7 @@ mkdir -p ${folder} && cd ${folder}
 
 ../${tarball%.tar.gz}/configure $configure_flags
 
-if ! make $make_flags ; then
+if ! make $MAKE_FLAGS ; then
   echo >&2 "Compilation failed."
   exit 1
 fi

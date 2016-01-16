@@ -33,9 +33,9 @@ proc load_testbench {name} {
     echo $venv
     if { [string match *${name}* $venv] } {
         echo "is already loaded, skip starting simulation, but restart."
-        restart -force
+        restart -nobreakpoint -force
     } else {
-        vsim -t 100fs -assertdebug -msgmode both -displaymsgmode both work.${name}_tb
+        vsim -t 1ns -assertdebug -msgmode both -displaymsgmode both work.${name}_tb
 
         set wave_path "testbench/${name}/wave.do"
         if { [file exists $wave_path] == 1} {
@@ -60,7 +60,7 @@ proc restore {path} {
 }
 
 proc load_program {name} {
-        set prog_root "testbench/level1/program"
+    set prog_root "program"
     set src_simple "${prog_root}/${name}.mif"
     set src_imem "${prog_root}/${name}.imem.mif"
     set src_dmem "${prog_root}/${name}.dmem.mif"

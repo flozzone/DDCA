@@ -4,6 +4,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use std.textio.all;
 use work.txt_util.all;
+use std.env.all;
 use work.op_pack.all;
 use work.core_pack.all;
 use work.mimi;
@@ -16,7 +17,7 @@ end level1_tb;
 
 architecture arch of level1_tb is
     constant CLK_PERIOD : time := 20 ns;
-    signal clk            : std_logic;
+    signal clk            : std_logic := '0';
 
     signal s_test_clk_cnt : integer range 0 to 300;
 
@@ -162,8 +163,7 @@ begin
         
                     print(output, "######### EOF of testfile ########");
                     print(output, str(fail_count) & "/" & str(total_count) & " tests failed.");
-        
-                    assert False report "EOF" severity FAILURE;
+                    stop(0);
                 end if;
                 end if;
    end process test_proc;

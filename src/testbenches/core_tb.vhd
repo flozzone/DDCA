@@ -7,6 +7,7 @@ use work.op_pack.all;
 
 use std.textio.all;
 use ieee.numeric_std.all;
+use work.txt_util.all;
 
 entity core_tb is
     generic (
@@ -126,18 +127,18 @@ begin  -- rtl
 
     end process iomux;
 
-    write_proc: process (mem_out)
-        file fd : text open write_mode is "../src/uart_output.log";
+    write_proc: process (clk, mem_out)
+        file fd : text open write_mode is "../sim/uart_output.log";
         variable tx_data : std_logic_vector(7 downto 0);
         variable wrline : line;
         variable char: character;
-    begin  -- process wrap
-        if mem_out.address(ADDR_WIDTH-1 downto ADDR_WIDTH-2) = "11" then
-            if rising_edge(mem_out.wr) then
-                tx_data := mem_out.wrdata(31 downto 24);
-                char := character'val(to_integer(unsigned(tx_data)));
-                write(wrline, char);
-                writeline(fd, wrline);
+    begin
+        if rising_edge(clk) then
+            if mem_out.address(ADDR_WIDTH-1 downto ADDR_WIDTH-2) = "11" and mem_out.wr = '1' then
+                    tx_data := mem_out.wrdata(31 downto 24);
+                    char := character'val(to_integer(unsigned(tx_data)));
+                print(fd, char);
+                flush(fd);
             end if;
         end if;
     end process write_proc;
