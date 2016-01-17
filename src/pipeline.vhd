@@ -73,8 +73,7 @@ architecture rtl of pipeline is
     signal ctrl_pcsrc : std_logic;
     signal ctrl_pc : std_logic_vector(PC_WIDTH-1 downto 0);
 
-    signal tmp_wb_result : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
-    signal tmp_exc_ovf : std_logic;
+    signal exc_ovf : std_logic;
     signal exc_load, exc_store : std_logic;
 begin  -- rtl
 
@@ -105,6 +104,7 @@ begin  -- rtl
             pcsrc_in => fm_pcsrc,
             cop0_op => cop0_op,
             exec_op => de_exec_op,
+            exc_ovf => exc_ovf,
             exc_dec => exc_dec,
             exc_load => exc_load,
             exc_store => exc_store,
@@ -196,7 +196,7 @@ begin  -- rtl
             memop_out => em_memop,
             jmpop_out => em_jmpop,
             wbop_out => em_wbop,
-            exc_ovf => tmp_exc_ovf -- unused in lab3
+            exc_ovf => exc_ovf
         );
 
         mem_inst : entity work.mem

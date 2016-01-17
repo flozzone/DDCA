@@ -72,7 +72,7 @@ begin  -- rtl
     -- ############## --
     -- process: input --
     -- ############## --
-    input : process (clk, reset)
+    input : process (clk, reset, flush)
     begin
         if reset = '0' then
             -- reset intern signals
@@ -84,9 +84,8 @@ begin  -- rtl
             int_forwardA <= FWD_NONE;
             int_forwardB <= FWD_NONE;
             int_cop0_rddata <= (others => '0');
-
-        elsif rising_edge(clk) then
-            if flush = '1' then
+        end if;
+        if flush = '1' then
                 -- flush intern signals
                 int_pc_in      <= (others => '0');
                 int_op   <= EXEC_NOP;
@@ -96,7 +95,8 @@ begin  -- rtl
                 int_forwardA <= FWD_NONE;
                 int_forwardB <= FWD_NONE;
                 int_cop0_rddata <= (others => '0');
-            elsif stall = '0' then
+        end if;
+        if rising_edge(clk) and stall = '0'then
                 -- latch intern signals
                 int_pc_in      <= pc_in;
                 int_op   <= op;
@@ -106,7 +106,6 @@ begin  -- rtl
                 int_forwardA <= forwardA;
                 int_forwardB <= forwardB;
                 int_cop0_rddata <= cop0_rddata;
-            end if;
         end if;
     end process input;
 

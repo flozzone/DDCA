@@ -19,21 +19,25 @@ foreach test $tests_avail {
 		set tb_home "testbench/core"
 		set expect_file "${tb_home}/data/$test.expect"
 	
-		set status [catch {diff -aZ uart_output.log $expect_file } output]
-	
-		echo $output
+		set status [catch {diff -ayZ uart_output.log $expect_file } output]
 		
 		if {$status == 0} {
-			echo "SUCCESS"
+			echo "SUCCESS $test"
 		} elseif {$::errorCode eq "NONE"} {
-			echo "SUCCESS"
-		} elseif {[lindex $::errorCode 0] eq "CHILDSTATUS"} {
-		    echo "script exited with status [lindex $::errorCode end]."
-			echo "TEST FAILED"
+			echo "SUCCESS $test"
 		} else {
-			echo "TEST FAILED"
+			echo "FAILED $test"
+			echo "Compare output"
+			echo " <<< uart_output.log            $expect_file >>>"
+			echo $output
 		}
-		break
+
+		stop
 	}
 	run -all
+
+	wave refresh
+
+	# goto last cursor in wave view
+	wave cursor see -window wave
 }

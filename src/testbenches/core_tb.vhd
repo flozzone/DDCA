@@ -39,10 +39,7 @@ architecture rtl of core_tb is
 
     type mux_type is (MUX_OCRAM, MUX_UART);
     signal mux : mux_type;
-
-    file fd : text open write_mode is "../sim/uart_output.log";
-    signal out_str : string(1 to 128) := (1 to 128 => character'val(32));
-    signal i : integer := 1;
+    
     alias tx_free : std_logic is mem_in.rddata(0);
 
 begin  -- rtl
@@ -132,9 +129,6 @@ begin  -- rtl
                 mem_in.rddata(24) <= '1';
             end if;
         end if;
-        --if rd_address(0) = '0' then
-        --    mem_in.rddata(31 downto 24) <= "00000" & rx_data_full & not rx_data_empty & tx_free;
-        --end if;
 
     end process iomux;
 
@@ -142,21 +136,18 @@ begin  -- rtl
         variable tx_data : std_logic_vector(7 downto 0);
         variable char: character;
         variable wrline : line;
+        file fd : text open write_mode is "../sim/uart_output.log";
     begin
         if rising_edge(clk) then
             if mem_out.address(ADDR_WIDTH-1 downto ADDR_WIDTH-2) = "11" and mem_out.wr = '1' then
                 tx_data := mem_out.wrdata(31 downto 24);
+                char := character'val(to_integer(unsigned(tx_data)));
                 if to_integer(unsigned(tx_data)) = 10 then
-                    out_str(i) <= character'val(0);
-                    print(fd, out_str);
-                    i <= 1;
+                    writeline(fd, wrline);
                     flush(fd);
-                    for i in out_str'range loop
-                       out_str(i) <= character'val(32);
-                     end loop;   
+                    deallocate(wrline);
                 else
-                    out_str(i) <= character'val(to_integer(unsigned(tx_data)));
-                    i <= i + 1;
+                    write(wrline, char);
                 end if;
             end if;
         end if;

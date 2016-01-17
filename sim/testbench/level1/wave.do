@@ -139,3 +139,5 @@ configure wave -timelineunits us
 update
 WaveRestoreZoom {645 ns} {830 ns}
 bookmark add wave bookmark0 {{213 ps} {258200 fs}} 68
+bookmark add wave bookmark1 {{145134 ns} {145326 ns}} 0
+bookmark add wave bookmark2 {{124694 ns} {124886 ns}} 0

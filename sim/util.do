@@ -79,10 +79,10 @@ proc load_program {name} {
 
     if {[file exists $src_simple] == 0} {
         if {[file exists $src_imem] == 0} {
-            error "Nor $src_simpl, nor $src_imem exist"
+            error "Nor $src_simple, nor $src_imem exist"
         }
         if {[file exists $src_dmem] == 0} {
-            error "Nor $src_simpl, nor $src_dmem exist"
+            error "Nor $src_simple, nor $src_dmem exist"
         }
 
         echo "loading $src_imem"

@@ -31,25 +31,25 @@ signal int_memresult  : std_logic_vector(DATA_WIDTH-1 downto 0);
 
 begin  -- rtl
 
-    input : process(clk, reset)
+    input : process(clk, reset, flush)
     begin
         if reset = '0' then
             int_op <= WB_NOP;
             int_rd_in <= (others => '0');
             int_aluresult <= (others => '0');
             int_memresult <= (others => '0');
-        elsif rising_edge(clk) then
-            if flush = '1' then
-                int_op <= WB_NOP;
-                int_rd_in <= (others => '0');
-                int_aluresult <= (others => '0');
-                int_memresult <= (others => '0');
-            elsif stall = '0' then
-                int_op <= op;
-                int_rd_in <= rd_in;
-                int_aluresult <= aluresult;
-                int_memresult <= memresult;
-            end if;
+        end if;
+        if flush = '1' then
+            int_op <= WB_NOP;
+            int_rd_in <= (others => '0');
+            int_aluresult <= (others => '0');
+            int_memresult <= (others => '0');
+        end if;
+        if rising_edge(clk) and stall = '0' then
+            int_op <= op;
+            int_rd_in <= rd_in;
+            int_aluresult <= aluresult;
+            int_memresult <= memresult;
         end if;
     end process input;
 
