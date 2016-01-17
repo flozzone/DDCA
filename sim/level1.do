@@ -30,8 +30,8 @@ foreach test $tests_avail {
 
     run -all
 
-    set fail_count [examine sim:/level1_tb/fail_count]
-    set test_count [examine sim:/level1_tb/total_count]
+    set fail_count [examine -radix unsigned sim:/level1_tb/fail_count]
+    set test_count [examine -radix unsigned sim:/level1_tb/total_count]
     set total_count [expr $total_count + $test_count]
     set total_failed [expr $total_failed + $fail_count]
     lappend summary "${test} ${fail_count}/${test_count}"
