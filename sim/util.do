@@ -29,12 +29,18 @@ proc dec2bin {i {width {}}} {
 
 # http://stackoverflow.com/questions/9709257/modelsim-message-viewer-empty
 proc load_testbench {name} {
-    set venv [env]
-    echo $venv
-    if { [string match *${name}* $venv] } {
+    if { [string match *${name}_tb* [env]] } {
         echo "is already loaded, skip starting simulation, but restart."
         restart -nobreakpoint -force
     } else {
+		if {[regexp {sim:/(\w+)_tb} [env] -> current_tb]} {
+			set current_wave_path "testbench/${current_tb}/wave.do"
+			if { [file exists $current_wave_path] == 1} {
+				echo "Existing wave config file found. Update it before stopping simulation."
+				write format wave -window .main_pane.wave.interior.cs.body.pw.wf $current_wave_path
+			}
+        }
+
         vsim -t 1ns -assertdebug -msgmode both -displaymsgmode both work.${name}_tb
 
         set wave_path "testbench/${name}/wave.do"

@@ -63,7 +63,7 @@ begin
 
     test : process
     begin
-        wait for 2 ps;
+        wait for CLK_PERIOD / 2;
 
         assert r_M.address = a_M.address report testfile & ": M.address is not equal";
         assert r_M.rd = a_M.rd report testfile & ": M.rd is not equal";
@@ -74,7 +74,7 @@ begin
         assert r_XL = a_XL report testfile & ": XL ist not equal";
         assert r_XS = a_XS report testfile & ": XS is not equal";
 
-        wait for 2 ps;
+        wait for CLK_PERIOD / 2;
 
     end process test;
 end arch;

@@ -40,6 +40,11 @@ architecture rtl of core_tb is
     type mux_type is (MUX_OCRAM, MUX_UART);
     signal mux : mux_type;
 
+    file fd : text open write_mode is "../sim/uart_output.log";
+    signal out_str : string(1 to 128) := (1 to 128 => character'val(32));
+    signal i : integer := 1;
+    alias tx_free : std_logic is mem_in.rddata(0);
+
 begin  -- rtl
     pipeline_inst : entity work.pipeline port map (
         clk        => clk,
@@ -56,24 +61,24 @@ begin  -- rtl
         wren    => ocram_wr,
         q        => ocram_rddata);
 
-    uart : entity work.serial_port_wrapper generic map (
-        clk_freq  => clk_freq,
-        baud_rate => baud_rate,
-        sync_stages => 2,
-        tx_fifo_depth => 4,
-        rx_fifo_depth => 4)
-    port map (
-        clk     => clk,
-        res_n     => reset,
-
-        address => mem_out.address(2 downto 2),
-        wr        => uart_wr,
-        wr_data    => mem_out.wrdata,
-        rd         => uart_rd,
-        rd_data => uart_rddata,
-
-        tx      => tx,
-        rx      => rx);
+--    uart : entity work.serial_port_wrapper generic map (
+--        clk_freq  => clk_freq,
+--        baud_rate => baud_rate,
+--        sync_stages => 2,
+--        tx_fifo_depth => 4,
+--        rx_fifo_depth => 4)
+--    port map (
+--        clk     => clk,
+--        res_n     => reset,
+--
+--        address => mem_out.address(2 downto 2),
+--        wr        => uart_wr,
+--        wr_data    => mem_out.wrdata,
+--        rd         => uart_rd,
+--        rd_data => uart_rddata,
+--
+--        tx      => tx,
+--        rx      => rx);
 
     clk_proc : process
     begin
@@ -121,24 +126,38 @@ begin  -- rtl
         uart_rd <= '0';
         uart_wr <= '0';
         if mux = MUX_UART then
-            uart_rd <= mem_out.rd;
-            uart_wr <= mem_out.wr;
+            mem_in.rddata <= (others => '0');
+            if mem_out.address(2) = '0' then
+                mem_in.rddata <= (others => '0');
+                mem_in.rddata(24) <= '1';
+            end if;
         end if;
+        --if rd_address(0) = '0' then
+        --    mem_in.rddata(31 downto 24) <= "00000" & rx_data_full & not rx_data_empty & tx_free;
+        --end if;
 
     end process iomux;
 
     write_proc: process (clk, mem_out)
-        file fd : text open write_mode is "../sim/uart_output.log";
         variable tx_data : std_logic_vector(7 downto 0);
-        variable wrline : line;
         variable char: character;
+        variable wrline : line;
     begin
         if rising_edge(clk) then
             if mem_out.address(ADDR_WIDTH-1 downto ADDR_WIDTH-2) = "11" and mem_out.wr = '1' then
-                    tx_data := mem_out.wrdata(31 downto 24);
-                    char := character'val(to_integer(unsigned(tx_data)));
-                print(fd, char);
-                flush(fd);
+                tx_data := mem_out.wrdata(31 downto 24);
+                if to_integer(unsigned(tx_data)) = 10 then
+                    out_str(i) <= character'val(0);
+                    print(fd, out_str);
+                    i <= 1;
+                    flush(fd);
+                    for i in out_str'range loop
+                       out_str(i) <= character'val(32);
+                     end loop;   
+                else
+                    out_str(i) <= character'val(to_integer(unsigned(tx_data)));
+                    i <= i + 1;
+                end if;
             end if;
         end if;
     end process write_proc;

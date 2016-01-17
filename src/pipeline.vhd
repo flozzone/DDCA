@@ -98,15 +98,24 @@ begin  -- rtl
         --in
             clk => clk,
             reset => reset,
+            stall => stall,
             pc_in => fm_new_pc,
+            exec_pc => em_pc,
+            mem_pc => mw_pc,
             pcsrc_in => fm_pcsrc,
+            cop0_op => cop0_op,
+            exec_op => de_exec_op,
+            exc_dec => exc_dec,
+            exc_load => exc_load,
+            exc_store => exc_store,
         --out
             pc_out => ctrl_pc,
             pcsrc_out => ctrl_pcsrc,
             flush_decode => flush_decode,
             flush_exec => flush_exec,
             flush_mem => flush_mem,
-            flush_wb => flush_wb
+            flush_wb => flush_wb,
+            cop0_rddata => cop0_rddata
         );
 
     fwd_inst : entity work.fwd
@@ -134,29 +143,27 @@ begin  -- rtl
             instr => fd_instr
         );
 
-        decode_inst : entity work.decode
-        port map(
-        --in
-            clk => clk,
-            reset => reset,
-            stall => stall,
-            flush => flush_decode,
-            pc_in => fd_pc,
-            instr => fd_instr,
-            wraddr => dw_rd,
-            wrdata => dw_data,
-            regwrite => dw_regwrite,
-
-        --out
-            pc_out => de_pc,
-            exec_op => de_exec_op,
-            cop0_op => cop0_op, -- unused in lab3
-            jmp_op => de_jmp_op,
-            mem_op => de_mem_op,
-            wb_op => de_wb_op,
-            exc_dec => exc_dec -- unused in lab3
-        );
-
+    decode_inst : entity work.decode
+    port map(
+    --in
+        clk => clk,
+        reset => reset,
+        stall => stall,
+        flush => flush_decode,
+        pc_in => fd_pc,
+        instr => fd_instr,
+        wraddr => dw_rd,
+        wrdata => dw_data,
+        regwrite => dw_regwrite,
+     --out
+        pc_out => de_pc,
+        exec_op => de_exec_op,
+        cop0_op => cop0_op,
+        jmp_op => de_jmp_op,
+        mem_op => de_mem_op,
+        wb_op => de_wb_op,
+        exc_dec => exc_dec
+    );
 
     exec_inst : entity work.exec
         port map(
@@ -172,7 +179,7 @@ begin  -- rtl
             wbop_in => de_wb_op,
             forwardA => forwardA,
             forwardB => forwardB,
-            cop0_rddata => cop0_rddata, -- unused
+            cop0_rddata => cop0_rddata,
             mem_aluresult => aluresult,
             wb_result => dw_data,
 
@@ -220,8 +227,8 @@ begin  -- rtl
             new_pc_out => fm_new_pc,
             wbop_out => mw_wbop,
             mem_out => mem_out,
-            exc_load => exc_load, -- unused
-            exc_store  => exc_store -- unused
+            exc_load => exc_load,
+            exc_store  => exc_store
         );
         wb_inst : entity work.wb
         port map(

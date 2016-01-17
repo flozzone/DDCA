@@ -42,9 +42,8 @@ foreach file $testfiles {
   echo "Running test $file"
 
 	set filename [file rootname [lindex [file split $file] end]]
-
 	force testfile $filename
-  do $file
+	do $file
   
-  run 4 ps
+	run 20ns
 }

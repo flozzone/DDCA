@@ -30,6 +30,7 @@ architecture rtl of memu is
 
 type PATTERN is array (3 downto 0) of character;
 constant ZERO : std_logic_vector (ADDR_WIDTH-3 downto 0) := (others => '0');
+constant ZERO_ADDR : std_logic_vector (ADDR_WIDTH-1 downto 0) := (others => '0');
 
 function byte_swap(
         data : std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -168,6 +169,7 @@ begin  -- rtl
         end case;
 
         -- Computation of exceptions
+            if op.memread = '1' or op.memwrite = '1' then
             case op.memtype is
                 when MEM_HU | MEM_H=>
                     case A(1 downto 0) is
@@ -177,7 +179,7 @@ begin  -- rtl
                             if std_match(A, ZERO & "--") then
                                 set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
                             end if;
-                        when others => set_exception('0', '0', tmp_XL, tmp_XS);
+                        when others => null;
                     end case;
                 when MEM_W =>
                     case A(1 downto 0) is
@@ -188,11 +190,14 @@ begin  -- rtl
                             if std_match(A, ZERO & "--") then
                                 set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
                             end if;
-                        when others => set_exception('0', '0', tmp_XL, tmp_XS);
+                        when others => null;
                     end case;
                 when others =>
-                    null;
+                    if A = ZERO_ADDR then
+                        set_exception(op.memread, op.memwrite, tmp_XL, tmp_XS);
+                    end if;
             end case;
+            end if;
             XL <= tmp_XL;
             XS <= tmp_XS;
 

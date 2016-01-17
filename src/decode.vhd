@@ -143,12 +143,15 @@ begin  -- rtl
     -- ##################### --
     decode_input : process (clk, reset, flush)
     begin
-        if reset = '0' or flush = '1'then
+        if reset = '0' then
             -- reset intern signals
             int_pc      <= (others => '0');
             int_instr   <= (others => '0');
-        elsif rising_edge(clk) then
-            if stall = '0' then
+        else
+            if flush = '1' then
+                int_instr <= (others => '0');
+            end if;
+            if rising_edge(clk) and stall = '0' then
                 -- latch intern signals
                 int_pc      <= pc_in;
                 int_instr   <= instr;
@@ -559,6 +562,7 @@ begin  -- rtl
 
                         when others =>
                             -- do nothing
+                            exc_dec <= '1';
                             null;
                     end case;
                     -- ############## end case rd ############## --
@@ -818,14 +822,22 @@ begin  -- rtl
                     case rs is
                         when RS_MFC0 =>
                             -- Syntax: MFC0 rt, rd Semantics: rt = rd, rd register in coprocessor 0
+                            -- Moves data from coprocessor 0 register rt to general purpose register rd. 
                             dbg_instr <= INSTR_MFC0;
-                            --TODO
-                            null;
+                            
+                            -- uses cop0_rddata as alÃuresu.t in exec stage
+                            exec_op.cop0 <= '1';
+                            exec_op.rd <= rt;
+                            cop0_op.addr <= rd;
+                            wb_op.regwrite <= '1';
+
                         when RS_MTC0 =>
                             -- Syntax: MTC0 rt, rd Semantics: rd = rt, rd register in coprocessor 0
+                            -- Moves data from general purpose register rt to coprocessor 0 register rd. 
                             dbg_instr <= INSTR_MTC0;
-                            --TODO: set cop0=1
-                            null;
+                            cop0_op.addr <= rd;
+                            cop0_op.wr <= '1';
+
                         when others =>
                             -- do nothing
                             null;
@@ -996,7 +1008,7 @@ begin  -- rtl
                     mem_op.memwrite <= '1';
 
                 when others =>
-                    -- do nothing
+                    exc_dec <= '1';
                     null;
             end case;
             -- ############## end case opcode ############## --

@@ -77,7 +77,7 @@ begin  -- rtl
         XS => exc_store
     );
 
-    input : process(reset, clk)
+    input : process(reset, clk, flush)
     begin
         if reset = '0' then
             int_mem_op <= MEM_NOP;
@@ -90,11 +90,8 @@ begin  -- rtl
             int_jmp_neg <= '0';
             int_new_pc_in <= (others => '0');
             int_wbop_in <= WB_NOP;
-        elsif rising_edge(clk) then
-            if stall = '1' then
-                int_mem_op.memread <= '0';
-                int_mem_op.memwrite <= '0';
-            elsif flush = '1' then
+        end if;
+        if flush = '1' then
                 int_mem_op <= MEM_NOP;
                 int_jmp_op <= JMP_NOP;
                 int_pc_in <= (others => '0');
@@ -105,6 +102,11 @@ begin  -- rtl
                 int_jmp_neg <= '0';
                 int_new_pc_in <= (others => '0');
                 int_wbop_in <= WB_NOP;
+        end if;
+        if rising_edge(clk) then
+            if stall = '1' then
+                int_mem_op.memread <= '0';
+                int_mem_op.memwrite <= '0';
             else
                 int_mem_op <= mem_op;
                 int_jmp_op <= jmp_op;

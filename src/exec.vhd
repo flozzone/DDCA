@@ -42,6 +42,7 @@ signal int_alu_B : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
 signal int_alu_R : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
 signal int_alu_Z : std_logic := '0';
 signal int_alu_V : std_logic := '0';
+signal int_alu_op : alu_op_type := ALU_NOP;
 
 signal int_pc_in            : std_logic_vector(PC_WIDTH-1 downto 0);
 signal int_op               : exec_op_type;
@@ -51,8 +52,11 @@ signal int_wbop_in          : wb_op_type;
 signal int_wbop_out         : wb_op_type;
 signal int_forwardA         : fwd_type;
 signal int_forwardB         : fwd_type;
---signal int_cop0_rddata      : std_logic_vector(DATA_WIDTH-1 downto 0);
-signal int_exc_ovf          : std_logic := '0';
+signal int_cop0_rddata      : std_logic_vector(DATA_WIDTH-1 downto 0);
+signal int_zero : std_logic;
+signal int_neg : std_logic;
+signal int_exc_ovf : std_logic;
+
 
 begin  -- rtl
     alu_inst : entity alu
@@ -79,7 +83,8 @@ begin  -- rtl
             int_wbop_in <= WB_NOP;
             int_forwardA <= FWD_NONE;
             int_forwardB <= FWD_NONE;
-            --int_cop0_rddata <= (others => '0');
+            int_cop0_rddata <= (others => '0');
+
         elsif rising_edge(clk) then
             if flush = '1' then
                 -- flush intern signals
@@ -90,7 +95,7 @@ begin  -- rtl
                 int_wbop_in <= WB_NOP;
                 int_forwardA <= FWD_NONE;
                 int_forwardB <= FWD_NONE;
-                --int_cop0_rddata <= (others => '0');
+                int_cop0_rddata <= (others => '0');
             elsif stall = '0' then
                 -- latch intern signals
                 int_pc_in      <= pc_in;
@@ -100,7 +105,7 @@ begin  -- rtl
                 int_wbop_in <= wbop_in;
                 int_forwardA <= forwardA;
                 int_forwardB <= forwardB;
-                --int_cop0_rddata <= cop0_rddata;
+                int_cop0_rddata <= cop0_rddata;
             end if;
         end if;
     end process input;
@@ -110,14 +115,14 @@ begin  -- rtl
     rt <= op.rt;
 
     multiplex : process(int_op, int_pc_in, int_memop_in, int_jmpop_in, int_wbop_in, pc_in,
-             int_alu_R, int_alu_Z, int_alu_V, int_forwardA, int_forwardB, mem_aluresult, wb_result)
+             int_alu_R, int_alu_Z, int_alu_V, int_forwardA, int_forwardB, mem_aluresult, wb_result, int_cop0_rddata)
     begin
         pc_out <= int_pc_in;
         memop_out <= int_memop_in;
         jmpop_out <= int_jmpop_in;
         wbop_out <= int_wbop_in;
 
-        -- depends on instruction format
+        -- depends on instruction format - not used atm
         if int_op.regdst = '0' then
             -- R format
             rd <= int_op.rd;
@@ -149,6 +154,8 @@ begin  -- rtl
             wrdata <= int_op.readdata2;
         end if;
 
+                --int_alu_op <= int_op.aluop;
+
         aluresult <= int_alu_R;
         if int_op.useimm = '1' then
             -- all I-Format instructions
@@ -168,6 +175,8 @@ begin  -- rtl
         if int_op.link = '1' then
             aluresult <= (others => '0');
             aluresult(PC_WIDTH-1 downto 0) <= std_logic_vector(unsigned(pc_in));
+        elsif int_op.cop0 = '1' then
+            aluresult <= int_cop0_rddata;
         end if;
 
         -- compute new pc for branching
@@ -175,6 +184,6 @@ begin  -- rtl
         if int_op.branch = '1' then
             new_pc <= std_logic_vector(unsigned(int_pc_in) + unsigned(int_op.imm(PC_WIDTH-1 downto 0))) ;
         end if;
-
 end process multiplex;
+
 end rtl;

@@ -2,7 +2,6 @@ onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate /level1_tb/clk
 add wave -noupdate /level1_tb/clk_cnt
-add wave -noupdate -radix unsigned /level1_tb/pipeline_inst/fetch_inst/imem_addr
 add wave -noupdate /level1_tb/s_reset
 add wave -noupdate -label decode_instr /level1_tb/pipeline_inst/decode_inst/dbg_instr
 add wave -noupdate /level1_tb/pipeline_inst/stall
@@ -27,7 +26,6 @@ add wave -noupdate -expand -group fetch /level1_tb/pipeline_inst/fetch_inst/pcsr
 add wave -noupdate -expand -group fetch -radix unsigned /level1_tb/pipeline_inst/fetch_inst/pc_in
 add wave -noupdate -expand -group fetch -radix unsigned /level1_tb/pipeline_inst/fetch_inst/pc_out
 add wave -noupdate -expand -group fetch /level1_tb/pipeline_inst/fetch_inst/instr
-add wave -noupdate -expand -group fetch -radix unsigned /level1_tb/pipeline_inst/fetch_inst/imem_addr
 add wave -noupdate -expand -group fetch -radix unsigned /level1_tb/pipeline_inst/fetch_inst/int_pc
 add wave -noupdate -expand -group fetch -radix unsigned /level1_tb/pipeline_inst/fetch_inst/int_pc_next
 add wave -noupdate -expand -group decode -group regfile /level1_tb/pipeline_inst/decode_inst/regfile_inst/clk
@@ -41,14 +39,6 @@ add wave -noupdate -expand -group decode -group regfile /level1_tb/pipeline_inst
 add wave -noupdate -expand -group decode -group regfile /level1_tb/pipeline_inst/decode_inst/regfile_inst/wrdata
 add wave -noupdate -expand -group decode -group regfile /level1_tb/pipeline_inst/decode_inst/regfile_inst/regwrite
 add wave -noupdate -expand -group decode -group regfile /level1_tb/pipeline_inst/decode_inst/regfile_inst/register_A
-add wave -noupdate -expand -group decode -group regfile /level1_tb/pipeline_inst/decode_inst/regfile_inst/latch_rddata1
-add wave -noupdate -expand -group decode -group regfile /level1_tb/pipeline_inst/decode_inst/regfile_inst/latch_rddata1_next
-add wave -noupdate -expand -group decode -group regfile /level1_tb/pipeline_inst/decode_inst/regfile_inst/latch_rddata2
-add wave -noupdate -expand -group decode -group regfile /level1_tb/pipeline_inst/decode_inst/regfile_inst/latch_rddata2_next
-add wave -noupdate -expand -group decode -group regfile /level1_tb/pipeline_inst/decode_inst/regfile_inst/output_rddata1
-add wave -noupdate -expand -group decode -group regfile /level1_tb/pipeline_inst/decode_inst/regfile_inst/output_rddata2
-add wave -noupdate -expand -group decode -group regfile /level1_tb/pipeline_inst/decode_inst/regfile_inst/int_regwrite
-add wave -noupdate -expand -group decode -group regfile /level1_tb/pipeline_inst/decode_inst/regfile_inst/int_wr_zero
 add wave -noupdate -expand -group decode -group regfile /level1_tb/pipeline_inst/decode_inst/regfile_inst/ZERO
 add wave -noupdate -expand -group decode -radix decimal /level1_tb/pipeline_inst/decode_inst/pc_in
 add wave -noupdate -expand -group decode -radix hexadecimal /level1_tb/pipeline_inst/decode_inst/instr
@@ -131,7 +121,7 @@ add wave -noupdate -group {write back} -radix unsigned -childformat {{/level1_tb
 add wave -noupdate -group {write back} -radix hexadecimal -childformat {{/level1_tb/pipeline_inst/wb_inst/result(31) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(30) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(29) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(28) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(27) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(26) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(25) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(24) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(23) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(22) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(21) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(20) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(19) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(18) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(17) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(16) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(15) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(14) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(13) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(12) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(11) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(10) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(9) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(8) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(7) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(6) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(5) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(4) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(3) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(2) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(1) -radix hexadecimal} {/level1_tb/pipeline_inst/wb_inst/result(0) -radix hexadecimal}} -subitemconfig {/level1_tb/pipeline_inst/wb_inst/result(31) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(30) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(29) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(28) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(27) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(26) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(25) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(24) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(23) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(22) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(21) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(20) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(19) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(18) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(17) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(16) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(15) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(14) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(13) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(12) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(11) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(10) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(9) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(8) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(7) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(6) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(5) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(4) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(3) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(2) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(1) {-height 17 -radix hexadecimal} /level1_tb/pipeline_inst/wb_inst/result(0) {-height 17 -radix hexadecimal}} /level1_tb/pipeline_inst/wb_inst/result
 add wave -noupdate -group {write back} /level1_tb/pipeline_inst/wb_inst/regwrite
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {2202292700 fs} 0} {{Cursor 2} {940541900 fs} 0}
+WaveRestoreCursors {{Cursor 1} {2202 ns} 0} {{Cursor 2} {940 ns} 0}
 quietly wave cursor active 2
 configure wave -namecolwidth 206
 configure wave -valuecolwidth 187
@@ -147,4 +137,5 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits us
 update
-WaveRestoreZoom {2184506900 fs} {2369236500 fs}
+WaveRestoreZoom {645 ns} {830 ns}
+bookmark add wave bookmark0 {{213 ps} {258200 fs}} 68
