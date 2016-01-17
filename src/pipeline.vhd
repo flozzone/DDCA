@@ -99,6 +99,7 @@ begin  -- rtl
             reset => reset,
             stall => stall,
             pc_in => fm_new_pc,
+            fetch_pc => fd_pc,
             exec_pc => em_pc,
             mem_pc => mw_pc,
             pcsrc_in => fm_pcsrc,

@@ -13,6 +13,7 @@ entity ctrl is
         stall : in std_logic;
         pcsrc_in : in std_logic;
         pc_in : in std_logic_vector(PC_WIDTH-1 downto 0);
+        fetch_pc : in std_logic_vector(PC_WIDTH-1 downto 0);
         exec_pc : in std_logic_vector(PC_WIDTH-1 downto 0);
         mem_pc : in std_logic_vector(PC_WIDTH-1 downto 0);
         
@@ -63,26 +64,30 @@ architecture rtl of ctrl is
         alias intr_enable : std_logic is status(0);
         alias epc_pc : std_logic_vector(PC_WIDTH-1 downto 0) is epc_next(PC_WIDTH-1 downto 0);
         alias npc_pc : std_logic_vector(PC_WIDTH-1 downto 0) is npc_next(PC_WIDTH-1 downto 0);
-        alias branch_delay_status : std_logic is cause_next(31);
+        alias is_bds : std_logic is cause_next(31);
 
         signal flush_mem_next : std_logic := '0';
         signal is_exc : boolean := false;
         signal is_branch_last : std_logic := '0';
+        signal is_branch_before_last : std_logic := '0';
         signal int_pc_in : std_logic_vector(PC_WIDTH-1 downto 0);
         signal int_pcsrc_in : std_logic;
+        signal int_old_pcsrc_in : std_logic;
 
         signal int_exec_op : exec_op_type;
         signal int_exc_dec : std_logic;
         signal int_exc_load : std_logic;
         signal int_exc_store : std_logic;
         signal int_exc_ovf : std_logic;
+        signal int_fetch_pc : std_logic_vector(PC_WIDTH-1 downto 0);
         signal int_mem_pc : std_logic_vector(PC_WIDTH-1 downto 0);
+        signal int_old_mem_pc : std_logic_vector(PC_WIDTH-1 downto 0);
         signal int_exec_pc : std_logic_vector(PC_WIDTH-1 downto 0);
 
 begin  -- rtl
 
 
-    sync_proc : process(reset, clk, pcsrc_in, mem_pc, stall, flush_mem_next)
+    sync_proc : process(reset, clk, stall)
         variable is_branch :std_logic  := '0';
     begin
         if reset = '0' then
@@ -92,16 +97,21 @@ begin  -- rtl
             epc <= (others => '0');
             is_branch := '0';
             is_branch_last <= '0';
+            is_branch_before_last <= '0';
             int_pc_in <= (others => '0');
             int_pcsrc_in <= '0';
+            int_old_pcsrc_in <= '0';
             int_exc_dec <= '0';
             int_exc_load <= '0';
             int_exc_store <= '0';
             int_exc_ovf <= '0';
+            int_fetch_pc <= (others => '0');
             int_mem_pc <= (others => '0');
+            int_old_mem_pc <= (others => '0');
             int_exec_pc <= (others => '0');
             int_exec_op <= EXEC_NOP;
         elsif rising_edge(clk) and stall = '0' then
+            is_branch_before_last <= is_branch_last;
             is_branch_last <= is_branch;
             -- remember Branch delay slot (BDS) in local variable
             is_branch := int_exec_op.branch;
@@ -111,12 +121,15 @@ begin  -- rtl
             epc <= epc_next;
             int_exec_op <= exec_op;
             int_pcsrc_in <= pcsrc_in;
+            int_old_pcsrc_in <= int_pcsrc_in;
             int_pc_in <= pc_in;
             int_exc_dec <= exc_dec;
             int_exc_load <= exc_load;
             int_exc_store <= exc_store;
             int_exc_ovf <= exc_ovf;
+            int_fetch_pc <= fetch_pc;
             int_mem_pc <= mem_pc;
+            int_old_mem_pc <= int_mem_pc;
             int_exec_pc <= exec_pc;
         end if;
     end process sync_proc;
@@ -153,83 +166,69 @@ begin  -- rtl
         flush_mem <= '0';
         flush_wb <= '0';
         flush_mem_next <= '0';
-        
-        if int_exc_dec = '1' then
+
+        if int_exc_dec = '1' or int_exc_load = '1' or 
+                int_exc_store = '1' or int_exc_ovf = '1' then
+
             pcsrc_out <= '1';
             pc_out <= EXCEPTION_PC;
+        end if;
+        
+        if int_exc_dec = '1' then
             exc_cause <= EXC_CODE_DECODE;
             epc_pc <= int_exec_pc;
             flush_exec <= '1';
             flush_mem <= '1';
             flush_wb <= '1';
-            if is_branch_last = '1' then
-                branch_delay_status <= '1';
-            end if;
         elsif int_exc_load = '1' then
-            pcsrc_out <= '1';
-            pc_out <= EXCEPTION_PC;
             exc_cause <= EXC_CODE_LOAD;
+
+            epc_pc <= int_old_mem_pc;
+            npc_pc <= int_mem_pc;
+            if is_branch_before_last = '1' then
+                is_bds <= '1';
+                if int_old_pcsrc_in = '1' then
+                    npc_pc <= int_exec_pc;
+                end if;
+            end if;
 
             flush_exec <= '1';
             flush_mem <= '1';
-
-            epc_pc <= int_mem_pc;
-            npc_pc <= int_exec_pc;
-            if is_branch_last = '1' then
-                branch_delay_status <= '1';
-                if int_pcsrc_in = '1' then
-                    npc_pc <= int_pc_in;
-                else
-                    npc_pc <= int_exec_pc;
-                end if;
-            else
-                npc_pc <= int_exec_pc;
-            end if;
-            --flush_mem <= '1';
-            --flush_wb <= '1';
         elsif int_exc_store = '1' then
-            pcsrc_out <= '1';
-            pc_out <= EXCEPTION_PC;
             exc_cause <= EXC_CODE_STORE;
 
-            flush_exec <= '1';
-
-            epc_pc <= int_mem_pc;
-            npc_pc <= int_exec_pc;
-            if is_branch_last = '1' then
-                branch_delay_status <= '1';
-                if int_pcsrc_in = '1' then
-                    npc_pc <= int_pc_in;
-                else
+            epc_pc <= int_old_mem_pc;
+            npc_pc <= int_mem_pc;
+            if is_branch_before_last = '1' then
+                is_bds <= '1';
+                if int_old_pcsrc_in = '1' then
                     npc_pc <= int_exec_pc;
                 end if;
-            else
-                npc_pc <= int_exec_pc;
             end if;
-            --flush_mem <= '1';
-            --flush_wb <= '1';
+
+            flush_exec <= '1';
+            flush_mem <= '1';
         elsif int_exc_ovf = '1' then
-            pcsrc_out <= '1';
-            pc_out <= EXCEPTION_PC;
             exc_cause <= EXC_CODE_OVERFLOW;
+
+            epc_pc <= int_mem_pc;
+
+            npc_pc <= int_exec_pc;
+            if is_branch_last = '1' then
+                -- BDS instruction
+                is_bds <= '1';
+                
+                -- branch taken
+                if int_pcsrc_in = '1' then
+                    npc_pc <= int_pc_in;
+                end if;
+            end if;
 
             -- flush exec and decode so that
             -- calculated value that caused the exception
             -- doesn't get written back to registers.
             flush_exec <= '1';
             flush_mem <= '1';
-
-            epc_pc <= int_mem_pc;
-            if is_branch_last = '1' then
-                branch_delay_status <= '1';
-                if int_pcsrc_in = '1' then
-                    npc_pc <= int_pc_in;
-                else
-                    npc_pc <= int_exec_pc;
-                end if;
-            else
-                npc_pc <= int_exec_pc;
-            end if;
         else
             pcsrc_out <= pcsrc_in;
             pc_out <= pc_in;

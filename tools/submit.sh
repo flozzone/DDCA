@@ -17,9 +17,8 @@ level_dir=$remote_root/$group/$level
 tarball=current_repo.tar.gz
 tmp_dir=`mktemp -d`
 
-if [ -z `echo $level | egrep "^level[0123]$"` ]; then
+if [ -z `echo $level | egrep "^level[01234]$"` ]; then
   echo >&2 "Unknown level $level"
-  usage
   exit 1
 fi
 
