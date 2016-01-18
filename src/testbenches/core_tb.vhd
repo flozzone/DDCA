@@ -10,15 +10,6 @@ use ieee.numeric_std.all;
 use work.txt_util.all;
 
 entity core_tb is
-    generic (
-        clk_freq : integer := 50000000;
-        baud_rate : integer := 115200
-    );
-    port (
-        tx          : out std_logic;
-        rx          : in  std_logic;
-        intr        : in  std_logic_vector(INTR_COUNT-1 downto 0)
-    );
 end core_tb;
 
 architecture rtl of core_tb is
@@ -57,25 +48,6 @@ begin  -- rtl
         data    => mem_out.wrdata,
         wren    => ocram_wr,
         q        => ocram_rddata);
-
---    uart : entity work.serial_port_wrapper generic map (
---        clk_freq  => clk_freq,
---        baud_rate => baud_rate,
---        sync_stages => 2,
---        tx_fifo_depth => 4,
---        rx_fifo_depth => 4)
---    port map (
---        clk     => clk,
---        res_n     => reset,
---
---        address => mem_out.address(2 downto 2),
---        wr        => uart_wr,
---        wr_data    => mem_out.wrdata,
---        rd         => uart_rd,
---        rd_data => uart_rddata,
---
---        tx      => tx,
---        rx      => rx);
 
     clk_proc : process
     begin
