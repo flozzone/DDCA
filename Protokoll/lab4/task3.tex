@@ -5,19 +5,19 @@
     \toprule
                          & LC Combinationals & LC Registers & Memory Bits \\
     \midrule
-    Fetch Stage          &                   &              &             \\
-    Decode Stage         &                   &              &             \\
-    -- Register File     &                   &              &             \\
-    Execute Stage        &                   &              &             \\
-    -- ALU               &                   &              &             \\
-    Memory Stage         &                   &              &             \\
-    -- Jump Unit         &                   &              &             \\
-    -- Memory Unit       &                   &              &             \\
-    Write-Back Stage     &                   &              &             \\
-    Forwarding Unit      &                   &              &             \\
-    Control Unit         &                   &              &             \\
+    Fetch Stage          & 87                & 14           & 131072 \\
+    Decode Stage         & 403 (252)         & 208 (46)     & 2048 \\
+    -- Register File     & 151               & 162          & 2048 \\
+    Execute Stage        & 1047 (477)        & 171          & 0 \\
+    -- ALU               & 570               & 0            & 0 \\
+    Memory Stage         & 188 (28)          & 115          & 0 \\
+    -- Jump Unit         & 4                 & 0            & 0 \\
+    -- Memory Unit       & 156               & 0            & 0 \\
+    Write-Back Stage     & 41                & 71           & 0 \\
+    Forwarding Unit      & 22                & 0            & 0 \\
+    Control Unit         & 267               & 218          & 0 \\
     \cmidrule{1-4}
-    Sum                  &                   &              &             \\
+    Sum                  & 2055              & 797          & 135168 \\
     \bottomrule
   \end{tabular}
 \end{table}
