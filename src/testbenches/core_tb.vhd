@@ -32,6 +32,7 @@ architecture rtl of core_tb is
     signal mux : mux_type;
     
     alias tx_free : std_logic is mem_in.rddata(0);
+    signal intr : std_logic_vector(INTR_COUNT-1 downto 0) := (others => '0');
 
 begin  -- rtl
     pipeline_inst : entity work.pipeline port map (
