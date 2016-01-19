@@ -8,7 +8,7 @@ OBJCOPY=${PREFIX}/bin/mips-elf-objcopy
 
 CFLAGS=-O2 -DARCH_IS_BIG_ENDIAN=1
 
-all: minimal.mif arith.mif memory.mif jump.mif fwd.mif ctrl.mif
+all: minimal.mif arith.mif memory.mif jump.mif fwd.mif ctrl.mif task1.mif task2.mif
 
 %.elf: %.o
 	${LD} -o $@ $^
