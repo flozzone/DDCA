@@ -26,5 +26,6 @@
   \question{What is the maximum frequency of your design?}
   \answer{86.7 MHz}
   \question{Where is the critical path of your design?}
-  \answer{core:core|pipeline:pipeline|wb:wb\_inst|int\_op.memtoreg     core:core|pipeline:pipeline|mem:mem\_inst|int\_aluresult\_in[21]     pll|altpll\_component|pll|clk[0]     pll|altpll\_component|pll|clk[0]}
+  \answer{core:core|pipeline:pipeline|wb:wb\_inst|int\_op.memtoreg     core:core|pipeline:pipeline|mem:mem\_inst|int\_aluresult\_in[21]     pll|altpll\_component|pll|clk[0]     pll|altpll\_component|pll|clk[0]
+	\\ \\ -- critical path is from writeback stage the forwarding signal to the alu result out}
 \end{qa}
