@@ -3,3 +3,7 @@ transcript
 *.mti
 *.vstf
 *.wlf
+wlft*
+last_output.log
+last_result.log
+uart_output.log
