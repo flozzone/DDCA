@@ -8,11 +8,22 @@ use std.env.all;
 use std.textio.all;
 use ieee.numeric_std.all;
 use work.txt_util.all;
+use work.serial_port_receiver_pkg.serial_port_receiver;
 
-entity core_tb is
-end core_tb;
+entity core_serial_tb is
+end core_serial_tb;
 
-architecture rtl of core_tb is
+architecture rtl of core_serial_tb is
+    constant clk_freq : integer := 50000000;
+    --constant baud_rate : integer := 115200;
+    constant baud_rate : integer := 500000;
+
+    signal tx : std_logic;
+    signal rx : std_logic;
+
+    signal rx_data : std_logic_vector(7 downto 0);
+    signal rx_data_new : std_logic;
+
     constant CLK_PERIOD : time := 20 ns;
 
     constant NO_INTERRUPTS : std_logic_vector(INTR_COUNT-1 downto 0) := (others => '0');
@@ -26,12 +37,11 @@ architecture rtl of core_tb is
     signal int_intr        : std_logic_vector(INTR_COUNT-1 downto 0) := NO_INTERRUPTS;
     signal enable_intr_test : std_logic := '0';
     signal int_finish : std_logic := '0';
+
     signal int_stop_clk : std_logic := '0';
 
     signal mem_out : mem_out_type;
     signal mem_in  : mem_in_type;
-
-    signal int_tx_data : std_logic_vector(7 downto 0);
 
     --signal tx_data : std_logic_vector(7 downto 0);
 
@@ -73,7 +83,6 @@ begin  -- rtl
             wait for CLK_PERIOD/2;
         else
             wait;
-            --stop(0);
         end if;
     end process clk_proc;
 
@@ -84,6 +93,37 @@ begin  -- rtl
         reset <= '1';
         wait;
     end process reset_proc;
+
+    uart : entity work.serial_port_wrapper generic map (
+        clk_freq  => clk_freq,
+        baud_rate => baud_rate,
+        sync_stages => 2,
+        tx_fifo_depth => 4,
+        rx_fifo_depth => 4)
+    port map (
+        clk     => clk,
+        res_n     => reset,
+
+        address => mem_out.address(2 downto 2),
+        wr        => uart_wr,
+        wr_data    => mem_out.wrdata,
+        rd         => uart_rd,
+        rd_data => uart_rddata,
+
+        tx      => tx,
+        rx      => rx);
+
+    serial_port_receiver_fsm : serial_port_receiver
+      generic map (
+        CLK_DIVISOR => CLK_FREQ / BAUD_RATE
+      )
+      port map (
+        clk => clk,
+        res_n => reset,
+        rx => tx,
+        data => rx_data,
+        data_new => rx_data_new
+      );
 
     iomux: process (mem_out, mux, ocram_rddata, uart_rddata)
     begin  -- process mux
@@ -115,12 +155,19 @@ begin  -- rtl
         uart_rd <= '0';
         uart_wr <= '0';
         if mux = MUX_UART then
-            mem_in.rddata <= (others => '0');
-            if mem_out.address(2) = '0' then
-                mem_in.rddata <= (others => '0');
-                mem_in.rddata(24) <= '1';
-            end if;
+            uart_rd <= mem_out.rd;
+            uart_wr <= mem_out.wr;
         end if;
+
+--        uart_rd <= '0';
+--        uart_wr <= '0';
+--        if mux = MUX_UART then
+--            mem_in.rddata <= (others => '0');
+--            if mem_out.address(2) = '0' then
+--                mem_in.rddata <= (others => '0');
+--                mem_in.rddata(24) <= '1';
+--            end if;
+--        end if;
 
     end process iomux;
 
@@ -301,17 +348,17 @@ begin  -- rtl
                 wait for 20 us;
             
             wait for 20 us;
-            int_finish <= '1';
+            int_finish <= '1'; 
         end if;
         wait;
     end process intr_test_proc;
 
-    write_proc: process (clk, mem_out, int_finish)
-        variable tx_data : std_logic_vector(7 downto 0);
+    write_proc: process (reset, clk, int_finish)
+        --variable tx_data : std_logic_vector(7 downto 0);
         variable char: character;
         variable wrline : line;
         file fd : text open write_mode is "../sim/uart_output.log";
-        --file fd : text;
+        variable bin_line : string(31 downto 1);
     begin
         if reset = '0' then
         elsif int_finish = '1' then
@@ -319,11 +366,13 @@ begin  -- rtl
             file_close(fd);
             int_stop_clk <= '1';
         elsif rising_edge(clk) then
-            if mem_out.address(ADDR_WIDTH-1 downto ADDR_WIDTH-2) = "11" and mem_out.wr = '1' then
-                tx_data := mem_out.wrdata(31 downto 24);
-                int_tx_data <= tx_data;
-                char := character'val(to_integer(unsigned(tx_data)));
-                if to_integer(unsigned(tx_data)) = 10 then
+            if rx_data_new = '1' then
+                --tx_data := mem_out.wrdata(31 downto 24);
+                char := character'val(to_integer(unsigned(rx_data)));
+                if to_integer(unsigned(rx_data)) = 10 then
+                    --read(wrline, bin_line);
+                    --report bin_line;
+                    --print(wrline);
                     writeline(fd, wrline);
                     --writeline(output, wrline);
                     flush(fd);

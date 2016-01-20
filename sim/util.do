@@ -1,3 +1,5 @@
+
+
 proc num_to_vect {num len} {
     return [format "%llb" $num]
 }
@@ -29,19 +31,21 @@ proc dec2bin {i {width {}}} {
 
 # http://stackoverflow.com/questions/9709257/modelsim-message-viewer-empty
 proc load_testbench {name} {
+	set sdo_path "../quartus/simulation/modelsim"
+
     if { [string match *${name}_tb* [env]] } {
         echo "is already loaded, skip starting simulation, but restart."
-        restart -nobreakpoint -force
+        restart -force
     } else {
-		if {[regexp {sim:/(\w+)_tb} [env] -> current_tb]} {
-			set current_wave_path "testbench/${current_tb}/wave.do"
-			if { [file exists $current_wave_path] == 1} {
-				echo "Existing wave config file found. Update it before stopping simulation."
-				write format wave -window .main_pane.wave.interior.cs.body.pw.wf $current_wave_path
-			}
+        if {[regexp {sim:/(\w+)_tb} [env] -> current_tb]} {
+            set current_wave_path "testbench/${current_tb}/wave.do"
+            if { [file exists $current_wave_path] == 1} {
+                echo "Existing wave config file found. Update it before stopping simulation."
+                write format wave -window .main_pane.wave.interior.cs.body.pw.wf $current_wave_path
+            }
         }
-
-        vsim -t 1ns -assertdebug -msgmode both -displaymsgmode both work.${name}_tb
+		set sdo_arg "-sdftyp ${sdo_path}/DDCA-mimi_vhd.sdo"
+        vsim -t 1ns -assertdebug -msgmode both -displaymsgmode both  work.${name}_tb
 
         set wave_path "testbench/${name}/wave.do"
         if { [file exists $wave_path] == 1} {

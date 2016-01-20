@@ -1,4 +1,4 @@
-## Generated SDC file "DDCA-mimi.out.sdc"
+## Generated SDC file "DDCA-mimi.sdc"
 
 ## Copyright (C) 1991-2015 Altera Corporation. All rights reserved.
 ## Your use of Altera Corporation's design tools, logic functions 
@@ -7,7 +7,7 @@
 ## (including device programming or simulation files), and any 
 ## associated documentation or information are expressly subject 
 ## to the terms and conditions of the Altera Program License 
-## Subscription Agreement, the Altera Quartus Prime License Agreement,
+## Subscription Agreement, the Altera Quartus II License Agreement,
 ## the Altera MegaCore Function License Agreement, or other 
 ## applicable license agreement, including, without limitation, 
 ## that your use is for the sole purpose of programming logic 
@@ -17,10 +17,10 @@
 
 
 ## VENDOR  "Altera"
-## PROGRAM "Quartus Prime"
-## VERSION "Version 15.1.0 Build 185 10/21/2015 SJ Lite Edition"
+## PROGRAM "Quartus II"
+## VERSION "Version 15.0.0 Build 145 04/22/2015 SJ Web Edition"
 
-## DATE    "Wed Dec 30 13:53:00 2015"
+## DATE    "Tue Jan 19 02:28:06 2016"
 
 ##
 ## DEVICE  "EP4CE115F29C7"
@@ -69,12 +69,19 @@ set_clock_uncertainty -fall_from [get_clocks {pll|altpll_component|pll|clk[0]}] 
 # Set Input Delay
 #**************************************************************
 
+set_input_delay -add_delay  -clock [get_clocks {pll|altpll_component|pll|clk[0]}]  1.000 [get_ports {clk_pin}]
+set_input_delay -add_delay  -clock [get_clocks {pll|altpll_component|pll|clk[0]}]  2.000 [get_ports {intr_pin[0]}]
+set_input_delay -add_delay  -clock [get_clocks {pll|altpll_component|pll|clk[0]}]  2.000 [get_ports {intr_pin[1]}]
+set_input_delay -add_delay  -clock [get_clocks {pll|altpll_component|pll|clk[0]}]  2.000 [get_ports {intr_pin[2]}]
+set_input_delay -add_delay  -clock [get_clocks {pll|altpll_component|pll|clk[0]}]  0.020 [get_ports {reset_pin}]
+set_input_delay -add_delay  -clock [get_clocks {pll|altpll_component|pll|clk[0]}]  2.000 [get_ports {rx}]
 
 
 #**************************************************************
 # Set Output Delay
 #**************************************************************
 
+#set_output_delay -add_delay  -clock [get_clocks {pll|altpll_component|pll|clk[0]}]  0.200 [get_ports {tx}]
 
 
 #**************************************************************
@@ -87,6 +94,7 @@ set_clock_uncertainty -fall_from [get_clocks {pll|altpll_component|pll|clk[0]}] 
 # Set False Path
 #**************************************************************
 
+set_false_path -from [get_keepers {core:core|serial_port_wrapper:uart|serial_port:sp|serial_port_transmitter:serial_port_transmitter_fsm|tx}] -to [get_keepers {tx}]
 
 
 #**************************************************************

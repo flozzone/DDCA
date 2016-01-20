@@ -5,7 +5,7 @@
 # (including device programming or simulation files), and any 
 # associated documentation or information are expressly subject 
 # to the terms and conditions of the Altera Program License 
-# Subscription Agreement, the Altera Quartus II License Agreement,
+# Subscription Agreement, the Altera Quartus Prime License Agreement,
 # the Altera MegaCore Function License Agreement, or other 
 # applicable license agreement, including, without limitation, 
 # that your use is for the sole purpose of programming logic 
@@ -13,11 +13,11 @@
 # authorized distributors.  Please refer to the applicable 
 # agreement for further details.
 
-# Quartus II: Generate Tcl File for Project
+# Quartus Prime: Generate Tcl File for Project
 # File: DDCA-mimi.tcl
-# Generated on: Wed Jan 13 19:17:14 2016
+# Generated on: Tue Jan 19 18:47:34 2016
 
-# Load Quartus II Tcl Project package
+# Load Quartus Prime Tcl Project package
 package require ::quartus::project
 
 set need_to_close_project 0
@@ -46,7 +46,7 @@ if {$make_assignments} {
 	set_global_assignment -name TOP_LEVEL_ENTITY mimi
 	set_global_assignment -name ORIGINAL_QUARTUS_VERSION 15.0.0
 	set_global_assignment -name PROJECT_CREATION_TIME_DATE "06:34:50  DEZEMBER 02, 2015"
-	set_global_assignment -name LAST_QUARTUS_VERSION 15.0.0
+	set_global_assignment -name LAST_QUARTUS_VERSION 15.1.0
 	set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 	set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 	set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
@@ -54,14 +54,19 @@ if {$make_assignments} {
 	set_global_assignment -name NOMINAL_CORE_SUPPLY_VOLTAGE 1.2V
 	set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (VHDL)"
 	set_global_assignment -name EDA_OUTPUT_DATA_FORMAT VHDL -section_id eda_simulation
-	set_global_assignment -name VHDL_FILE ../src/testbench_util/src/testbench_util_pkg.vhd
+	set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+	set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+	set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "2.5 V"
+	set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+	set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+	set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+	set_global_assignment -name SDC_FILE "DDCA-mimi.sdc"
 	set_global_assignment -name VHDL_FILE ../src/synchronizer/src/sync_pkg.vhd
 	set_global_assignment -name VHDL_FILE ../src/synchronizer/src/sync_beh.vhd
 	set_global_assignment -name VHDL_FILE ../src/synchronizer/src/sync.vhd
 	set_global_assignment -name VHDL_FILE ../src/serial_port/src/serial_port_transmitter_pkg.vhd
 	set_global_assignment -name VHDL_FILE ../src/serial_port/src/serial_port_transmitter_beh.vhd
 	set_global_assignment -name VHDL_FILE ../src/serial_port/src/serial_port_transmitter.vhd
-	set_global_assignment -name VHDL_FILE ../src/serial_port/src/serial_port_testbench.vhd
 	set_global_assignment -name VHDL_FILE ../src/serial_port/src/serial_port_receiver_pkg.vhd
 	set_global_assignment -name VHDL_FILE ../src/serial_port/src/serial_port_receiver_beh.vhd
 	set_global_assignment -name VHDL_FILE ../src/serial_port/src/serial_port_receiver.vhd
@@ -94,12 +99,9 @@ if {$make_assignments} {
 	set_global_assignment -name VHDL_FILE ../src/core_pack.vhd
 	set_global_assignment -name VHDL_FILE ../src/core.vhd
 	set_global_assignment -name VHDL_FILE ../src/alu.vhd
-	set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
-	set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
-	set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "2.5 V"
-	set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
-	set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
-	set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+	set_global_assignment -name VHDL_FILE ../src/testbench_util/src/testbench_util_pkg.vhd
+	set_global_assignment -name VHDL_FILE ../src/serial_port/src/serial_port_testbench.vhd
+	set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 	set_location_assignment PIN_Y2 -to clk_pin
 	set_location_assignment PIN_G12 -to rx
 	set_location_assignment PIN_G9 -to tx
@@ -114,9 +116,6 @@ if {$make_assignments} {
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to reset_pin
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to rx
 	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to tx
-	set_location_assignment PIN_AB22 -to db_clk
-	set_location_assignment PIN_AC15 -to db_tx
-	set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 
 	# Commit assignments
 	export_assignments
