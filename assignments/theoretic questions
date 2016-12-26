@@ -7,12 +7,7 @@ for equality/inequality? Why is a comparison for less-than-zero cheap when using
 representation?
 
 Answer:
-
-
-
-Comparison for less than zero is cheap in two's complement because you only have to check the first bit of the binary form.
-<fill in >
-
+Comparison for less than zero is cheap in two's complement because you only have to check the most significant bit of the binary form.
 
 -----------------------------------------------------------------------------------
 
@@ -22,8 +17,7 @@ Table 6 does not contain operations for all boolean combinations of N and Z . Wo
 make sense? If so, what would be the high-level comparison? If not, explain why.
 
 Answer:
-<fill in >
-
+It would not make sense because it would be impossible to have both x < 0 (N) and x = 0 (Z) at the same time.
 
 -----------------------------------------------------------------------------------
 
@@ -36,11 +30,10 @@ from address 5? Which value should be returned for the half-word at address 6?
 Answer:
 Stored in Memory:
 |4 | 5| 6| 7|
-|87|65|43|21|
+|12|34|56|78|
 
-Byte Adress 5: 65
-Halfword Adress 6: 4321
-
+Byte Adress 5: 34
+Halfword Adress 6: 5678
 
 -----------------------------------------------------------------------------------
 2.4 Regfile
@@ -63,7 +56,6 @@ fetch stage?
 Answer:
 <fill in >
 
-
 -----------------------------------------------------------------------------------
 
 3.2 Decode
@@ -72,8 +64,11 @@ Explain why it is beneficial to have source registers in the same position for a
 this is less of an issue for destination registers.
 
 Answer:
-<fill in >
+It's better not to have to decode which instruction it is before accessing the source registers.
+Loading the value from the register will take an entire cycle so it's undesireable to add further delay.
 
+On the other hand, the destination register will only be written in the writeback stage - much later.
+By then it's certainly known which register it is.
 
 -----------------------------------------------------------------------------------
 
@@ -84,7 +79,6 @@ their results. Does the benefit concern rather the performance or the size of th
 
 Answer:
 <fill in >
-
 
 -----------------------------------------------------------------------------------
 
@@ -133,7 +127,11 @@ the instructions are branches, and 30% of the branch delay slots can be filled b
 instructions?
 
 Answer:
+Assume that the number of useful instructions is unchanged whether you use branch delay slots or not.
+Then 15% of the useful instructions are branches. Each branch entails one branch-delay slot.
+30% of the branch delay slots can be filled from the existing useful instructions.
+70% of the branch delay slots will be filled with junk.
+That is 70% times 15% of the useful instructions of junk - which is 10.5% increase of the code size.
 <fill in >
-
 
 -----------------------------------------------------------------------------------
