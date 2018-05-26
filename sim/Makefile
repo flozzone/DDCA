@@ -17,7 +17,4 @@ clean:
 	rm -f modelsim.ini
 	rm -f imem.mif
 	
-%.mif:
-	cp -f ../../nightly/level1/asm/$@ imem.mif
-	
-.PHONY: clean compile sim
+.PHONY: clean level1
