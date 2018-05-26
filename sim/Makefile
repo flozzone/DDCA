@@ -4,16 +4,20 @@ else
 	vsim = vsim
 endif
 
-
-
-
 compile:
 	$(vsim) -c -do "do compile.do;quit -f"
+
+level1: compile
+	$(vsim)  -c -do "do level1.do;quit -f"
 
 clean:
 	rm -rf work
 	rm -f transcript
 	rm -f *.wlf
 	rm -f modelsim.ini
-	rm -f imem.mif	rm -f imem.mif
+	rm -f imem.mif
 	
+%.mif:
+	cp -f ../../nightly/level1/asm/$@ imem.mif
+	
+.PHONY: clean compile sim
