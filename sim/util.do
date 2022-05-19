@@ -58,7 +58,9 @@ proc load_testbench {name} {
 
 proc backup {path} {
     if {[file exists ${path}.orig] == 0} {
-        file copy $path ${path}.orig
+		if {[file exists $path] == 1} {
+			file copy $path ${path}.orig
+		}
     }
 }
 
